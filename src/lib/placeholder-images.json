@@ -1,0 +1,40 @@
+{
+  "placeholderImages": [
+    {
+      "id": "gallery-1",
+      "description": "Modern Living Room",
+      "imageUrl": "https://images.unsplash.com/photo-1639663742190-1b3dba2eebcf?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxtb2Rlcm4lMjBsaXZpbmctcm9vbXxlbnwwfHx8fDE3NjU2MzA5MjZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "modern living-room"
+    },
+    {
+      "id": "gallery-2",
+      "description": "Classic Bedroom Design",
+      "imageUrl": "https://images.unsplash.com/photo-1759691321555-94fed84288fa?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxjbGFzc2ljJTIwYmVkcm9vbXxlbnwwfHx8fDE3NjU2ODU3ODZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "classic bedroom"
+    },
+    {
+      "id": "gallery-3",
+      "description": "Minimalist Office Space",
+      "imageUrl": "https://images.unsplash.com/photo-1493934558415-9d19f0b2b4d2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxtaW5pbWFsaXN0JTIwb2ZmaWNlfGVufDB8fHx8MTc2NTY4NTc4Nnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "minimalist office"
+    },
+    {
+      "id": "gallery-4",
+      "description": "Bohemian Style Patio",
+      "imageUrl": "https://images.unsplash.com/photo-1717416700879-805562f2e7b9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxib2hlbWlhbiUyMHBhdGlvfGVufDB8fHx8MTc2NTY4NTc4Nnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "bohemian patio"
+    },
+    {
+      "id": "gallery-5",
+      "description": "Modular Kitchen Interior",
+      "imageUrl": "https://images.unsplash.com/photo-1613082374567-52aefdea4f3a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxtb2R1bGFyJTIwa2l0Y2hlbnxlbnwwfHx8fDE3NjU2ODU3ODZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "modular kitchen"
+    },
+    {
+      "id": "gallery-6",
+      "description": "Elegant Dining Area",
+      "imageUrl": "https://images.unsplash.com/photo-1758977404341-e9a75c89018a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxlbGVnYW50JTIwZGluaW5nfGVufDB8fHx8MTc2NTYyNjkxM3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "elegant dining"
+    }
+  ]
+}

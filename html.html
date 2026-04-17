@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galaxy Interior | Designing Dreams, Delivering Peace</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- AOS Animation CSS -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        darkBg: '#050b14',
+                        cardBg: 'rgba(255, 255, 255, 0.03)',
+                        gold: '#d4af37',
+                        neonBlue: '#00d2ff',
+                    },
+                    fontFamily: {
+                        heading: ['Playfair Display', 'serif'],
+                        body: ['Poppins', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #050b14; color: #ffffff; }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.4s ease;
+        }
+        .glass-panel:hover {
+            border-color: #d4af37;
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.2), 0 0 40px rgba(0, 210, 255, 0.1);
+            transform: translateY(-5px);
+        }
+        .text-gradient-gold {
+            background: linear-gradient(to right, #d4af37, #f3e5ab);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .text-gradient-blue {
+            background: linear-gradient(to right, #00d2ff, #3a7bd5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .hero-bg {
+            background: radial-gradient(circle at center, rgba(10, 20, 40, 1) 0%, rgba(5, 11, 20, 1) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-bg::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: url('https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80') center/cover;
+            opacity: 0.1;
+            z-index: 0;
+        }
+        /* Image Hover Zoom Effect */
+        .img-container { overflow: hidden; }
+        .img-container img { transition: transform 0.6s ease; }
+        .glass-panel:hover .img-container img { transform: scale(1.1); }
+    </style>
+</head>
+<body class="font-body antialiased selection:bg-gold selection:text-black">
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 glass-panel border-b-0 py-4 px-6 md:px-12 flex justify-between items-center transition-all duration-300" id="navbar">
+        <div class="flex items-center gap-3">
+            <!-- You can replace this icon with your actual logo image tag like: <img src="your-logologoxy.png" class="h-12"> -->
+            <i class="fa-solid fa-house-chimney-window text-gold text-3xl"></i>
+            <div>
+                <h1 class="font-heading font-bold text-2xl tracking-wider">GALAXY<span class="text-gold">|</span>INTERIOR</h1>
+            </div>
+        </div>
+        <div class="hidden md:flex gap-8 font-medium text-sm tracking-widest text-gray-300">
+            <a href="#home" class="hover:text-gold transition">HOME</a>
+            <a href="#about" class="hover:text-gold transition">ABOUT</a>
+            <a href="#services" class="hover:text-gold transition">SERVICES</a>
+            <a href="#process" class="hover:text-gold transition">PROCESS</a>
+            <a href="#contact" class="hover:text-gold transition">CONTACT</a>
+        </div>
+        <button class="md:hidden text-2xl text-gold"><i class="fa-solid fa-bars"></i></button>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero-bg min-h-screen flex items-center justify-center pt-20 relative z-10">
+        <div class="text-center px-4 max-w-5xl mx-auto" data-aos="zoom-in" data-aos-duration="1500">
+            <h2 class="text-neonBlue tracking-[0.3em] text-sm md:text-lg mb-4 font-semibold uppercase">Luxury Interior Specialist</h2>
+            <h1 class="font-heading text-5xl md:text-7xl lg:text-8xl font-bold mb-6 leading-tight">
+                Designing <span class="text-gradient-gold">Dreams,</span><br>
+                Delivering <span class="text-gradient-blue">Peace</span>
+            </h1>
+            <p class="text-gray-400 text-lg md:text-xl max-w-3xl mx-auto mb-10 leading-relaxed">
+                Complete Interior & Construction Solutions — From Planning to Execution. Smart & AI-Based Design for modern living.
+            </p>
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <a href="#services" class="px-8 py-4 border border-gold text-gold hover:bg-gold hover:text-black transition-all duration-300 font-semibold tracking-wider rounded-none relative overflow-hidden group">
+                    <span class="relative z-10">EXPLORE SERVICES</span>
+                </a>
+                <a href="#contact" class="px-8 py-4 bg-neonBlue/10 border border-neonBlue text-neonBlue hover:bg-neonBlue hover:text-black transition-all duration-300 font-semibold tracking-wider rounded-none">
+                    GET A QUOTE
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Company Overview -->
+    <section id="about" class="py-24 px-6 md:px-12 max-w-7xl mx-auto">
+        <div class="grid md:grid-cols-2 gap-12 items-center">
+            <div data-aos="fade-right" data-aos-duration="1000">
+                <h3 class="text-gold tracking-widest text-sm font-semibold mb-2">OUR VISION</h3>
+                <h2 class="font-heading text-4xl md:text-5xl font-bold mb-6">To become the No.1 Brand in Eastern India.</h2>
+                <p class="text-gray-400 mb-6 leading-relaxed">
+                    Galaxy Interior is a full-service interior design and construction company committed to delivering luxury, functionality, and innovation in every project. We specialize in transforming residential and commercial spaces into modern, elegant, and highly efficient environments.
+                </p>
+                <ul class="space-y-4 text-gray-300">
+                    <li class="flex items-center gap-3"><i class="fa-solid fa-check text-neonBlue"></i> Functional & Aesthetic</li>
+                    <li class="flex items-center gap-3"><i class="fa-solid fa-check text-neonBlue"></i> Personalized & Future-ready</li>
+                    <li class="flex items-center gap-3"><i class="fa-solid fa-check text-neonBlue"></i> Engineering precision + Smart technology</li>
+                </ul>
+            </div>
+            <div class="relative" data-aos="fade-left" data-aos-duration="1000">
+                <div class="absolute -inset-1 bg-gradient-to-r from-gold to-neonBlue blur opacity-30"></div>
+                <img src="https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" alt="Luxury Interior" class="relative rounded-lg shadow-2xl border border-white/10">
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Portfolio Grid (The mockups replacement) -->
+    <section id="services" class="py-24 px-6 md:px-12 bg-black/50 relative">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16" data-aos="fade-up">
+                <h3 class="text-neonBlue tracking-widest text-sm font-semibold mb-2">OUR PORTFOLIO</h3>
+                <h2 class="font-heading text-4xl md:text-5xl font-bold">5 Pillars of Excellence</h2>
+                <p class="text-gray-400 mt-4 max-w-2xl mx-auto">From concept design to final handover, we provide everything under one roof.</p>
+            </div>
+
+            <!-- Responsive Grid for 5 Services -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                
+                <!-- 1. Architectural Plan -->
+                <div class="glass-panel rounded-xl overflow-hidden group flex flex-col" data-aos="fade-up" data-aos-delay="100">
+                    <div class="h-56 img-container">
+                        <img src="https://images.unsplash.com/photo-1503387762-592deb58ef4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Architectural Plan" class="w-full h-full object-cover">
+                    </div>
+                    <div class="p-6 flex-grow flex flex-col justify-between">
+                        <div>
+                            <div class="w-10 h-10 rounded-full bg-blue-900/50 flex items-center justify-center text-neonBlue mb-4 border border-neonBlue/30">
+                                <i class="fa-solid fa-compass-drafting"></i>
+                            </div>
+                            <h3 class="font-heading text-xl font-bold mb-2">1. Architectural Plan</h3>
+                            <p class="text-sm text-gray-400 mb-4">Elite blueprints, Structural Analysis, RCC Design & Vastu-Based Planning.</p>
+                        </div>
+                        <a href="#" class="text-gold text-sm font-semibold tracking-wider hover:text-white transition flex items-center gap-2">LEARN MORE <i class="fa-solid fa-arrow-right text-xs"></i></a>
+                    </div>
+                </div>
+
+                <!-- 2. 2D Plan -->
+                <div class="glass-panel rounded-xl overflow-hidden group flex flex-col" data-aos="fade-up" data-aos-delay="200">
+                    <div class="h-56 img-container">
+                        <img src="https://images.unsplash.com/photo-1574360525656-c4dce328122c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="2D Plan" class="w-full h-full object-cover">
+                    </div>
+                    <div class="p-6 flex-grow flex flex-col justify-between">
+                        <div>
+                            <div class="w-10 h-10 rounded-full bg-blue-900/50 flex items-center justify-center text-neonBlue mb-4 border border-neonBlue/30">
+                                <i class="fa-solid fa-border-all"></i>
+                            </div>
+                            <h3 class="font-heading text-xl font-bold mb-2">2. 2D Plan</h3>
+                            <p class="text-sm text-gray-400 mb-4">Detailed floor layouts, measurements, and working drawings for site execution.</p>
+                        </div>
+                        <a href="#" class="text-gold text-sm font-semibold tracking-wider hover:text-white transition flex items-center gap-2">LEARN MORE <i class="fa-solid fa-arrow-right text-xs"></i></a>
+                    </div>
+                </div>
+
+                <!-- 3. 3D Design -->
+                <div class="glass-panel rounded-xl overflow-hidden group flex flex-col" data-aos="fade-up" data-aos-delay="300">
+                    <div class="h-56 img-container">
+                        <img src="https://images.unsplash.com/photo-1600607686527-6fb886090705?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="3D Design" class="w-full h-full object-cover">
+                    </div>
+                    <div class="p-6 flex-grow flex flex-col justify-between">
+                        <div>
+                            <div class="w-10 h-10 rounded-full bg-blue-900/50 flex items-center justify-center text-neonBlue mb-4 border border-neonBlue/30">
+                                <i class="fa-solid fa-cube"></i>
+                            </div>
+                            <h3 class="font-heading text-xl font-bold mb-2">3. 3D Design</h3>
+                            <p class="text-sm text-gray-400 mb-4">Ultra-realistic 3D Interior Visualization, Exterior Elevation & VR Walkthroughs.</p>
+                        </div>
+                        <a href="#" class="text-gold text-sm font-semibold tracking-wider hover:text-white transition flex items-center gap-2">LEARN MORE <i class="fa-solid fa-arrow-right text-xs"></i></a>
+                    </div>
+                </div>
+
+                <!-- 4. Construction -->
+                <div class="glass-panel rounded-xl overflow-hidden group flex flex-col lg:translate-x-1/2" data-aos="fade-up" data-aos-delay="400">
+                    <div class="h-56 img-container">
+                        <img src="https://images.unsplash.com/photo-1541888086425-d81bb19240f5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Construction" class="w-full h-full object-cover">
+                    </div>
+                    <div class="p-6 flex-grow flex flex-col justify-between">
+                        <div>
+                            <div class="w-10 h-10 rounded-full bg-blue-900/50 flex items-center justify-center text-neonBlue mb-4 border border-neonBlue/30">
+                                <i class="fa-solid fa-trowel-bricks"></i>
+                            </div>
+                            <h3 class="font-heading text-xl font-bold mb-2">4. Construction</h3>
+                            <p class="text-sm text-gray-400 mb-4">Full-scale building execution, RCC structure, and comprehensive project management.</p>
+                        </div>
+                        <a href="#" class="text-gold text-sm font-semibold tracking-wider hover:text-white transition flex items-center gap-2">LEARN MORE <i class="fa-solid fa-arrow-right text-xs"></i></a>
+                    </div>
+                </div>
+
+                <!-- 5. Interior Projects -->
+                <div class="glass-panel rounded-xl overflow-hidden group flex flex-col lg:translate-x-1/2" data-aos="fade-up" data-aos-delay="500">
+                    <div class="h-56 img-container">
+                        <img src="https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Interior Projects" class="w-full h-full object-cover">
+                    </div>
+                    <div class="p-6 flex-grow flex flex-col justify-between">
+                        <div>
+                            <div class="w-10 h-10 rounded-full bg-blue-900/50 flex items-center justify-center text-neonBlue mb-4 border border-neonBlue/30">
+                                <i class="fa-solid fa-couch"></i>
+                            </div>
+                            <h3 class="font-heading text-xl font-bold mb-2">5. Interior Projects</h3>
+                            <p class="text-sm text-gray-400 mb-4">Bespoke interior solutions, modular kitchens, curated spaces & custom furnishings.</p>
+                        </div>
+                        <a href="#" class="text-gold text-sm font-semibold tracking-wider hover:text-white transition flex items-center gap-2">LEARN MORE <i class="fa-solid fa-arrow-right text-xs"></i></a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Turnkey Process -->
+    <section id="process" class="py-24 px-6 md:px-12 max-w-7xl mx-auto">
+        <div class="text-center mb-16" data-aos="fade-in">
+            <h2 class="font-heading text-4xl md:text-5xl font-bold mb-4">Turnkey Project Process</h2>
+            <p class="text-gray-400">Design + Material + Labor + Execution = Complete Solution</p>
+        </div>
+        
+        <div class="flex flex-col md:flex-row justify-between items-center relative">
+            <div class="hidden md:block absolute top-1/2 left-0 w-full h-0.5 bg-gray-800 -z-10 -translate-y-1/2"></div>
+            
+            <!-- Steps -->
+            <div class="flex flex-col items-center mb-8 md:mb-0" data-aos="zoom-in" data-aos-delay="100">
+                <div class="w-16 h-16 rounded-full bg-darkBg border-2 border-neonBlue flex items-center justify-center text-xl font-bold text-white mb-4 shadow-[0_0_15px_rgba(0,210,255,0.5)]">1</div>
+                <h4 class="font-semibold text-center">Consultation</h4>
+            </div>
+            <div class="flex flex-col items-center mb-8 md:mb-0" data-aos="zoom-in" data-aos-delay="200">
+                <div class="w-16 h-16 rounded-full bg-darkBg border-2 border-gold flex items-center justify-center text-xl font-bold text-white mb-4 shadow-[0_0_15px_rgba(212,175,55,0.5)]">2</div>
+                <h4 class="font-semibold text-center">Design & Plan</h4>
+            </div>
+            <div class="flex flex-col items-center mb-8 md:mb-0" data-aos="zoom-in" data-aos-delay="300">
+                <div class="w-16 h-16 rounded-full bg-darkBg border-2 border-neonBlue flex items-center justify-center text-xl font-bold text-white mb-4 shadow-[0_0_15px_rgba(0,210,255,0.5)]">3</div>
+                <h4 class="font-semibold text-center">Estimation</h4>
+            </div>
+            <div class="flex flex-col items-center mb-8 md:mb-0" data-aos="zoom-in" data-aos-delay="400">
+                <div class="w-16 h-16 rounded-full bg-darkBg border-2 border-gold flex items-center justify-center text-xl font-bold text-white mb-4 shadow-[0_0_15px_rgba(212,175,55,0.5)]">4</div>
+                <h4 class="font-semibold text-center">Execution</h4>
+            </div>
+            <div class="flex flex-col items-center mb-8 md:mb-0" data-aos="zoom-in" data-aos-delay="500">
+                <div class="w-16 h-16 rounded-full bg-darkBg border-2 border-neonBlue flex items-center justify-center text-xl font-bold text-white mb-4 shadow-[0_0_15px_rgba(0,210,255,0.5)]">5</div>
+                <h4 class="font-semibold text-center">Quality Check</h4>
+            </div>
+            <div class="flex flex-col items-center" data-aos="zoom-in" data-aos-delay="600">
+                <div class="w-16 h-16 rounded-full bg-darkBg border-2 border-gold flex items-center justify-center text-xl font-bold text-white mb-4 shadow-[0_0_15px_rgba(212,175,55,0.5)]"><i class="fa-solid fa-key"></i></div>
+                <h4 class="font-semibold text-center">Handover</h4>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact & Footer -->
+    <footer id="contact" class="bg-[#03060a] pt-20 pb-10 border-t border-white/10 relative overflow-hidden">
+        <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubeslogoxy.png')] opacity-5"></div>
+        <div class="max-w-7xl mx-auto px-6 md:px-12 relative z-10 grid md:grid-cols-2 gap-12">
+            <div>
+                <div class="flex items-center gap-3 mb-6">
+                    <i class="fa-solid fa-house-chimney-window text-gold text-4xl"></i>
+                    <div>
+                        <h1 class="font-heading font-bold text-3xl tracking-wider">GALAXY<span class="text-gold">|</span>INTERIOR</h1>
+                        <p class="text-xs text-gray-400 tracking-widest uppercase mt-1">Designing Dreams | Delivering Peace</p>
+                    </div>
+                </div>
+                <p class="text-gray-400 mb-8 max-w-sm">Single Point Responsibility. No Coordination Hassle. Faster Project Completion.</p>
+                <h3 class="font-heading text-2xl text-white mb-4">Design. Build. Transform.</h3>
+            </div>
+            <div class="glass-panel p-8 rounded-xl border border-gold/30">
+                <h3 class="text-xl font-semibold mb-6 text-gold">Get in Touch</h3>
+                <div class="space-y-4 text-gray-300">
+                    <p class="flex items-center gap-4"><i class="fa-solid fa-phone text-neonBlue text-xl w-6"></i> +91 9631980881 <br> +91 9113439057</p>
+                    <p class="flex items-center gap-4"><i class="fa-solid fa-location-dot text-neonBlue text-xl w-6"></i> Serving: Jharkhand & Bihar</p>
+                    <p class="flex items-center gap-4"><i class="fa-solid fa-envelope text-neonBlue text-xl w-6"></i> contact@galaxyinterior.com</p>
+                </div>
+            </div>
+        </div>
+        <div class="text-center text-gray-600 mt-16 text-sm border-t border-white/5 pt-6">
+            &copy; 2026 Galaxy Interior. All Rights Reserved.
+        </div>
+    </footer>
+
+    <!-- Initialize AOS Animation -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({
+            once: true, // whether animation should happen only once - while scrolling down
+            offset: 100, // offset (in px) from the original trigger point
+        });
+
+        // Navbar blur on scroll
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                nav.classList.add('bg-[#050b14]/90', 'backdrop-blur-md', 'shadow-lg');
+            } else {
+                nav.classList.remove('bg-[#050b14]/90', 'backdrop-blur-md', 'shadow-lg');
+            }
+        });
+    </script>
+</body>
+</html>
