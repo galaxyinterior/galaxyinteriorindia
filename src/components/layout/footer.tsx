@@ -15,13 +15,13 @@ export default function Footer() {
     <footer className="bg-galaxy-dark text-white pt-24 pb-12">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 mb-24">
-          
+
           <div className="lg:col-span-1">
             <Link href="/" className="block mb-8">
               <div className="inline-block relative w-64 h-16 md:w-80 md:h-20">
-                <Image 
-                  src="/logoxy_dark.png" 
-                  alt="Galaxy Interior Logo" 
+                <Image
+                  src="/logoxy_dark.png"
+                  alt="Galaxy Interior Logo"
                   fill
                   className="object-contain"
                 />
@@ -32,9 +32,9 @@ export default function Footer() {
             </p>
             <div className="flex gap-4">
               {socialLinks.map(social => (
-                <Link 
-                  key={social.name} 
-                  href={social.href} 
+                <Link
+                  key={social.name}
+                  href={social.href}
                   target={social.href.startsWith('http') ? "_blank" : "_self"}
                   rel={social.href.startsWith('http') ? "noopener noreferrer" : ""}
                   className="h-10 w-10 flex items-center justify-center border border-white/20 rounded-full hover:bg-primary hover:border-primary hover:text-white transition-all"
@@ -91,8 +91,8 @@ export default function Footer() {
         <div className="pt-12 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-6 text-xs font-bold text-white/40 uppercase tracking-[0.2em]">
           <p>&copy; {new Date().getFullYear()} GALAXY INTERIOR. ALL RIGHTS RESERVED.</p>
           <div className="flex gap-8">
-            <Link href="#" className="hover:text-primary transition-colors">Privacy Policy</Link>
-            <Link href="#" className="hover:text-primary transition-colors">Terms of Use</Link>
+            <Link href="/privacy-policy" className="hover:text-primary transition-colors">Privacy Policy</Link>
+            <Link href="/terms-and-conditions" className="hover:text-primary transition-colors">Terms of Use</Link>
           </div>
         </div>
       </div>
