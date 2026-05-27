@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { Menu, Phone, Home } from 'lucide-react';
+import { Menu, Phone, Home, Info, Paintbrush, LayoutGrid, Hammer, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState, useEffect } from 'react';
 import {
@@ -30,6 +30,15 @@ const navLinks = [
 ];
 
 const towns = ["GODDA", "RANCHI", "BHAGALPUR", "BANKA", "DEOGHAR", "HAZARIBAGH", "DUMKA"];
+
+const linkIcons: Record<string, React.ComponentType<{ className?: string }>> = {
+  '/': Home,
+  '/about': Info,
+  '/services': Paintbrush,
+  '/portfolio': LayoutGrid,
+  '/construction': Hammer,
+  '/contact': Phone
+};
 
 const Logo = () => (
   <div className="bg-logo-radial border-b border-r border-accent/20 text-white h-16 md:h-[100px] px-4 md:px-8 flex items-center gap-3 transition-all shadow-[0_0_15px_rgba(255,207,51,0.05)]">
@@ -141,35 +150,61 @@ export default function Header() {
                   <Menu className="h-8 w-8" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="bg-white p-0">
-                <div className="bg-primary p-6 flex flex-col items-center">
-                  <div className="flex items-center gap-3 text-white">
-                    <div className="h-10 w-10 rounded-full overflow-hidden border-2 border-white/20 flex-shrink-0 bg-white">
-                      <Image src="/logo.png" alt="Galaxy Interior Logo" width={40} height={40} className="object-contain w-full h-full" />
+              <SheetContent side="right" className="bg-[#051124] text-white border-l border-accent/15 rounded-l-[2rem] p-0 flex flex-col h-full shadow-[0_0_50px_rgba(0,0,0,0.6)] w-[85vw] sm:max-w-sm overflow-hidden">
+                <div className="bg-logo-radial bg-logo-mandala px-6 py-8 flex flex-col items-start border-b border-accent/15 relative">
+                  <div className="bg-accent/10 border border-accent/20 px-3 py-0.5 rounded-full text-accent font-bold text-[9px] mb-3 uppercase tracking-wider">
+                    Elite Interior
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="h-11 w-11 rounded-full overflow-hidden border-2 border-accent/30 flex-shrink-0 bg-white/5 backdrop-blur-md shadow-lg">
+                      <Image src="/logo.png" alt="Galaxy Interior Logo" width={44} height={44} className="object-contain w-full h-full" />
                     </div>
-                    <span className="text-2xl font-bold tracking-tighter">GALAXY INTERIOR</span>
+                    <div className="flex flex-col">
+                      <span className="text-2xl font-bold tracking-tighter text-white leading-none">GALAXY</span>
+                      <span className="text-[9px] font-bold tracking-[0.3em] text-accent mt-0.5">INTERIOR</span>
+                    </div>
                   </div>
                 </div>
-                <nav className="flex flex-col space-y-2 mt-6">
-                  {navLinks.map((link) => (
-                    <Link 
-                      key={link.href}
-                      href={link.href} 
-                      className={cn(
-                        "text-sm font-bold uppercase tracking-widest p-5 border-b border-gray-100 transition-colors",
-                        pathname === link.href ? "text-primary bg-primary/5" : "text-gray-800 hover:bg-gray-50"
-                      )}
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      {link.label}
-                    </Link>
-                  ))}
-                  <div className="pt-8 px-5 space-y-4">
-                    <a href="tel:+919113439057" className="flex items-center gap-4 p-4 rounded-xl bg-gray-50 text-sm font-bold text-primary">
-                      <Phone className="h-5 w-5" /> +91 91134 39057
-                    </a>
-                  </div>
+
+                <nav className="flex-1 flex flex-col gap-1.5 px-3 py-6 overflow-y-auto">
+                  {navLinks.map((link) => {
+                    const Icon = linkIcons[link.href] || Info;
+                    const isActive = pathname === link.href;
+                    return (
+                      <Link 
+                        key={link.href}
+                        href={link.href} 
+                        className={cn(
+                          "flex items-center gap-4 px-6 py-3.5 rounded-full text-xs font-black uppercase tracking-widest transition-all duration-300 relative group overflow-hidden",
+                          isActive 
+                            ? "bg-accent text-primary shadow-[0_4px_15px_rgba(255,207,51,0.2)]" 
+                            : "text-white/70 hover:text-white hover:bg-white/5"
+                        )}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        <Icon className={cn("h-4 w-4 shrink-0 transition-transform group-hover:scale-110", isActive ? "text-primary" : "text-accent")} />
+                        <span>{link.label}</span>
+                        
+                        {!isActive && (
+                          <span className="absolute inset-0 border border-accent/0 rounded-full group-hover:border-accent/15 transition-all"></span>
+                        )}
+                      </Link>
+                    );
+                  })}
                 </nav>
+
+                <div className="mt-auto p-6 border-t border-accent/10 bg-white/[0.02]">
+                  <a 
+                    href="tel:+919113439057" 
+                    className="flex items-center justify-center gap-3 w-full p-4 rounded-2xl bg-gradient-to-r from-accent/5 to-accent/10 border border-accent/20 text-xs font-black text-white hover:bg-accent hover:text-primary hover:border-accent shadow-md transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] group"
+                  >
+                    <Phone className="h-4 w-4 text-accent group-hover:text-inherit transition-colors" />
+                    <span className="tracking-wider text-[11px]">+91 91134 39057</span>
+                  </a>
+                  <p className="text-center text-[9px] text-white/40 mt-4 uppercase tracking-widest font-bold">
+                    Ranchi & Godda Offices
+                  </p>
+                </div>
               </SheetContent>
             </Sheet>
           </div>

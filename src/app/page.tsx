@@ -328,7 +328,7 @@ export default function HomePage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
             {filteredFurniture.map((item, index) => (
-              <div key={index} className="group relative bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 animate-fade-up border border-gray-100 h-full flex flex-col">
+              <div key={index} className="group relative bg-[#08162b] rounded-3xl overflow-hidden shadow-sm hover:shadow-[0_10px_40px_rgba(0,0,0,0.4)] border border-white/5 h-full flex flex-col transition-all duration-500 animate-fade-up">
                 <div className="relative aspect-[4/5] overflow-hidden">
                   <Image 
                     src={item.image} 
@@ -336,21 +336,21 @@ export default function HomePage() {
                     fill 
                     className="object-cover group-hover:scale-110 transition-transform duration-700"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-6">
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-6">
                     <p className="text-accent font-bold text-xs uppercase tracking-widest mb-1">{item.category} Solutions</p>
-                    <h3 className="text-white text-xl font-bold mb-4">{item.name}</h3>
-                    <Link href="/contact" className="bg-white text-primary text-[10px] font-black py-2 px-4 rounded-full w-fit hover:bg-accent transition-colors tracking-tighter">
+                    <h3 className="text-white text-xl font-bold mb-4 leading-tight">{item.name}</h3>
+                    <Link href="/contact" className="bg-accent hover:bg-white text-primary text-[10px] font-black py-2.5 px-5 rounded-full w-fit transition-colors tracking-widest shadow-md">
                       ENQUIRE NOW
                     </Link>
                   </div>
-                  <Badge className="absolute top-4 left-4 bg-white/90 backdrop-blur-md text-primary font-black border-none px-3 py-1 text-[10px]">
+                  <Badge className="absolute top-4 left-4 bg-[#051124]/85 backdrop-blur-md text-accent font-black border border-accent/20 px-3 py-1 text-[10px] shadow-sm">
                     {item.price}
                   </Badge>
                 </div>
-                <div className="p-5 flex-1 flex flex-col justify-between group-hover:bg-primary group-hover:text-white transition-colors duration-500">
+                <div className="p-5 flex-1 flex flex-col justify-between bg-[#08162b] group-hover:bg-[#061226]/60 transition-colors duration-500 border-t border-white/5">
                   <div>
                     <p className="text-[10px] font-bold text-accent mb-1 uppercase tracking-widest">{item.category}</p>
-                    <h3 className="text-lg font-bold truncate leading-tight">{item.name}</h3>
+                    <h3 className="text-lg font-bold text-white truncate leading-tight transition-colors">{item.name}</h3>
                   </div>
                 </div>
               </div>
