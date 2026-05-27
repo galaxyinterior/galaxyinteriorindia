@@ -15,16 +15,24 @@ const WhatsAppLogo = (props: React.SVGProps<SVGSVGElement>) => (
 );
 
 export default function WhatsAppButton() {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isButtonHovered, setIsButtonHovered] = useState(false);
+  const [isPopoverHovered, setIsPopoverHovered] = useState(false);
+  const [isToggled, setIsToggled] = useState(false);
+
+  const isOpen = isButtonHovered || isPopoverHovered || isToggled;
+
+  const handleClose = () => {
+    setIsButtonHovered(false);
+    setIsPopoverHovered(false);
+    setIsToggled(false);
+  };
 
   return (
-    <div 
-      className="fixed bottom-6 right-6 z-50 flex flex-col items-end group"
-      onMouseEnter={() => setIsOpen(true)}
-      onMouseLeave={() => setIsOpen(false)}
-    >
+    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end">
       {/* Floating Card Popover */}
       <div 
+        onMouseEnter={() => setIsPopoverHovered(true)}
+        onMouseLeave={() => setIsPopoverHovered(false)}
         className={`w-64 bg-[#061226]/95 backdrop-blur-md border border-accent/20 rounded-2xl p-4 shadow-[0_10px_40px_rgba(0,0,0,0.5)] flex flex-col gap-3 transition-all duration-300 transform mb-3 ${
           isOpen 
             ? "opacity-100 translate-y-0 scale-100 pointer-events-auto" 
@@ -42,7 +50,7 @@ export default function WhatsAppButton() {
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center gap-3 p-2.5 rounded-xl bg-white/[0.03] border border-white/5 hover:bg-[#25D366] hover:border-[#25D366] text-white hover:text-white transition-all group/item shadow-sm"
-          onClick={() => setIsOpen(false)}
+          onClick={handleClose}
         >
           <div className="h-9 w-9 rounded-full bg-[#25D366]/10 group-hover/item:bg-white/10 flex items-center justify-center transition-colors">
             <WhatsAppLogo className="h-5 w-5 text-[#25D366] group-hover/item:text-white transition-colors" />
@@ -57,7 +65,7 @@ export default function WhatsAppButton() {
         <Link
           href="tel:+919113439057"
           className="flex items-center gap-3 p-2.5 rounded-xl bg-white/[0.03] border border-white/5 hover:bg-accent hover:border-accent text-white hover:text-primary transition-all group/item shadow-sm"
-          onClick={() => setIsOpen(false)}
+          onClick={handleClose}
         >
           <div className="h-9 w-9 rounded-full bg-accent/10 group-hover/item:bg-white/10 flex items-center justify-center transition-colors">
             <Phone className="h-4 w-4 text-accent group-hover/item:text-primary transition-colors" />
@@ -72,7 +80,7 @@ export default function WhatsAppButton() {
         <Link
           href="tel:+919631980881"
           className="flex items-center gap-3 p-2.5 rounded-xl bg-white/[0.03] border border-white/5 hover:bg-accent hover:border-accent text-white hover:text-primary transition-all group/item shadow-sm"
-          onClick={() => setIsOpen(false)}
+          onClick={handleClose}
         >
           <div className="h-9 w-9 rounded-full bg-accent/10 group-hover/item:bg-white/10 flex items-center justify-center transition-colors">
             <Phone className="h-4 w-4 text-accent group-hover/item:text-primary transition-colors" />
@@ -86,7 +94,9 @@ export default function WhatsAppButton() {
 
       {/* Main Hub Floating Anchor Button */}
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        onMouseEnter={() => setIsButtonHovered(true)}
+        onMouseLeave={() => setIsButtonHovered(false)}
+        onClick={() => setIsToggled(!isToggled)}
         className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-tr from-[#25D366] to-[#128C7E] text-white shadow-[0_4px_25px_rgba(37,211,102,0.3)] hover:shadow-[0_4px_30px_rgba(37,211,102,0.5)] border-2 border-white/20 transition-all hover:scale-110 active:scale-95 duration-300 relative"
       >
         <span className="absolute inset-0 rounded-full bg-[#25D366] opacity-35 animate-ping"></span>
