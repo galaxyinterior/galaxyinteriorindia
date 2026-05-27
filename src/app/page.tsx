@@ -105,7 +105,7 @@ export default function HomePage() {
   );
 
   return (
-    <div className="bg-white">
+    <div className="bg-transparent">
       {/* Consultation Popup */}
       <ConsultationPopup />
 
@@ -196,7 +196,7 @@ export default function HomePage() {
       </section>
 
       {/* Our Trusted Partners Section */}
-      <section className="py-12 md:py-24 bg-white border-b overflow-hidden">
+      <section className="py-12 md:py-24 bg-white/70 backdrop-blur-xl border-b border-white/20 overflow-hidden">
         <div className="container mx-auto px-4 mb-8 md:mb-16 text-center">
             <h2 className="text-2xl md:text-5xl font-bold text-gray-900 mb-2 font-display uppercase tracking-tight">Our Trusted Partners</h2>
             <div className="w-16 md:w-24 h-1 bg-accent mx-auto mb-4 md:mb-6"></div>
@@ -233,7 +233,7 @@ export default function HomePage() {
       </section>
 
       {/* Legacy Section */}
-      <section className="py-12 md:py-24 bg-white relative">
+      <section className="py-12 md:py-24 bg-white/60 backdrop-blur-lg relative">
         <div className="container mx-auto px-4 grid md:grid-cols-2 gap-8 md:gap-16 items-center">
           <div className="relative aspect-square rounded-3xl overflow-hidden glass-card">
             <Image
@@ -264,7 +264,7 @@ export default function HomePage() {
       </section>
 
       {/* Expertise Section */}
-      <section className="py-12 md:py-24 bg-primary text-white overflow-hidden relative">
+      <section className="py-12 md:py-24 bg-primary/95 backdrop-blur-2xl text-white overflow-hidden relative">
         <div className="absolute top-0 right-0 w-1/4 h-full bg-white/5 backdrop-blur-3xl -skew-x-12 translate-x-1/2 border-l border-white/10" />
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center mb-10 md:mb-16">
@@ -298,7 +298,7 @@ export default function HomePage() {
       </section>
 
       {/* Furniture Showcase Section */}
-      <section className="py-12 md:py-24 bg-gray-50 overflow-hidden relative">
+      <section className="py-12 md:py-24 bg-white/40 backdrop-blur-xl overflow-hidden relative">
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center mb-10 md:mb-16">
             <Badge className="mb-4 bg-primary text-white font-bold px-4 py-1">COLLECTIONS</Badge>

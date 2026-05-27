@@ -5,6 +5,7 @@ import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import WhatsAppButton from '@/components/layout/whatsapp-button';
 import CtaSection from '@/components/layout/cta-section';
+import ThreeBackground from '@/components/layout/three-background';
 
 export default function ClientLayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -16,6 +17,7 @@ export default function ClientLayoutWrapper({ children }: { children: React.Reac
 
   return (
     <>
+      <ThreeBackground />
       <Header />
       <main className="flex-1">{children}</main>
       <CtaSection />

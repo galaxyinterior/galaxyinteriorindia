@@ -4,35 +4,37 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222 47% 11%;
+    /* Deep Midnight Space Blue matched to Logo background */
+    --background: 215 90% 6%;
+    --foreground: 210 20% 96%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
+    /* Rich Dark Indigo-Navy Surface */
+    --card: 215 80% 9%;
+    --card-foreground: 210 20% 92%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
+    --popover: 215 80% 9%;
+    --popover-foreground: 210 20% 96%;
 
-    /* Premium Plum/Purple matched to screenshot */
-    --primary: 300 33% 35%;
-    --primary-foreground: 0 0% 100%;
+    /* Premium Navy Blue */
+    --primary: 215 85% 12%;
+    --primary-foreground: 210 20% 98%;
 
-    --secondary: 300 10% 96%;
-    --secondary-foreground: 222 47% 11%;
+    --secondary: 215 30% 11%;
+    --secondary-foreground: 210 20% 96%;
 
-    --muted: 300 10% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 215 25% 14%;
+    --muted-foreground: 210 15% 75%;
 
-    /* Vibrant Gold/Yellow Accent */
-    --accent: 43 91% 57%;
-    --accent-foreground: 222 47% 11%;
+    /* Glowing Warm Gold matched to Logo window panes */
+    --accent: 43 96% 54%;
+    --accent-foreground: 215 90% 6%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 300 33% 38%;
+    --border: 215 40% 16%;
+    --input: 215 45% 14%;
+    --ring: 43 96% 54%;
 
     --radius: 0.75rem;
   }
@@ -44,23 +46,128 @@
   }
   body {
     @apply bg-background text-foreground font-sans;
+    background-color: hsl(215, 90%, 6%);
   }
   h1, h2, h3, h4, h5, h6 {
-    @apply font-display;
+    @apply font-display text-white;
   }
 }
 
-/* Glassy Effects */
+/* Redefining Tailwind defaults to transition light elements seamlessly into luxury dark mode */
+@layer utilities {
+  .bg-white {
+    background-color: hsl(215, 80% 9%) !important;
+  }
+  
+  .bg-gray-50 {
+    background-color: hsl(215, 70% 12%) !important;
+  }
+
+  .bg-gray-100 {
+    background-color: hsl(215, 60% 15%) !important;
+  }
+
+  .text-gray-900 {
+    color: hsl(210, 20%, 96%) !important;
+  }
+
+  .text-gray-800 {
+    color: hsl(210, 20%, 92%) !important;
+  }
+
+  .text-gray-700 {
+    color: hsl(210, 15%, 86%) !important;
+  }
+
+  .text-gray-600 {
+    color: hsl(210, 15%, 78%) !important;
+  }
+
+  .text-gray-500 {
+    color: hsl(210, 15%, 70%) !important;
+  }
+
+  .border-gray-100, .border-gray-200 {
+    border-color: hsl(215, 40%, 18%) !important;
+  }
+  
+  /* Buttons and Badge overrides to prevent flat grey / white boxes */
+  .bg-primary {
+    background-color: hsl(215, 85%, 12%) !important;
+    color: hsl(210, 20%, 98%) !important;
+  }
+
+  .hover\:bg-primary\/90:hover {
+    background-color: hsl(215, 85%, 16%) !important;
+  }
+}
+
+/* Glassy Effects overridden for dark theme */
 .glass-panel {
-  @apply bg-white/70 backdrop-blur-md border border-white/20 shadow-xl;
+  background: rgba(8, 22, 45, 0.7) !important;
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
 }
 
 .glass-card {
-  @apply bg-white/60 backdrop-blur-lg border border-white/30 shadow-lg hover:shadow-2xl transition-all duration-300;
+  background: rgba(8, 22, 45, 0.6) !important;
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+.glass-card:hover {
+  background: rgba(12, 32, 64, 0.7) !important;
+  border-color: rgba(255, 207, 51, 0.25) !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(255, 207, 51, 0.1);
+  transform: translateY(-4px);
+}
+
+/* Logo Theme Brand Overlays & Gradients */
 .bg-galaxy-dark {
-  background-color: hsl(300, 33%, 15%);
+  background-color: hsl(215, 95%, 4%) !important;
+}
+
+/* Logo Radial Sphere Gradient */
+.bg-logo-radial {
+  background: radial-gradient(circle at center, hsl(212, 85%, 18%) 0%, hsl(215, 95%, 5%) 85%) !important;
+}
+
+/* Luxury Glowing Gold Text & Accents */
+.text-gold {
+  color: hsl(43, 96%, 54%);
+}
+
+.text-gold-gradient {
+  background: linear-gradient(135deg, hsl(45, 98%, 62%) 0%, hsl(42, 92%, 53%) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.bg-gold-gradient {
+  background: linear-gradient(135deg, hsl(45, 98%, 62%) 0%, hsl(42, 92%, 53%) 100%) !important;
+}
+
+.border-gold {
+  border-color: hsl(43, 96%, 54%) !important;
+}
+
+/* Logo Faint Mandala Background Pattern */
+.bg-logo-mandala {
+  position: relative;
+}
+
+.bg-logo-mandala::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cpath d='M60 0 C65 20, 55 20, 60 40 C65 20, 75 20, 60 0 M60 120 C65 100, 55 100, 60 80 C65 100, 75 100, 60 120 M0 60 C20 65, 20 55, 40 60 C20 65, 20 75, 0 60 M120 60 C100 65, 100 55, 80 60 C100 65, 100 75, 120 60' stroke='rgba(255, 207, 51, 0.03)' stroke-width='1.5' fill='none'/%3E%3Ccircle cx='60' cy='60' r='20' stroke='rgba(255, 207, 51, 0.03)' stroke-width='1' fill='none'/%3E%3Ccircle cx='60' cy='60' r='40' stroke='rgba(255, 207, 51, 0.02)' stroke-width='1' fill='none'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  opacity: 0.8;
+  pointer-events: none;
+  z-index: 0;
 }
 
 @layer utilities {
@@ -81,5 +188,5 @@
 }
 
 .text-shadow {
-  text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  text-shadow: 0 2px 4px rgba(0,0,0,0.4);
 }

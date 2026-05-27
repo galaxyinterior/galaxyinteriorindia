@@ -32,13 +32,13 @@ const navLinks = [
 const towns = ["GODDA", "RANCHI", "BHAGALPUR", "BANKA", "DEOGHAR", "HAZARIBAGH", "DUMKA"];
 
 const Logo = () => (
-  <div className="bg-primary text-white h-16 md:h-[100px] px-4 md:px-8 flex items-center gap-3 transition-all">
-    <div className="h-10 w-10 md:h-12 md:w-12 rounded-full overflow-hidden border-2 border-white/20 flex-shrink-0 bg-white">
+  <div className="bg-logo-radial border-b border-r border-accent/20 text-white h-16 md:h-[100px] px-4 md:px-8 flex items-center gap-3 transition-all shadow-[0_0_15px_rgba(255,207,51,0.05)]">
+    <div className="h-10 w-10 md:h-12 md:w-12 rounded-full overflow-hidden border-2 border-accent/25 flex-shrink-0 bg-white/5 backdrop-blur-md">
       <Image src="/logo.png" alt="Galaxy Interior Logo" width={48} height={48} className="object-contain w-full h-full" />
     </div>
     <div className="flex flex-col">
-      <span className="text-[1.2rem] md:text-3xl font-bold tracking-tighter leading-none mt-1">GALAXY</span>
-      <span className="text-[7.5px] md:text-xs font-bold tracking-[0.3em] opacity-80">INTERIORS</span>
+      <span className="text-[1.2rem] md:text-3xl font-bold tracking-tighter leading-none mt-1 text-white">GALAXY</span>
+      <span className="text-[7.5px] md:text-xs font-bold tracking-[0.3em] text-accent opacity-90">INTERIOR</span>
     </div>
   </div>
 );
@@ -60,7 +60,7 @@ export default function Header() {
   return (
     <header className={cn(
       "fixed top-0 z-50 w-full transition-all duration-300",
-      isScrolled ? "bg-white shadow-xl" : (isHomePage ? "bg-transparent" : "bg-white shadow-md")
+      isScrolled ? "glass-panel shadow-2xl" : (isHomePage ? "bg-transparent" : "bg-primary border-b border-white/5 shadow-md")
     )}>
       {/* Branding Block - Overlapping both bars */}
       <Link href="/" className="absolute top-0 left-0 z-[60] block h-full">
@@ -69,8 +69,8 @@ export default function Header() {
 
       {/* Top Bar (Announcement Bar) */}
       <div className={cn(
-        "py-1.5 hidden md:block relative z-40 transition-colors duration-300 border-b border-white/10",
-        isScrolled ? "bg-gray-100 text-gray-600 border-gray-200" : "bg-black/20 text-white"
+        "py-1.5 hidden md:block relative z-40 transition-colors duration-300 border-b border-white/5",
+        isScrolled ? "bg-galaxy-dark/85 text-white/70 border-white/5" : "bg-black/20 text-white"
       )}>
         <div className="container mx-auto px-4 flex justify-end items-center gap-6">
           {/* Town names shifted right to avoid logo */}
@@ -88,7 +88,7 @@ export default function Header() {
               <DropdownMenuTrigger asChild>
                 <button className={cn(
                   "flex items-center gap-2 px-4 py-1 text-[10px] font-bold uppercase tracking-widest transition-all",
-                  isScrolled ? "text-primary" : "text-white hover:text-accent"
+                  isScrolled ? "text-accent hover:text-white" : "text-white hover:text-accent"
                 )}>
                   <Phone className="h-3.5 w-3.5 fill-current" />
                   CALL NOW
@@ -117,14 +117,13 @@ export default function Header() {
                 href={link.href} 
                 className={cn(
                   "text-[11px] xl:text-xs font-bold uppercase tracking-widest transition-colors relative group py-2",
-                  isScrolled || !isHomePage ? "text-gray-800 hover:text-primary" : "text-white hover:text-accent",
-                  pathname === link.href && (isScrolled || !isHomePage ? "text-primary" : "text-accent")
+                  isScrolled || !isHomePage ? "text-white/80 hover:text-accent" : "text-white hover:text-accent",
+                  pathname === link.href ? "text-accent" : "text-white/80"
                 )}
               >
                 {link.label}
                 <span className={cn(
-                  "absolute bottom-0 left-0 w-full h-0.5 transition-transform origin-left",
-                  isScrolled || !isHomePage ? "bg-primary" : "bg-accent",
+                  "absolute bottom-0 left-0 w-full h-0.5 transition-transform origin-left bg-accent",
                   pathname === link.href ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
                 )}></span>
               </Link>
@@ -138,7 +137,7 @@ export default function Header() {
             </a>
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className={cn(isScrolled || !isHomePage ? "text-primary" : "text-white")}>
+                <Button variant="ghost" size="icon" className={cn(isScrolled || !isHomePage ? "text-accent hover:text-white" : "text-white")}>
                   <Menu className="h-8 w-8" />
                 </Button>
               </SheetTrigger>
@@ -148,7 +147,7 @@ export default function Header() {
                     <div className="h-10 w-10 rounded-full overflow-hidden border-2 border-white/20 flex-shrink-0 bg-white">
                       <Image src="/logo.png" alt="Galaxy Interior Logo" width={40} height={40} className="object-contain w-full h-full" />
                     </div>
-                    <span className="text-2xl font-bold tracking-tighter">GALAXY INTERIORS</span>
+                    <span className="text-2xl font-bold tracking-tighter">GALAXY INTERIOR</span>
                   </div>
                 </div>
                 <nav className="flex flex-col space-y-2 mt-6">

@@ -9,7 +9,7 @@ import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 
 const teamMembers = [
-  { name: 'Shivashish Ranjan', role: 'Founder & Chairman', image: '/ceo.jpeg' },
+  { name: 'Shivashish Ranjan', role: 'Founder & Chairman', image: '/ceo.png' },
   { name: 'Kumkum Ranjan', role: 'CEO' },
   { name: 'Ratan Kumar', role: 'General Manager (GM)' },
   { name: 'Anjula Devi', role: 'Managing Director (MD)' },
@@ -268,21 +268,21 @@ function MeetTheTeam() {
           <p className="mt-6 max-w-2xl mx-auto text-lg text-gray-500">The expert architects and designers behind every Galaxy project.</p>
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
-          
+
           {/* CEO Block - Left Side */}
           <div className="lg:col-span-5 flex flex-col items-center">
-             <div className="group text-center animate-fade-up w-full max-w-sm">
-               <div className="relative w-full aspect-[4/5] mx-auto rounded-[3rem] overflow-hidden mb-8 shadow-2xl transition-all duration-700 hover:scale-[1.02] border-[6px] border-white bg-gray-50">
-                  <img
-                    src={teamMembers[0].image}
-                    alt={teamMembers[0].name}
-                    className="object-cover w-full h-full"
-                  />
-               </div>
-               <h3 className="text-3xl font-display font-black text-primary">{teamMembers[0].name}</h3>
-               <p className="text-accent font-bold uppercase tracking-[0.2em] mt-2">{teamMembers[0].role}</p>
-               <div className="w-12 h-1 bg-accent mx-auto mt-6 rounded-full"></div>
-             </div>
+            <div className="group text-center animate-fade-up w-full max-w-sm">
+              <div className="relative w-full aspect-[4/5] mx-auto rounded-[3rem] overflow-hidden mb-8 shadow-2xl transition-all duration-700 hover:scale-[1.02] border-[6px] border-white bg-gray-50">
+                <img
+                  src={teamMembers[0].image}
+                  alt={teamMembers[0].name}
+                  className="object-cover w-full h-full"
+                />
+              </div>
+              <h3 className="text-3xl font-display font-black text-primary">{teamMembers[0].name}</h3>
+              <p className="text-accent font-bold uppercase tracking-[0.2em] mt-2">{teamMembers[0].role}</p>
+              <div className="w-12 h-1 bg-accent mx-auto mt-6 rounded-full"></div>
+            </div>
           </div>
 
           {/* Other Members - Right Side Grid */}
@@ -290,26 +290,26 @@ function MeetTheTeam() {
             {teamMembers.slice(1).map((member, index) => (
               <div key={index} className="group text-center animate-fade-up" style={{ animationDelay: `${index * 150}ms` }}>
                 {member.image ? (
-                   <div className="relative w-40 h-40 sm:w-48 sm:h-48 mx-auto rounded-[2rem] overflow-hidden mb-5 shadow-xl transition-all duration-500 group-hover:-translate-y-2 border-4 border-white">
-                     <img
-                       src={member.image}
-                       alt={member.name}
-                       className="object-cover w-full h-full"
-                     />
-                   </div>
+                  <div className="relative w-40 h-40 sm:w-48 sm:h-48 mx-auto rounded-[2rem] overflow-hidden mb-5 shadow-xl transition-all duration-500 group-hover:-translate-y-2 border-4 border-white">
+                    <img
+                      src={member.image}
+                      alt={member.name}
+                      className="object-cover w-full h-full"
+                    />
+                  </div>
                 ) : (
-                   <div className="relative w-40 h-40 sm:w-48 sm:h-48 mx-auto rounded-[2rem] overflow-hidden mb-5 shadow-md bg-gray-50 flex flex-col justify-center items-center transition-all duration-500 group-hover:-translate-y-2 border-4 border-gray-100">
-                     <span className="text-4xl sm:text-5xl font-display font-black text-gray-200 group-hover:text-primary/20 transition-colors uppercase tracking-widest">
-                       {member.name.split(' ').map(n => n[0]).join('')}
-                     </span>
-                   </div>
+                  <div className="relative w-40 h-40 sm:w-48 sm:h-48 mx-auto rounded-[2rem] overflow-hidden mb-5 shadow-md bg-gray-50 flex flex-col justify-center items-center transition-all duration-500 group-hover:-translate-y-2 border-4 border-gray-100">
+                    <span className="text-4xl sm:text-5xl font-display font-black text-gray-200 group-hover:text-primary/20 transition-colors uppercase tracking-widest">
+                      {member.name.split(' ').map(n => n[0]).join('')}
+                    </span>
+                  </div>
                 )}
                 <h3 className="text-xl sm:text-2xl font-bold text-primary">{member.name}</h3>
                 <p className="text-accent font-bold uppercase tracking-widest text-xs sm:text-sm mt-1">{member.role}</p>
               </div>
             ))}
           </div>
-          
+
         </div>
       </div>
     </section>

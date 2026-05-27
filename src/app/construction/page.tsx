@@ -59,7 +59,7 @@ export default function ConstructionPage() {
       <section className="py-24 bg-gray-50">
         <div className="container mx-auto px-4 grid md:grid-cols-2 gap-16 items-center">
           <div>
-            <Badge className="mb-4 rounded-none bg-galaxy-dark text-white font-bold tracking-widest px-4 py-1">WHY GALAXY HOMES</Badge>
+            <Badge className="mb-4 rounded-none bg-galaxy-dark text-white font-bold tracking-widest px-4 py-1">WHY GALAXY INTERIOR</Badge>
             <h2 className="text-4xl md:text-6xl font-bold text-galaxy-dark mb-8 leading-tight">Superior Quality, Unmatched Durability</h2>
             <div className="space-y-6">
               {[

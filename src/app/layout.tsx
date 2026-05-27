@@ -40,7 +40,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Galaxy Interior | Luxury Architecture & Interiors',
+    title: 'Galaxy Interior | Luxury Architecture & Interior',
     description: 'Transforming spaces into luxury residences in Godda and Ranchi.',
   },
 };
