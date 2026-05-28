@@ -19,6 +19,7 @@ export default function ArchitecturalPlanPage() {
         "Municipal Approval Ready Blueprints"
       ]}
       brands={["AutoCAD", "SketchUp", "Revit", "V-Ray"]}
+      serviceKey="Architectural"
     />
   );
 }

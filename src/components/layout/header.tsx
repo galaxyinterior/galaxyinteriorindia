@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { Menu, Phone, Home, Info, Paintbrush, LayoutGrid, Hammer, Mail, Tag } from 'lucide-react';
+import { Menu, Phone, Home, Info, Paintbrush, LayoutGrid, Hammer, Mail, Tag, Building2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState, useEffect } from 'react';
 import {
@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import { useMode } from '@/context/ModeContext';
 
 const navLinks = [
   { href: '/', label: 'HOME' },
@@ -30,7 +31,7 @@ const navLinks = [
   { href: '/contact', label: 'CONTACT' },
 ];
 
-const towns = ["GODDA", "RANCHI", "BHAGALPUR", "BANKA", "DEOGHAR", "HAZARIBAGH", "DUMKA"];
+const towns = ["GODDA", "RANCHI", "BHAGALPUR", "BANKA", "DEOGHAR", "HAZARIBAGH", "DUMKA", "KISHANGANJ", "PURNEA"];
 
 const linkIcons: Record<string, React.ComponentType<{ className?: string }>> = {
   '/': Home,
@@ -59,6 +60,7 @@ export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
   const isHomePage = pathname === '/';
+  const { mode, setMode } = useMode();
 
   useEffect(() => {
     const handleScroll = () => {

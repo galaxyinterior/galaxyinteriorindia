@@ -65,8 +65,8 @@ export default function Footer() {
               <span>DEOGHAR</span> <span className="text-accent">|</span>
               <span>HAZARIBAGH</span> <span className="text-accent">|</span>
               <span>DUMKA</span> <span className="text-accent">|</span>
-              <span className="normal-case">Purnea</span> <span className="text-accent">|</span>
-              <span className="normal-case">Kushanganj</span>
+              <span>PURNEA</span> <span className="text-accent">|</span>
+              <span>KISHANGANJ</span>
             </div>
             
             <div className="mt-8 pt-8 border-t border-white/10 flex flex-col sm:flex-row gap-x-8 gap-y-4 text-white/60 text-sm">

@@ -16,9 +16,13 @@ interface ServicePageProps {
   imageHint: string;
   points: string[];
   brands?: string[];
+  serviceKey?: string;
 }
 
-export default function ServiceLayout({ title, category, description, image, imageHint, points, brands }: ServicePageProps) {
+export default function ServiceLayout({ title, category, description, image, imageHint, points, brands, serviceKey }: ServicePageProps) {
+  const contactHref = serviceKey
+    ? `/contact?service=${encodeURIComponent(serviceKey)}`
+    : '/contact';
   return (
     <div className="bg-white">
       {/* Page Header */}
@@ -69,7 +73,7 @@ export default function ServiceLayout({ title, category, description, image, ima
               )}
 
               <Button asChild size="lg" className="mt-12 rounded-full px-12 h-14 font-black uppercase tracking-[0.15em] m3-elevation-2 hover:m3-elevation-3 transition-all hover:scale-105 active:scale-95 m3-state-layer relative overflow-hidden">
-                <Link href="/contact">Enquire for {title}</Link>
+                <Link href={contactHref}>Enquire for {title}</Link>
               </Button>
             </div>
           </div>

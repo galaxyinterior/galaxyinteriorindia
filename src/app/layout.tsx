@@ -6,6 +6,7 @@ import { Toaster } from '@/components/ui/toaster';
 import ClientLayoutWrapper from '@/components/layout/client-layout-wrapper';
 import LoadingScreen from '@/components/layout/loading-screen';
 import { Suspense } from 'react';
+import { ModeProvider } from '@/context/ModeContext';
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -63,7 +64,9 @@ export default function RootLayout({
           <LoadingScreen />
         </Suspense>
         <div className="relative flex min-h-screen flex-col">
-          <ClientLayoutWrapper>{children}</ClientLayoutWrapper>
+          <ModeProvider>
+            <ClientLayoutWrapper>{children}</ClientLayoutWrapper>
+          </ModeProvider>
         </div>
         <Toaster />
       </body>

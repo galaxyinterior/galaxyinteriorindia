@@ -21,7 +21,6 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import ConsultationPopup from '@/components/home/ConsultationPopup';
-import ModeNotchSwitch from '@/components/layout/mode-notch-switch';
 import {
   Carousel,
   CarouselContent,
@@ -29,6 +28,7 @@ import {
 } from "@/components/ui/carousel";
 import { cn } from "@/lib/utils";
 import Autoplay from "embla-carousel-autoplay";
+import { useMode } from '@/context/ModeContext';
 
 // Residential Datasets (Houses, Flats, Living Rooms)
 const residentialHeroSlides = [
@@ -128,7 +128,7 @@ const partnerLogos = [
 ];
 
 export default function HomePage() {
-  const [mode, setMode] = React.useState<"residential" | "commercial">("residential");
+  const { mode, setMode } = useMode();
   const [isTransitioning, setIsTransitioning] = React.useState(false);
   const [isMuted, setIsMuted] = React.useState(true);
   const [activeIndex, setActiveIndex] = React.useState(0);
@@ -147,15 +147,7 @@ export default function HomePage() {
     };
   }, [api]);
 
-  // Custom mode changes with cross-fade micro-animation
-  const handleModeChange = (newMode: "residential" | "commercial") => {
-    if (newMode === mode) return;
-    setIsTransitioning(true);
-    setTimeout(() => {
-      setMode(newMode);
-      setIsTransitioning(false);
-    }, 250);
-  };
+
 
   // Dynamically swap datasets based on switch notch mode
   const activeHeroSlides = mode === "residential" ? residentialHeroSlides : commercialHeroSlides;
@@ -174,6 +166,15 @@ export default function HomePage() {
     Autoplay({ delay: 2000, stopOnInteraction: false })
   );
 
+  // Automated transition effect on global mode updates
+  React.useEffect(() => {
+    setIsTransitioning(true);
+    const timer = setTimeout(() => {
+      setIsTransitioning(false);
+    }, 250);
+    return () => clearTimeout(timer);
+  }, [mode]);
+
   // Sync category filter options on mode toggles
   React.useEffect(() => {
     setFurnitureFilter('All');
@@ -181,9 +182,6 @@ export default function HomePage() {
 
   return (
     <div className="bg-transparent relative">
-      {/* Floating Notch Switch (Material 3 Curved & Gold Highlighted) */}
-      <ModeNotchSwitch mode={mode} onChange={handleModeChange} />
-
       {/* Consultation Popup */}
       <ConsultationPopup />
 
