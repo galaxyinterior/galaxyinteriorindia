@@ -15,7 +15,17 @@ const teamMembers = [
   { name: 'Anjula Devi', role: 'Managing Director (MD)' },
 ];
 
-const journeyData = [
+interface JourneyMilestone {
+  text: string;
+  image?: string;
+}
+
+interface JourneyItem {
+  year: string;
+  milestones: (string | JourneyMilestone)[];
+}
+
+const journeyData: JourneyItem[] = [
   {
     year: '2021',
     milestones: [
@@ -50,28 +60,20 @@ const journeyData = [
 
 function AboutHero() {
   return (
-    <section className="relative h-[500px] w-full flex items-center justify-center text-center text-white">
-      <Image
-        src="https://picsum.photos/seed/about-hero/1920/800"
-        alt="Galaxy Interior Office"
-        fill
-        className="object-cover"
-        priority
-        data-ai-hint="luxury office interior"
-      />
-      <div className="absolute inset-0 bg-galaxy-dark/75 backdrop-blur-sm" />
-      <div className="relative z-10 p-4 max-w-5xl mx-auto animate-fade-up">
-        <Badge className="mb-6 rounded-full bg-accent text-primary font-bold tracking-[0.2em] px-6 py-2 border-none">
+    <section className="relative pt-36 pb-20 bg-logo-radial bg-logo-mandala border-b border-accent/10 text-white overflow-hidden">
+      {/* Glow highlight */}
+      <div className="absolute -top-24 -right-24 w-96 h-96 bg-accent/10 rounded-full blur-3xl opacity-30"></div>
+      <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-primary/20 rounded-full blur-3xl opacity-30"></div>
+
+      <div className="relative z-10 container mx-auto px-4 text-center max-w-5xl animate-fade-up">
+        <Badge className="mb-6 rounded-full bg-accent text-primary font-black tracking-[0.20em] px-6 py-2 border-none shadow-lg text-[10px] uppercase">
           LUXURY INTERIOR SPECIALIST
         </Badge>
-        <h1 className="font-display text-5xl md:text-7xl font-bold tracking-tight mb-4">
-          Shaping Dreams, <span className="text-accent italic">Crafting Spaces</span>
+        <h1 className="font-display text-4xl md:text-7xl font-black tracking-tight mb-6 uppercase text-shadow-lg leading-tight">
+          Shaping Dreams, <span className="text-gold italic block md:inline mt-1 md:mt-0">Crafting Spaces</span>
         </h1>
-        <p className="mt-4 text-xl md:text-2xl text-white/80 font-medium">
-          Smart & AI-Based Design Solutions for Modern Living
-        </p>
-        <p className="mt-2 text-lg text-white/60">
-          Complete Interior & Construction Solutions – From Planning to Execution
+        <p className="text-white/85 text-base md:text-xl font-semibold max-w-2xl mx-auto leading-relaxed">
+          Smart & AI-Based Design Solutions for Modern Living. Complete Interior & Construction Solutions – From Planning to Execution.
         </p>
       </div>
     </section>
@@ -82,12 +84,12 @@ function CompanyOverview() {
   return (
     <section className="py-24 bg-white">
       <div className="container mx-auto px-4 grid md:grid-cols-2 gap-16 items-center">
-        <div className="relative aspect-square rounded-[3rem] overflow-hidden glass-card p-4">
+        <div className="relative aspect-square rounded-[32px] overflow-hidden glass-card p-3 m3-elevation-2">
           <Image
             src="/about.jpeg"
             alt="Luxury Interior Design by Galaxy"
             fill
-            className="object-cover rounded-[2.5rem]"
+            className="object-cover rounded-[24px]"
             data-ai-hint="interior architect working"
           />
         </div>
@@ -101,10 +103,10 @@ function CompanyOverview() {
               We specialize in transforming residential and commercial spaces into modern, elegant, and highly efficient environments using advanced design tools, smart planning techniques, and high-quality materials.
             </p>
             <p>
-              Our approach is based on detail-oriented planning, transparent execution, and client-focused customization, ensuring every project reflects the client’s vision while maintaining global design standards. We proudly serve across <span className="font-bold text-primary">Jharkhand & Bihar</span>, offering complete solutions from concept design to final handover.
+              Our approach is based on detail-oriented planning, transparent execution, and client-focused customization, ensuring every project reflects the client’s vision while maintaining global design standards. We work in <span className="font-bold text-primary">Jharkhand, Bihar, and Bengal</span>, offering complete solutions from concept design to final handover.
             </p>
           </div>
-          <Button asChild size="lg" className="mt-10 rounded-full px-10 h-14 font-bold uppercase tracking-widest shadow-xl">
+          <Button asChild size="lg" className="mt-10 rounded-full px-12 h-14 font-black uppercase tracking-[0.15em] m3-elevation-2 hover:m3-elevation-3 transition-all hover:scale-105 active:scale-95 m3-state-layer relative overflow-hidden">
             <Link href="/contact">Start Your Project</Link>
           </Button>
         </div>
@@ -118,7 +120,7 @@ function VisionMission() {
     <section className="py-24 bg-gray-50/50">
       <div className="container mx-auto px-4">
         <div className="grid md:grid-cols-2 gap-12">
-          <Card className="glass-card p-10 border-none shadow-2xl relative overflow-hidden group">
+          <Card className="glass-card p-10 border-none m3-elevation-2 hover:m3-elevation-3 rounded-[28px] relative overflow-hidden group m3-transition hover:-translate-y-1">
             <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform">
               <Target className="h-32 w-32 text-primary" />
             </div>
@@ -133,7 +135,7 @@ function VisionMission() {
             </div>
           </Card>
 
-          <Card className="p-10 border-none shadow-2xl relative overflow-hidden group bg-primary text-white">
+          <Card className="p-10 border border-white/5 m3-elevation-2 hover:m3-elevation-3 rounded-[28px] relative overflow-hidden group bg-primary text-white m3-transition hover:-translate-y-1">
             <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform">
               <Rocket className="h-32 w-32 text-white" />
             </div>
@@ -187,12 +189,12 @@ function DesignPhilosophy() {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {philosophy.map((item, index) => (
-            <div key={index} className="text-center group p-8 rounded-[2rem] bg-gray-50 hover:bg-primary transition-all duration-500">
-              <div className="inline-block bg-white text-primary p-5 rounded-2xl mb-6 shadow-xl group-hover:bg-accent group-hover:text-primary transition-colors">
+            <div key={index} className="text-center group p-8 rounded-[28px] bg-gray-50 border border-gray-100 hover:bg-primary m3-transition hover:-translate-y-1 hover:border-primary/10">
+              <div className="inline-block bg-white text-primary p-5 rounded-2xl mb-6 m3-elevation-1 group-hover:bg-accent group-hover:text-primary m3-transition">
                 {item.icon && <div className="h-8 w-8">{item.icon}</div>}
               </div>
-              <h3 className="text-2xl font-bold text-primary group-hover:text-white mb-3">{item.title}</h3>
-              <p className="text-gray-500 group-hover:text-white/70">{item.desc}</p>
+              <h3 className="text-2xl font-black text-primary group-hover:text-white mb-3 uppercase tracking-tight">{item.title}</h3>
+              <p className="text-gray-500 group-hover:text-white/70 leading-relaxed text-sm md:text-base">{item.desc}</p>
             </div>
           ))}
         </div>
@@ -272,7 +274,7 @@ function MeetTheTeam() {
           {/* CEO Block - Left Side */}
           <div className="lg:col-span-5 flex flex-col items-center">
             <div className="group text-center animate-fade-up w-full max-w-sm">
-              <div className="relative w-full aspect-[4/5] mx-auto rounded-[3rem] overflow-hidden mb-8 shadow-2xl transition-all duration-700 hover:scale-[1.02] border-[6px] border-white bg-gray-50">
+              <div className="relative w-full aspect-[4/5] mx-auto rounded-[28px] overflow-hidden mb-8 m3-elevation-3 transition-all duration-700 hover:scale-[1.01] border-[6px] border-white bg-gray-50">
                 <img
                   src={teamMembers[0].image}
                   alt={teamMembers[0].name}
@@ -290,7 +292,7 @@ function MeetTheTeam() {
             {teamMembers.slice(1).map((member, index) => (
               <div key={index} className="group text-center animate-fade-up" style={{ animationDelay: `${index * 150}ms` }}>
                 {member.image ? (
-                  <div className="relative w-40 h-40 sm:w-48 sm:h-48 mx-auto rounded-[2rem] overflow-hidden mb-5 shadow-xl transition-all duration-500 group-hover:-translate-y-2 border-4 border-white">
+                  <div className="relative w-40 h-40 sm:w-48 sm:h-48 mx-auto rounded-[24px] overflow-hidden mb-5 m3-elevation-2 transition-all duration-500 group-hover:-translate-y-1.5 border-4 border-white">
                     <img
                       src={member.image}
                       alt={member.name}
@@ -298,7 +300,7 @@ function MeetTheTeam() {
                     />
                   </div>
                 ) : (
-                  <div className="relative w-40 h-40 sm:w-48 sm:h-48 mx-auto rounded-[2rem] overflow-hidden mb-5 shadow-md bg-gray-50 flex flex-col justify-center items-center transition-all duration-500 group-hover:-translate-y-2 border-4 border-gray-100">
+                  <div className="relative w-40 h-40 sm:w-48 sm:h-48 mx-auto rounded-[24px] overflow-hidden mb-5 m3-elevation-1 bg-gray-50 flex flex-col justify-center items-center transition-all duration-500 group-hover:-translate-y-1.5 border-4 border-gray-100/80">
                     <span className="text-4xl sm:text-5xl font-display font-black text-gray-200 group-hover:text-primary/20 transition-colors uppercase tracking-widest">
                       {member.name.split(' ').map(n => n[0]).join('')}
                     </span>

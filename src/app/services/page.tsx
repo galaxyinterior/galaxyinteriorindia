@@ -196,8 +196,8 @@ export default function ServicesPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {services.map((item) => (
               <Link href={`/services/${item.slug}`} key={item.slug} className="group">
-                <Card className="glass-card h-full hover:bg-primary hover:text-white transition-all duration-500 overflow-hidden border-none shadow-xl">
-                  <div className="relative aspect-video w-full overflow-hidden">
+                <Card className="glass-card h-full hover:bg-primary hover:text-white group m3-transition overflow-hidden border-none m3-elevation-2 hover:m3-elevation-3 hover:-translate-y-1 rounded-[28px]">
+                  <div className="relative aspect-video w-full overflow-hidden rounded-t-[28px]">
                     <Image 
                       src={item.image} 
                       alt={item.name} 
@@ -208,7 +208,7 @@ export default function ServicesPage() {
                     <div className="absolute inset-0 bg-gradient-to-t from-primary/60 to-transparent" />
                   </div>
                   <CardContent className="p-8">
-                    <div className="w-12 h-12 bg-primary/10 text-primary rounded-xl flex items-center justify-center mb-6 group-hover:bg-white group-hover:text-primary transition-colors">
+                    <div className="w-12 h-12 bg-primary/10 text-primary rounded-2xl flex items-center justify-center mb-6 group-hover:bg-white group-hover:text-primary m3-transition">
                       {item.icon}
                     </div>
                     <h3 className="text-2xl font-bold mb-3">{item.name}</h3>
@@ -236,12 +236,12 @@ export default function ServicesPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6">
             {facilities.map((item) => (
               <Link href={`/services/${item.slug}`} key={item.slug} className="group">
-                <Card className="relative bg-white border-none shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 rounded-[2.5rem] overflow-hidden aspect-square">
+                <Card className="relative bg-white border-none m3-elevation-2 hover:m3-elevation-4 hover:-translate-y-1.5 m3-transition rounded-[28px] overflow-hidden aspect-square">
                    <Image 
                     src={item.image} 
                     alt={item.name} 
                     fill 
-                    className="object-cover transition-transform duration-700 group-hover:scale-110" 
+                    className="object-cover transition-transform duration-700 group-hover:scale-110 rounded-[28px]" 
                     data-ai-hint={item.imageHint}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/20 to-transparent" />

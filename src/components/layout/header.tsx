@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { Menu, Phone, Home, Info, Paintbrush, LayoutGrid, Hammer, Mail } from 'lucide-react';
+import { Menu, Phone, Home, Info, Paintbrush, LayoutGrid, Hammer, Mail, Tag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState, useEffect } from 'react';
 import {
@@ -26,6 +26,7 @@ const navLinks = [
   { href: '/services', label: 'SERVICES' },
   { href: '/portfolio', label: 'GALLERY' },
   { href: '/construction', label: 'CONSTRUCTION' },
+  { href: '/pricing', label: 'PRICING' },
   { href: '/contact', label: 'CONTACT' },
 ];
 
@@ -37,6 +38,7 @@ const linkIcons: Record<string, React.ComponentType<{ className?: string }>> = {
   '/services': Paintbrush,
   '/portfolio': LayoutGrid,
   '/construction': Hammer,
+  '/pricing': Tag,
   '/contact': Phone
 };
 
@@ -69,7 +71,7 @@ export default function Header() {
   return (
     <header className={cn(
       "fixed top-0 z-50 w-full transition-all duration-300",
-      isScrolled ? "glass-panel shadow-2xl" : (isHomePage ? "bg-transparent" : "bg-primary border-b border-white/5 shadow-md")
+      isScrolled ? "glass-panel m3-elevation-2" : (isHomePage ? "bg-transparent" : "bg-primary border-b border-white/5 m3-elevation-1")
     )}>
       {/* Branding Block - Overlapping both bars */}
       <Link href="/" className="absolute top-0 left-0 z-[60] block h-full">
@@ -105,7 +107,7 @@ export default function Header() {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="bg-white border-primary">
                 <DropdownMenuItem asChild className="cursor-pointer font-bold text-primary focus:bg-primary focus:text-white">
-                  <a href="tel:+919113439057">GODDA: +91 91134 39057</a>
+                  <a href="tel:+919122795726">GODDA: +91 91227 95726</a>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild className="cursor-pointer font-bold text-primary focus:bg-primary focus:text-white">
                   <a href="tel:+919631980881">RANCHI: +91 96319 80881</a>
@@ -119,29 +121,26 @@ export default function Header() {
       {/* Main Navbar */}
       <div className="flex h-16 items-center relative">
         <div className="flex-1 flex items-center justify-end px-4 lg:px-12 ml-[190px] md:ml-[380px]">
-          <nav className="hidden lg:flex items-center space-x-4 xl:space-x-8">
+          <nav className="hidden lg:flex items-center space-x-3 xl:space-x-6">
             {navLinks.map((link) => (
               <Link 
                 key={link.href}
                 href={link.href} 
                 className={cn(
-                  "text-[11px] xl:text-xs font-bold uppercase tracking-widest transition-colors relative group py-2",
-                  isScrolled || !isHomePage ? "text-white/80 hover:text-accent" : "text-white hover:text-accent",
-                  pathname === link.href ? "text-accent" : "text-white/80"
+                  "text-[11px] xl:text-xs font-bold uppercase tracking-widest m3-transition relative py-2.5 px-4 rounded-full m3-state-layer",
+                  pathname === link.href 
+                    ? "bg-accent/15 text-accent font-black" 
+                    : (isScrolled || !isHomePage ? "text-white/80 hover:text-accent" : "text-white hover:text-accent")
                 )}
               >
                 {link.label}
-                <span className={cn(
-                  "absolute bottom-0 left-0 w-full h-0.5 transition-transform origin-left bg-accent",
-                  pathname === link.href ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
-                )}></span>
               </Link>
             ))}
           </nav>
           
           {/* Mobile Menu */}
           <div className="lg:hidden flex items-center gap-4">
-            <a href="tel:+919113439057" className="bg-primary p-2 text-white rounded-full shadow-lg">
+            <a href="tel:+919122795726" className="bg-primary p-3 text-white rounded-2xl m3-elevation-2 m3-state-layer relative overflow-hidden flex items-center justify-center">
               <Phone className="h-5 w-5" />
             </a>
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
@@ -150,7 +149,7 @@ export default function Header() {
                   <Menu className="h-8 w-8" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="bg-[#051124] text-white border-l border-accent/15 rounded-l-[2rem] p-0 flex flex-col h-full shadow-[0_0_50px_rgba(0,0,0,0.6)] w-[85vw] sm:max-w-sm overflow-hidden">
+              <SheetContent side="right" className="bg-[#051124] text-white border-l border-accent/15 rounded-l-[28px] p-0 flex flex-col h-full shadow-[0_0_50px_rgba(0,0,0,0.6)] w-[85vw] sm:max-w-sm overflow-hidden">
                 <div className="bg-logo-radial bg-logo-mandala px-6 py-8 flex flex-col items-start border-b border-accent/15 relative">
                   <div className="bg-accent/10 border border-accent/20 px-3 py-0.5 rounded-full text-accent font-bold text-[9px] mb-3 uppercase tracking-wider">
                     Elite Interior
@@ -175,7 +174,7 @@ export default function Header() {
                         key={link.href}
                         href={link.href} 
                         className={cn(
-                          "flex items-center gap-4 px-6 py-3.5 rounded-full text-xs font-black uppercase tracking-widest transition-all duration-300 relative group overflow-hidden",
+                          "flex items-center gap-4 px-6 py-3.5 rounded-full text-xs font-black uppercase tracking-widest m3-transition relative group overflow-hidden",
                           isActive 
                             ? "bg-accent text-primary shadow-[0_4px_15px_rgba(255,207,51,0.2)]" 
                             : "text-white/70 hover:text-white hover:bg-white/5"
@@ -195,11 +194,11 @@ export default function Header() {
 
                 <div className="mt-auto p-6 border-t border-accent/10 bg-white/[0.02]">
                   <a 
-                    href="tel:+919113439057" 
-                    className="flex items-center justify-center gap-3 w-full p-4 rounded-2xl bg-gradient-to-r from-accent/5 to-accent/10 border border-accent/20 text-xs font-black text-white hover:bg-accent hover:text-primary hover:border-accent shadow-md transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] group"
+                    href="tel:+919122795726" 
+                    className="flex items-center justify-center gap-3 w-full p-4 rounded-2xl bg-gradient-to-r from-accent/5 to-accent/10 border border-accent/20 text-xs font-black text-white hover:bg-accent hover:text-primary hover:border-accent shadow-md m3-transition hover:scale-[1.02] active:scale-[0.98] group"
                   >
                     <Phone className="h-4 w-4 text-accent group-hover:text-inherit transition-colors" />
-                    <span className="tracking-wider text-[11px]">+91 91134 39057</span>
+                    <span className="tracking-wider text-[11px]">+91 91227 95726</span>
                   </a>
                   <p className="text-center text-[9px] text-white/40 mt-4 uppercase tracking-widest font-bold">
                     Ranchi & Godda Offices

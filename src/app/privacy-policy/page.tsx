@@ -69,7 +69,7 @@ export default function PrivacyPolicyPage() {
                             </p>
                             <p className="font-bold text-galaxy-dark">
                                 Galaxy Interior<br />
-                                Email: info@galaxyinterior.com<br />
+                                Email: info@galaxyinteriorindia.com<br />
                                 Phone: +91 96319 80881
                             </p>
                         </div>

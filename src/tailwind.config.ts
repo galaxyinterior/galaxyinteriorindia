@@ -23,8 +23,8 @@ const config = {
     },
     extend: {
       fontFamily: {
-        sans: ['var(--font-poppins)'],
-        display: ['var(--font-playfair-display)'],
+        sans: ['"Google Sans"', 'var(--font-poppins)', 'sans-serif'],
+        display: ['"Google Sans"', 'var(--font-poppins)', 'sans-serif'],
       },
       colors: {
         border: 'hsl(var(--border))',

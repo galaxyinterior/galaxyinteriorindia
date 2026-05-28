@@ -71,7 +71,7 @@ export default function CareersPage() {
       ${message}
     `;
     
-    const mailtoUrl = `mailto:info@galaxyinterior.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    const mailtoUrl = `mailto:info@galaxyinteriorindia.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     
     window.location.href = mailtoUrl;
   };

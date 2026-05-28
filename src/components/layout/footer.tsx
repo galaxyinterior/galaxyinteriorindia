@@ -17,14 +17,13 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 mb-24">
 
           <div className="lg:col-span-1">
-            <Link href="/" className="block mb-8">
-              <div className="inline-block relative w-64 h-16 md:w-80 md:h-20">
-                <Image
-                  src="/logoxy_dark.png"
-                  alt="Galaxy Interior Logo"
-                  fill
-                  className="object-contain"
-                />
+            <Link href="/" className="flex items-center gap-3 mb-8 hover:opacity-90 transition-opacity">
+              <div className="h-12 w-12 md:h-16 md:w-16 rounded-full overflow-hidden border-2 border-accent/25 flex-shrink-0 bg-white/5 backdrop-blur-md flex items-center justify-center">
+                <Image src="/logo.png" alt="Galaxy Interior Logo" width={64} height={64} className="object-contain w-full h-full" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-2xl md:text-4xl font-bold tracking-tighter leading-none text-white uppercase">GALAXY</span>
+                <span className="text-[10px] md:text-sm font-bold tracking-[0.3em] text-accent opacity-90 uppercase">INTERIOR</span>
               </div>
             </Link>
             <p className="text-white/60 mb-8 leading-relaxed">
@@ -52,38 +51,37 @@ export default function Footer() {
               <li><Link href="/services" className="hover:text-primary transition-colors flex items-center gap-2 group"><ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" /> Our Services</Link></li>
               <li><Link href="/portfolio" className="hover:text-primary transition-colors flex items-center gap-2 group"><ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" /> Portfolio</Link></li>
               <li><Link href="/construction" className="hover:text-primary transition-colors flex items-center gap-2 group"><ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" /> Construction</Link></li>
+              <li><Link href="/pricing" className="hover:text-primary transition-colors flex items-center gap-2 group"><ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" /> Pricing Plans</Link></li>
             </ul>
           </div>
 
           <div className="lg:col-span-2">
-            <h3 className="font-bold text-white uppercase tracking-widest mb-8">Our Offices</h3>
-            <div className="grid md:grid-cols-2 gap-8">
-              <div className="space-y-4">
-                <p className="font-bold text-primary text-sm uppercase tracking-widest">Godda Office</p>
-                <div className="flex gap-3 text-white/60 text-sm">
-                  <MapPin className="h-5 w-5 text-primary shrink-0" />
-                  <span>Near Durga Mandir Sarkanda, Godda, Jharkhand – 814133</span>
-                </div>
-                <div className="flex gap-3 text-white/60 text-sm">
-                  <Phone className="h-5 w-5 text-primary shrink-0" />
-                  <span>+91 9113439057</span>
-                </div>
-              </div>
-              <div className="space-y-4">
-                <p className="font-bold text-primary text-sm uppercase tracking-widest">Ranchi Office</p>
-                <div className="flex gap-3 text-white/60 text-sm">
-                  <MapPin className="h-5 w-5 text-primary shrink-0" />
-                  <span>Van Vrindavan Colony, Morabadi, Ranchi – 834006</span>
-                </div>
-                <div className="flex gap-3 text-white/60 text-sm">
-                  <Phone className="h-5 w-5 text-primary shrink-0" />
-                  <span>+91 9631980881</span>
-                </div>
-              </div>
+            <h3 className="font-bold text-white uppercase tracking-widest mb-8">Serviceable Areas</h3>
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-white/70 text-sm font-bold uppercase tracking-wider leading-relaxed">
+              <span>GODDA</span> <span className="text-accent">|</span>
+              <span>RANCHI</span> <span className="text-accent">|</span>
+              <span>BHAGALPUR</span> <span className="text-accent">|</span>
+              <span>BANKA</span> <span className="text-accent">|</span>
+              <span>DEOGHAR</span> <span className="text-accent">|</span>
+              <span>HAZARIBAGH</span> <span className="text-accent">|</span>
+              <span>DUMKA</span> <span className="text-accent">|</span>
+              <span className="normal-case">Purnea</span> <span className="text-accent">|</span>
+              <span className="normal-case">Kushanganj</span>
             </div>
-            <div className="mt-8 flex gap-3 text-white/60 text-sm">
-              <Mail className="h-5 w-5 text-primary shrink-0" />
-              <span>info@galaxyinterior.com</span>
+            
+            <div className="mt-8 pt-8 border-t border-white/10 flex flex-col sm:flex-row gap-x-8 gap-y-4 text-white/60 text-sm">
+              <div className="flex gap-3 items-center">
+                <Phone className="h-5 w-5 text-primary shrink-0" />
+                <a href="tel:+919122795726" className="font-bold text-white hover:text-accent transition-colors">+91 91227 95726</a>
+              </div>
+              <div className="flex gap-3 items-center">
+                <Phone className="h-5 w-5 text-primary shrink-0" />
+                <a href="tel:+919631980881" className="font-bold text-white hover:text-accent transition-colors">+91 96319 80881</a>
+              </div>
+              <div className="flex gap-3 items-center">
+                <Mail className="h-5 w-5 text-primary shrink-0" />
+                <a href="mailto:info@galaxyinteriorindia.com" className="font-bold text-white hover:text-accent transition-colors">info@galaxyinteriorindia.com</a>
+              </div>
             </div>
           </div>
         </div>

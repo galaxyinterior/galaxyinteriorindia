@@ -24,8 +24,8 @@ const designers = [
     role: 'Founder & Lead Architect',
     image: 'https://picsum.photos/seed/team1/400/400',
     hint: 'male architect',
-    phone: '+91 91134 39057',
-    email: 'info@galaxyinterior.com',
+    phone: '+91 91227 95726',
+    email: 'info@galaxyinteriorindia.com',
   },
   {
     name: 'Sonia Sharma',
@@ -33,15 +33,15 @@ const designers = [
     image: 'https://picsum.photos/seed/team2/400/400',
     hint: 'female interior designer',
     phone: '+91 96319 80881',
-    email: 'info@galaxyinterior.com',
+    email: 'info@galaxyinteriorindia.com',
   },
   {
     name: 'Rajesh Kumar',
     role: 'Senior Site Supervisor',
     image: 'https://picsum.photos/seed/team3/400/400',
     hint: 'construction expert',
-    phone: '+91 91134 39057',
-    email: 'info@galaxyinterior.com',
+    phone: '+91 91227 95726',
+    email: 'info@galaxyinteriorindia.com',
   },
   {
     name: 'Priya Singh',
@@ -49,7 +49,7 @@ const designers = [
     image: 'https://picsum.photos/seed/team4/400/400',
     hint: '3d visualizer',
     phone: '+91 96319 80881',
-    email: 'info@galaxyinterior.com',
+    email: 'info@galaxyinteriorindia.com',
   },
 ];
 
@@ -326,7 +326,7 @@ export default function ConsultOnlinePage() {
                     <p className="text-white/60 text-lg italic">"Shaping Dreams, Crafting Spaces. Luxury architecture and interiors tailored for Jharkhand's elite."</p>
                     <div className="flex gap-4">
                         <Button variant="outline" className="rounded-full border-white/20 text-white hover:bg-white hover:text-primary">
-                            <a href="tel:+919113439057">Call Godda</a>
+                            <a href="tel:+919122795726">Call Godda</a>
                         </Button>
                         <Button variant="outline" className="rounded-full border-white/20 text-white hover:bg-white hover:text-primary">
                             <a href="tel:+919631980881">Call Ranchi</a>
@@ -344,7 +344,7 @@ export default function ConsultOnlinePage() {
                     </div>
                     <div className="flex items-center gap-4">
                         <Mail className="h-6 w-6 text-accent shrink-0" />
-                        <a href="mailto:info@galaxyinterior.com" className="text-lg hover:text-accent transition-colors">info@galaxyinterior.com</a>
+                        <a href="mailto:info@galaxyinteriorindia.com" className="text-lg hover:text-accent transition-colors">info@galaxyinteriorindia.com</a>
                     </div>
                 </div>
             </div>

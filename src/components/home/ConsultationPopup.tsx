@@ -54,7 +54,7 @@ export default function ConsultationPopup() {
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent className="max-w-4xl p-0 overflow-hidden border border-accent/20 rounded-3xl md:rounded-[2rem] bg-[#051124] w-[92vw] sm:w-[95vw] md:w-full max-h-[90vh] overflow-y-auto md:overflow-visible shadow-[0_0_50px_rgba(0,0,0,0.5)]">
+      <DialogContent className="fixed inset-x-0 bottom-0 top-auto translate-x-0 translate-y-0 w-full max-w-full rounded-t-[28px] rounded-b-none border-t border-accent/20 p-0 bg-[#051124] max-h-[92vh] overflow-y-auto md:fixed md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:max-w-4xl md:rounded-[32px] md:border md:overflow-visible m3-elevation-5 m3-transition [&>button]:hidden">
         <div className="flex flex-col md:flex-row min-h-[auto] md:min-h-[500px] bg-[#051124]">
           {/* Left Side: Banner Content */}
           <div className="hidden md:flex relative w-full md:w-[45%] bg-logo-radial bg-logo-mandala flex-col items-center justify-center p-8 overflow-hidden border-r border-accent/15">
@@ -68,7 +68,7 @@ export default function ConsultationPopup() {
             
             <div className="relative z-10 text-center">
               <div className="bg-accent/10 border border-accent/30 px-4 py-1 rounded-full text-accent font-bold text-[10px] mb-4 inline-block shadow-md">
-                galaxyinterior.com
+                galaxyinteriorindia.com
               </div>
               <h2 className="text-3xl font-display font-bold text-white leading-tight mb-4 italic uppercase tracking-tighter">
                 Exclusive <br />
@@ -95,7 +95,7 @@ export default function ConsultationPopup() {
               </div>
 
               <div className="mt-8 space-y-1 text-white/80 text-[10px] font-bold">
-                 <p className="hover:text-accent transition-colors cursor-default">+91 91134 39057</p>
+                 <p className="hover:text-accent transition-colors cursor-default">+91 91227 95726</p>
                  <p className="hover:text-accent transition-colors cursor-default">+91 96319 80881</p>
               </div>
             </div>
@@ -103,9 +103,11 @@ export default function ConsultationPopup() {
 
           {/* Right Side: Form */}
           <div className="w-full md:w-[55%] p-5 sm:p-8 md:p-12 flex flex-col justify-center relative bg-[#061226]">
+            {/* Mobile M3 Drag Handle */}
+            <div className="md:hidden w-12 h-1.5 bg-white/20 rounded-full mx-auto mb-4"></div>
             <button 
               onClick={() => setIsOpen(false)}
-              className="absolute top-2 right-2 md:top-4 md:right-4 text-white/60 hover:bg-white/10 hover:text-accent transition-colors p-2 rounded-full z-10"
+              className="absolute top-2 right-2 md:top-4 md:right-4 text-white/60 hover:text-accent border border-white/20 hover:border-accent/40 bg-white/5 hover:bg-white/10 transition-colors p-2 rounded-full z-10 flex items-center justify-center shadow-lg"
             >
               <X className="h-5 w-5" />
             </button>
@@ -121,9 +123,9 @@ export default function ConsultationPopup() {
               Get a <span className="text-gold">free design consultation</span>
             </h3>
 
-            <form onSubmit={handleSubmit} className="space-y-5">
+            <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-3">
-                <p className="text-xs font-bold text-white/50 uppercase tracking-widest">Property type</p>
+                <p className="text-[10px] font-black text-white/50 uppercase tracking-widest">Property type</p>
                 <div className="flex flex-wrap gap-2">
                   {["2 BHK", "3 BHK", "Others"].map((type) => (
                     <button
@@ -131,7 +133,7 @@ export default function ConsultationPopup() {
                       type="button"
                       onClick={() => setPropertyType(type)}
                       className={cn(
-                        "px-5 py-2 rounded-full border text-xs font-bold transition-all",
+                        "px-6 py-2 rounded-full border text-xs font-bold transition-all relative m3-state-layer overflow-hidden",
                         propertyType === type 
                           ? "bg-accent text-primary border-accent shadow-[0_0_15px_rgba(255,207,51,0.25)] font-black" 
                           : "border-white/10 text-white/60 bg-white/5 hover:border-accent/40 hover:text-white"
@@ -143,33 +145,53 @@ export default function ConsultationPopup() {
                 </div>
               </div>
 
-              <Input 
-                name="name" 
-                placeholder="Name" 
-                required 
-                className="h-11 rounded-xl border-white/10 focus:border-accent bg-white/5 placeholder:text-white/40 text-white focus:ring-accent focus:ring-1 focus-visible:ring-accent" 
-              />
-              <Input 
-                name="location" 
-                placeholder="Location (e.g. city, state)" 
-                required 
-                className="h-11 rounded-xl border-white/10 focus:border-accent bg-white/5 placeholder:text-white/40 text-white focus:ring-accent focus:ring-1 focus-visible:ring-accent" 
-              />
-              
-              <div className="flex gap-2">
-                <div className="w-16 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center text-xs font-bold text-white/60">
-                  +91
-                </div>
+              {/* M3 Outlined Text Field: Name */}
+              <div className="relative w-full">
                 <Input 
-                  name="phone" 
-                  placeholder="Phone Number" 
-                  type="tel" 
+                  name="name" 
                   required 
-                  className="h-11 rounded-xl border-white/10 focus:border-accent flex-1 bg-white/5 placeholder:text-white/40 text-white focus:ring-accent focus:ring-1 focus-visible:ring-accent" 
+                  className="h-14 px-4 pt-4 pb-1 rounded-2xl border-white/20 focus:border-accent bg-white/[0.02] text-white focus:ring-0 focus-visible:ring-0 peer placeholder:text-transparent"
+                  placeholder="Name" 
                 />
+                <label className="absolute left-4 top-4 text-xs font-semibold text-white/50 uppercase tracking-widest pointer-events-none transition-all peer-placeholder-shown:text-xs peer-placeholder-shown:top-4 peer-placeholder-shown:font-semibold peer-focus:top-1.5 peer-focus:text-[9px] peer-focus:font-black peer-focus:text-gold peer-focus:tracking-widest peer-[:not(:placeholder-shown)]:top-1.5 peer-[:not(:placeholder-shown)]:text-[9px] peer-[:not(:placeholder-shown)]:font-black peer-[:not(:placeholder-shown)]:text-gold">
+                  Name
+                </label>
               </div>
 
-              <div className="flex items-center space-x-3 py-2">
+              {/* M3 Outlined Text Field: Location */}
+              <div className="relative w-full">
+                <Input 
+                  name="location" 
+                  required 
+                  className="h-14 px-4 pt-4 pb-1 rounded-2xl border-white/20 focus:border-accent bg-white/[0.02] text-white focus:ring-0 focus-visible:ring-0 peer placeholder:text-transparent"
+                  placeholder="Location (e.g. city, state)" 
+                />
+                <label className="absolute left-4 top-4 text-xs font-semibold text-white/50 uppercase tracking-widest pointer-events-none transition-all peer-placeholder-shown:text-xs peer-placeholder-shown:top-4 peer-placeholder-shown:font-semibold peer-focus:top-1.5 peer-focus:text-[9px] peer-focus:font-black peer-focus:text-gold peer-focus:tracking-widest peer-[:not(:placeholder-shown)]:top-1.5 peer-[:not(:placeholder-shown)]:text-[9px] peer-[:not(:placeholder-shown)]:font-black peer-[:not(:placeholder-shown)]:text-gold">
+                  Location (e.g. city, state)
+                </label>
+              </div>
+              
+              <div className="flex gap-2">
+                <div className="w-16 h-14 bg-white/[0.02] border border-white/20 rounded-2xl flex items-center justify-center text-xs font-bold text-white/60">
+                  +91
+                </div>
+                
+                {/* M3 Outlined Text Field: Phone */}
+                <div className="relative flex-1">
+                  <Input 
+                    name="phone" 
+                    type="tel" 
+                    required 
+                    className="h-14 px-4 pt-4 pb-1 rounded-2xl border-white/20 focus:border-accent bg-white/[0.02] text-white focus:ring-0 focus-visible:ring-0 peer placeholder:text-transparent"
+                    placeholder="Phone Number" 
+                  />
+                  <label className="absolute left-4 top-4 text-xs font-semibold text-white/50 uppercase tracking-widest pointer-events-none transition-all peer-placeholder-shown:text-xs peer-placeholder-shown:top-4 peer-placeholder-shown:font-semibold peer-focus:top-1.5 peer-focus:text-[9px] peer-focus:font-black peer-focus:text-gold peer-focus:tracking-widest peer-[:not(:placeholder-shown)]:top-1.5 peer-[:not(:placeholder-shown)]:text-[9px] peer-[:not(:placeholder-shown)]:font-black peer-[:not(:placeholder-shown)]:text-gold">
+                    Phone Number
+                  </label>
+                </div>
+              </div>
+
+              <div className="flex items-center space-x-3 py-1">
                 <Checkbox 
                   id="whatsapp" 
                   defaultChecked 
@@ -182,7 +204,7 @@ export default function ConsultationPopup() {
 
               <Button 
                 type="submit" 
-                className="w-full h-12 bg-gold-gradient hover:opacity-90 text-primary rounded-full font-black text-sm uppercase tracking-[0.1em] shadow-[0_4px_20px_rgba(255,207,51,0.25)] transition-all hover:scale-[1.02] active:scale-[0.98]"
+                className="w-full h-14 bg-gold-gradient hover:opacity-95 text-primary rounded-full font-black text-sm uppercase tracking-[0.15em] m3-elevation-2 hover:m3-elevation-3 transition-all hover:scale-[1.01] active:scale-[0.99] relative overflow-hidden m3-state-layer"
               >
                 Book Free Consultation
               </Button>

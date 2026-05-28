@@ -168,7 +168,7 @@ const sections = [
         list: [
             "Locations: Godda | Bhagalpur | Banka | Hazaribagh | Ranchi",
             "Phone: +91 96319 80881, +91 92342 76599",
-            "Email: info@galaxyinterior.com"
+            "Email: info@galaxyinteriorindia.com"
         ]
     }
 ];
