@@ -31,6 +31,21 @@ export const metadata: Metadata = {
   keywords: ['Interior Designer Godda', 'Interior Designer Ranchi', 'Home Interior Design Jharkhand', 'Modular Kitchen Godda', 'Architecture Godda', 'Construction Godda', 'Galaxy Interior', 'Galaxy Homes Design'],
   authors: [{ name: 'Galaxy Interior' }],
   metadataBase: new URL(siteUrl),
+  icons: {
+    icon: [
+      { url: '/fav16.png', sizes: '16x16', type: 'image/png' },
+      { url: '/fav32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/fav48.png', sizes: '48x48', type: 'image/png' },
+      { url: '/favicon.ico', sizes: 'any' },
+    ],
+    apple: [
+      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+    ],
+    other: [
+      { rel: 'icon', url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+      { rel: 'icon', url: '/icon-512.png', sizes: '512x512', type: 'image/png' },
+    ],
+  },
   openGraph: {
     title: 'Galaxy Interior | Shaping Dreams, Crafting Spaces',
     description: 'Premium architecture, construction, and interior design services in Jharkhand.',
