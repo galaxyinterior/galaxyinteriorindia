@@ -29,6 +29,9 @@ import {
 import { cn } from "@/lib/utils";
 import Autoplay from "embla-carousel-autoplay";
 import { useMode } from '@/context/ModeContext';
+import { db } from '@/lib/firebase';
+import { collection, addDoc, serverTimestamp, onSnapshot, query, orderBy } from 'firebase/firestore';
+import { Star } from 'lucide-react';
 
 // Residential Datasets (Houses, Flats, Living Rooms)
 const residentialHeroSlides = [
@@ -127,12 +130,195 @@ const partnerLogos = [
   { name: "UltraTech", path: "/partner_logos/Ultratech_Cement_Logo.svg.png" }
 ];
 
+const LOCATIONS = [
+  "Ranchi",
+  "Godda",
+  "Bhagalpur",
+  "Banka",
+  "Deoghar",
+  "Hazaribagh",
+  "Dumka",
+  "Kishanganj",
+  "Purnea"
+];
+
+const MOCK_REVIEWS = [
+  {
+    id: "mock-r1",
+    name: "Ananya Sharma",
+    location: "Ranchi",
+    rating: 5,
+    comment: "Galaxy Interior converted our 3BHK shell into a luxury haven. The modular kitchen and smart automation are spectacular!"
+  },
+  {
+    id: "mock-r2",
+    name: "Rahul Verma",
+    location: "Godda",
+    rating: 5,
+    comment: "Highly professional construction and structural layout planning. Flawless turnkey execution."
+  },
+  {
+    id: "mock-r3",
+    name: "Vikram Singh",
+    location: "Bhagalpur",
+    rating: 5,
+    comment: "Their 3D elevation renders mapped Vastu perfectly. Visually stunning and structurally solid."
+  },
+  {
+    id: "mock-r4",
+    name: "Pooja Kumari",
+    location: "Deoghar",
+    rating: 5,
+    comment: "Outstanding service. The ceiling design, color combination, and light mapping were perfect for our duplex flat."
+  },
+  {
+    id: "mock-r5",
+    name: "Aman Gupta",
+    location: "Hazaribagh",
+    rating: 4,
+    comment: "Great experience working with the design team. The executive wardrobe and modular kitchen have premium quality finishes."
+  }
+];
+
 export default function HomePage() {
   const { mode, setMode } = useMode();
   const [isTransitioning, setIsTransitioning] = React.useState(false);
   const [isMuted, setIsMuted] = React.useState(true);
   const [activeIndex, setActiveIndex] = React.useState(0);
   const [furnitureFilter, setFurnitureFilter] = React.useState('All');
+
+  // Expertise & Furniture slide indices for mobile carousels
+  const [activeServiceIndex, setActiveServiceIndex] = React.useState(0);
+  const [isServiceHovered, setIsServiceHovered] = React.useState(false);
+  const [activeFurnitureIndex, setActiveFurnitureIndex] = React.useState(0);
+  const [isFurnitureHovered, setIsFurnitureHovered] = React.useState(false);
+
+  // Touch swipe states for mobile manual controls
+  const [touchStartX, setTouchStartX] = React.useState(0);
+  const [touchEndX, setTouchEndX] = React.useState(0);
+  const [furnTouchStartX, setFurnTouchStartX] = React.useState(0);
+  const [furnTouchEndX, setFurnTouchEndX] = React.useState(0);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setIsServiceHovered(true);
+    setTouchStartX(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEndX(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    setIsServiceHovered(false);
+    if (!touchStartX || !touchEndX) return;
+    if (touchStartX - touchEndX > 50) {
+      setActiveServiceIndex((prev) => (prev + 1) % activeServices.length);
+    }
+    if (touchStartX - touchEndX < -50) {
+      setActiveServiceIndex((prev) => (prev - 1 + activeServices.length) % activeServices.length);
+    }
+    setTouchStartX(0);
+    setTouchEndX(0);
+  };
+
+  const handleFurnTouchStart = (e: React.TouchEvent) => {
+    setIsFurnitureHovered(true);
+    setFurnTouchStartX(e.targetTouches[0].clientX);
+  };
+
+  const handleFurnTouchMove = (e: React.TouchEvent) => {
+    setFurnTouchEndX(e.targetTouches[0].clientX);
+  };
+
+  const handleFurnTouchEnd = () => {
+    setIsFurnitureHovered(false);
+    if (!furnTouchStartX || !furnTouchEndX) return;
+    if (furnTouchStartX - furnTouchEndX > 50) {
+      setActiveFurnitureIndex((prev) => (prev + 1) % filteredFurniture.length);
+    }
+    if (furnTouchStartX - furnTouchEndX < -50) {
+      setActiveFurnitureIndex((prev) => (prev - 1 + filteredFurniture.length) % filteredFurniture.length);
+    }
+    setFurnTouchStartX(0);
+    setFurnTouchEndX(0);
+  };
+
+  // Reviews state
+  const [reviewsList, setReviewsList] = React.useState<any[]>([]);
+  const [loadingReviews, setLoadingReviews] = React.useState(true);
+  
+  // New review form state
+  const [reviewName, setReviewName] = React.useState("");
+  const [reviewLocation, setReviewLocation] = React.useState("Ranchi");
+  const [reviewRating, setReviewRating] = React.useState(5);
+  const [reviewComment, setReviewComment] = React.useState("");
+  const [submittingReview, setSubmittingReview] = React.useState(false);
+  const [submitSuccess, setSubmitSuccess] = React.useState(false);
+  const [submitError, setSubmitError] = React.useState("");
+
+  const sortedReviews = React.useMemo(() => {
+    return [...reviewsList].sort((a, b) => {
+      // 1. Sort by rating (descending)
+      if (b.rating !== a.rating) {
+        return b.rating - a.rating;
+      }
+      // 2. Sort by comment length (descending) - longer/more informative comments first
+      const lenA = a.comment ? a.comment.trim().length : 0;
+      const lenB = b.comment ? b.comment.trim().length : 0;
+      return lenB - lenA;
+    });
+  }, [reviewsList]);
+
+  const homepageReviews = React.useMemo(() => {
+    return sortedReviews.slice(0, 5);
+  }, [sortedReviews]);
+
+  React.useEffect(() => {
+    const q = query(collection(db, "reviews"), orderBy("createdAt", "desc"));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const fetched = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setReviewsList(fetched.length > 0 ? fetched : MOCK_REVIEWS);
+      setLoadingReviews(false);
+    }, (error) => {
+      console.warn("Firestore connection error, falling back to mock reviews:", error);
+      setReviewsList(MOCK_REVIEWS);
+      setLoadingReviews(false);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const handleReviewSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!reviewName.trim() || !reviewComment.trim()) {
+      setSubmitError("Please fill in all fields.");
+      return;
+    }
+    setSubmittingReview(true);
+    setSubmitError("");
+    try {
+      await addDoc(collection(db, "reviews"), {
+        name: reviewName,
+        location: reviewLocation,
+        rating: reviewRating,
+        comment: reviewComment,
+        createdAt: serverTimestamp()
+      });
+      setSubmitSuccess(true);
+      setReviewName("");
+      setReviewComment("");
+      setReviewRating(5);
+      setReviewLocation("Ranchi");
+      setTimeout(() => setSubmitSuccess(false), 5000);
+    } catch (err: any) {
+      console.error("Error adding review: ", err);
+      setSubmitError("Failed to submit review. Please try again.");
+    } finally {
+      setSubmittingReview(false);
+    }
+  };
   
   const [api, setApi] = React.useState<any>();
 
@@ -159,11 +345,11 @@ export default function HomePage() {
   );
   
   const heroAutoplayPlugin = React.useRef(
-    Autoplay({ delay: 6000, stopOnInteraction: false })
+    Autoplay({ delay: 5000, stopOnInteraction: true, stopOnMouseEnter: true })
   );
 
   const partnersAutoplayPlugin = React.useRef(
-    Autoplay({ delay: 2000, stopOnInteraction: false })
+    Autoplay({ delay: 5000, stopOnInteraction: true, stopOnMouseEnter: true })
   );
 
   // Automated transition effect on global mode updates
@@ -178,6 +364,30 @@ export default function HomePage() {
   // Sync category filter options on mode toggles
   React.useEffect(() => {
     setFurnitureFilter('All');
+  }, [mode]);
+
+  // Autoplay Expertise Carousel every 5 seconds on mobile (with touch/hover pause)
+  React.useEffect(() => {
+    if (isServiceHovered) return;
+    const interval = setInterval(() => {
+      setActiveServiceIndex((prev) => (prev + 1) % activeServices.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [isServiceHovered, activeServices.length]);
+
+  // Autoplay Furniture Carousel every 5 seconds on mobile (with touch/hover pause)
+  React.useEffect(() => {
+    if (isFurnitureHovered || filteredFurniture.length === 0) return;
+    const interval = setInterval(() => {
+      setActiveFurnitureIndex((prev) => (prev + 1) % filteredFurniture.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [isFurnitureHovered, filteredFurniture.length]);
+
+  // Reset indices on mode transitions
+  React.useEffect(() => {
+    setActiveServiceIndex(0);
+    setActiveFurnitureIndex(0);
   }, [mode]);
 
   return (
@@ -208,7 +418,7 @@ export default function HomePage() {
                       muted={isMuted}
                       loop
                       playsInline
-                      className="w-full h-full object-cover scale-105 animate-slow-zoom"
+                      className="w-full h-full object-cover scale-105 lg:animate-slow-zoom"
                     >
                       <source src={slide.url} type="video/mp4" />
                     </video>
@@ -217,7 +427,7 @@ export default function HomePage() {
                       src={slide.url}
                       alt={slide.heading}
                       fill
-                      className="object-cover scale-105 animate-slow-zoom"
+                      className="object-cover scale-105 lg:animate-slow-zoom"
                       priority={index === 0}
                     />
                   )}
@@ -293,7 +503,7 @@ export default function HomePage() {
             <CarouselContent className="-ml-4 md:-ml-8">
               {partnerLogos.map((brand, index) => (
                 <CarouselItem key={index} className="pl-4 md:pl-8 basis-1/2 md:basis-1/4">
-                  <div className="flex items-center justify-center h-24 md:h-32 p-4 grayscale hover:grayscale-0 transition-all duration-500 group">
+                  <div className="flex items-center justify-center h-24 md:h-32 p-4 opacity-60 hover:opacity-100 transition-opacity duration-300 group">
                     <div className="relative w-full h-full group-hover:scale-110 transition-transform duration-300">
                       <Image 
                         src={brand.path} 
@@ -360,7 +570,54 @@ export default function HomePage() {
               }
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {/* Mobile Snap Scroll for Expertise — pure CSS, zero JS jank */}
+          <div className="md:hidden w-full">
+            <div
+              className="flex gap-4 overflow-x-auto px-4 pb-4 [&::-webkit-scrollbar]:hidden"
+              style={{
+                scrollSnapType: 'x mandatory',
+                WebkitOverflowScrolling: 'touch',
+                scrollbarWidth: 'none',
+                msOverflowStyle: 'none',
+              }}
+            >
+              {activeServices.map((service, index) => (
+                <div
+                  key={index}
+                  className="flex-shrink-0 w-[75vw] max-w-[290px]"
+                  style={{ scrollSnapAlign: 'center' }}
+                >
+                  <Card className="glass-card bg-white/10 border-white/10 overflow-hidden flex flex-col px-0 pt-0 rounded-[16px] m3-elevation-2 h-[275px] w-full justify-between">
+                    <div>
+                      <div className="relative w-full h-28 overflow-hidden border-b border-white/5 rounded-t-[16px]">
+                        <Image
+                          src={service.image}
+                          alt={service.name}
+                          fill
+                          className="object-cover"
+                        />
+                        <div className="absolute inset-0 bg-primary/20" />
+                      </div>
+                      <div className="p-3.5">
+                        <h3 className="text-sm font-bold mb-1 uppercase tracking-tight text-gold">{service.name}</h3>
+                        <p className="text-white/70 text-[11px] leading-relaxed line-clamp-3">{service.desc}</p>
+                      </div>
+                    </div>
+                    <div className="px-3.5 pb-3.5 pt-1">
+                      <Link href={`/services/${service.slug}`} className="text-accent font-black flex items-center gap-1.5 text-[8px] tracking-widest uppercase">
+                        EXPLORE <ChevronRight className="w-3 h-3" />
+                      </Link>
+                    </div>
+                  </Card>
+                </div>
+              ))}
+            </div>
+            {/* Swipe hint */}
+            <p className="text-center text-white/30 text-[9px] font-bold tracking-widest uppercase mt-1">← Swipe to explore →</p>
+          </div>
+
+          {/* Desktop Grid View for Expertise */}
+          <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {activeServices.map((service, index) => (
               <Card key={index} className="glass-card bg-white/10 border-white/10 group m3-transition overflow-hidden flex flex-col px-0 pt-0 rounded-[28px] m3-elevation-2 hover:m3-elevation-3 hover:-translate-y-1.5">
                 <div className="relative w-full h-48 md:h-56 overflow-hidden border-b border-white/5 rounded-t-[28px]">
@@ -421,7 +678,58 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+          {/* Mobile Snap Scroll for Furniture — pure CSS, zero JS jank */}
+          <div className="sm:hidden w-full">
+            <div
+              className="flex gap-4 overflow-x-auto px-4 pb-4 [&::-webkit-scrollbar]:hidden"
+              style={{
+                scrollSnapType: 'x mandatory',
+                WebkitOverflowScrolling: 'touch',
+                scrollbarWidth: 'none',
+                msOverflowStyle: 'none',
+              }}
+            >
+              {filteredFurniture.length === 0 ? (
+                <p className="text-center text-gray-500 text-sm py-8 w-full">No items found.</p>
+              ) : (
+                filteredFurniture.map((item, index) => (
+                  <div
+                    key={index}
+                    className="flex-shrink-0 w-[72vw] max-w-[270px]"
+                    style={{ scrollSnapAlign: 'center' }}
+                  >
+                    <div className="relative bg-[#08162b] rounded-[16px] overflow-hidden border border-white/5 flex flex-col h-[235px] w-full">
+                      <div className="relative h-32 overflow-hidden rounded-t-[16px]">
+                        <Image
+                          src={item.image}
+                          alt={item.name}
+                          fill
+                          className="object-cover"
+                        />
+                        <Badge className="absolute top-2 left-2 bg-[#051124]/90 backdrop-blur-md text-accent font-black border border-accent/20 px-2 py-0.5 rounded-full text-[7px] shadow-sm uppercase tracking-wider">
+                          {item.price}
+                        </Badge>
+                      </div>
+                      <div className="p-3 flex-1 flex flex-col justify-between bg-[#08162b]">
+                        <div>
+                          <p className="text-[8px] font-black text-accent mb-0.5 uppercase tracking-widest">{item.category}</p>
+                          <h3 className="text-xs font-bold text-white truncate leading-tight">{item.name}</h3>
+                        </div>
+                        <Link href="/contact" className="bg-accent text-primary text-[8px] font-black py-1.5 px-3 rounded-full text-center w-full tracking-widest shadow-md block">
+                          ENQUIRE NOW
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+            {/* Swipe hint */}
+            <p className="text-center text-primary/40 text-[9px] font-bold tracking-widest uppercase mt-1">← Swipe to browse →</p>
+          </div>
+
+          {/* Desktop Grid View for Furniture */}
+          <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
             {filteredFurniture.map((item, index) => (
               <div key={index} className="group relative bg-[#08162b] rounded-[28px] overflow-hidden m3-elevation-2 hover:m3-elevation-3 border border-white/5 h-full flex flex-col m3-transition hover:-translate-y-1.5 animate-fade-up">
                 <div className="relative aspect-[4/5] overflow-hidden rounded-t-[28px]">
@@ -458,6 +766,211 @@ export default function HomePage() {
                 {mode === "residential" ? "GET CUSTOM FURNITURE" : "BOOK OFFICE SETUP"} <ChevronRight className="w-6 h-6 ml-2 group-hover:translate-x-2 transition-transform text-primary" />
               </Button>
             </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Reviews & Testimonials Section */}
+      <section className="py-16 md:py-28 bg-[#051124] relative text-white overflow-hidden border-t border-white/5">
+        {/* Background Decorative Mandala Accent */}
+        <div className="absolute inset-0 bg-logo-radial opacity-20 pointer-events-none -z-10" />
+        
+        <div className="container mx-auto px-4 max-w-6xl">
+          <div className="text-center mb-16">
+            <Badge className="mb-4 bg-accent text-primary font-bold px-4 py-1.5 uppercase tracking-widest text-[9px]">
+              Client Voices
+            </Badge>
+            <h2 className="text-3xl md:text-6xl font-bold mb-4 font-display uppercase tracking-tight text-white">
+              What Our <span className="text-gold italic">Clients Say</span>
+            </h2>
+            <div className="w-16 h-1 bg-accent mx-auto mb-6"></div>
+            <p className="text-sm md:text-base text-white/60 max-w-2xl mx-auto px-4">
+              Real testimonials from elite home owners and corporate directors across Jharkhand, Bihar, and beyond.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+            {/* Reviews List Column */}
+            <div className="lg:col-span-7 space-y-6 lg:max-h-[650px] lg:overflow-y-auto pr-2 custom-scrollbar">
+              {loadingReviews ? (
+                <div className="flex justify-center items-center py-20">
+                  <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-accent"></div>
+                </div>
+              ) : homepageReviews.length === 0 ? (
+                <div className="text-center py-10 bg-white/5 rounded-[24px] border border-white/10 p-6">
+                  <p className="text-white/60 italic text-sm">No reviews submitted yet. Be the first to share your experience!</p>
+                </div>
+              ) : (
+                <>
+                  <div className="space-y-4 md:space-y-6">
+                    {homepageReviews.map((review, idx) => (
+                      <div 
+                        key={review.id || idx} 
+                        className="p-4 md:p-8 bg-white/[0.03] border border-white/10 rounded-[20px] md:rounded-[28px] shadow-lg hover:border-accent/25 transition-all duration-300 group hover:-translate-y-1 animate-fade-up"
+                      >
+                        <div className="flex justify-between items-start mb-3 md:mb-4">
+                          <div>
+                            <h4 className="font-bold text-sm md:text-xl text-white group-hover:text-gold transition-colors">{review.name}</h4>
+                            <p className="text-[9px] md:text-[10px] text-accent/80 font-black tracking-widest uppercase mt-0.5">{review.location}</p>
+                          </div>
+                          
+                          {/* Rating Stars */}
+                          <div className="flex gap-0.5 md:flex gap-1">
+                            {Array.from({ length: 5 }).map((_, i) => (
+                              <Star 
+                                key={i} 
+                                className={cn(
+                                  "w-3.5 h-3.5 md:w-4 md:h-4", 
+                                  i < review.rating 
+                                    ? "fill-gold text-gold filter drop-shadow-[0_0_2px_rgba(255,207,51,0.5)]" 
+                                    : "text-white/20"
+                                )} 
+                              />
+                            ))}
+                          </div>
+                        </div>
+                        
+                        <p className="text-white/70 text-xs md:text-base leading-relaxed font-medium italic">
+                          &ldquo;{review.comment}&rdquo;
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="pt-6 text-center lg:text-left">
+                    <Link href="/reviews">
+                      <Button variant="outline" className="rounded-full px-8 py-5 border-white/20 hover:border-accent text-white hover:text-accent font-black uppercase text-xs tracking-wider bg-transparent hover:scale-105 active:scale-95 transition-all">
+                        See All Reviews ({sortedReviews.length})
+                      </Button>
+                    </Link>
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Review Submission Form Column */}
+            <div className="lg:col-span-5 bg-white/[0.02] border border-white/10 p-6 md:p-8 rounded-[32px] shadow-2xl relative overflow-hidden backdrop-blur-md">
+              <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent pointer-events-none" />
+              
+              <h3 className="text-xl md:text-2xl font-bold text-white mb-6 uppercase tracking-tight font-display">
+                Share Your <span className="text-gold">Experience</span>
+              </h3>
+
+              <form onSubmit={handleReviewSubmit} className="space-y-5 relative z-10">
+                {submitError && (
+                  <div className="p-3.5 bg-red-500/10 border border-red-500/20 text-red-200 text-xs rounded-xl font-semibold">
+                    {submitError}
+                  </div>
+                )}
+                {submitSuccess && (
+                  <div className="p-3.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-200 text-xs rounded-xl font-semibold animate-fade-in">
+                    Thank you! Your review has been submitted successfully and published in real time.
+                  </div>
+                )}
+
+                {/* Name Input */}
+                <div className="relative w-full">
+                  <input
+                    type="text"
+                    value={reviewName}
+                    onChange={(e) => setReviewName(e.target.value)}
+                    required
+                    disabled={submittingReview}
+                    className="w-full h-14 px-4 pt-4 pb-1 rounded-xl border border-white/20 focus:border-accent bg-white/[0.02] text-white focus:outline-none focus:ring-0 peer placeholder:text-transparent text-sm font-medium transition-all"
+                    placeholder="Your Name"
+                    id="client_review_name"
+                  />
+                  <label 
+                    htmlFor="client_review_name"
+                    className="absolute left-4 top-4 text-xs font-semibold text-white/50 uppercase tracking-widest pointer-events-none transition-all peer-placeholder-shown:text-xs peer-placeholder-shown:top-4 peer-placeholder-shown:font-semibold peer-focus:top-1.5 peer-focus:text-[9px] peer-focus:font-black peer-focus:text-gold peer-focus:tracking-widest peer-[:not(:placeholder-shown)]:top-1.5 peer-[:not(:placeholder-shown)]:text-[9px] peer-[:not(:placeholder-shown)]:font-black peer-[:not(:placeholder-shown)]:text-gold"
+                  >
+                    Your Name
+                  </label>
+                </div>
+
+                {/* Location Select Dropdown */}
+                <div className="space-y-1.5">
+                  <label htmlFor="client_review_location" className="text-[10px] font-black text-white/50 uppercase tracking-widest pl-1">
+                    Select Location
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={reviewLocation}
+                      onChange={(e) => setReviewLocation(e.target.value)}
+                      disabled={submittingReview}
+                      id="client_review_location"
+                      className="w-full h-14 px-4 rounded-xl border border-white/20 focus:border-accent bg-[#08162d] text-white focus:outline-none focus:ring-0 text-sm font-semibold transition-all appearance-none cursor-pointer"
+                    >
+                      {LOCATIONS.map((loc) => (
+                        <option key={loc} value={loc} className="bg-[#051124]">
+                          {loc}
+                        </option>
+                      ))}
+                    </select>
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none border-l-4 border-r-4 border-t-4 border-transparent border-t-white/60 w-0 h-0" />
+                  </div>
+                </div>
+
+                {/* Rating Interactive Stars Selector */}
+                <div className="space-y-2">
+                  <span className="text-[10px] font-black text-white/50 uppercase tracking-widest pl-1 block">
+                    Your Rating
+                  </span>
+                  <div className="flex gap-2.5 py-1">
+                    {Array.from({ length: 5 }).map((_, i) => {
+                      const starVal = i + 1;
+                      return (
+                        <button
+                          key={i}
+                          type="button"
+                          disabled={submittingReview}
+                          onClick={() => setReviewRating(starVal)}
+                          className="focus:outline-none transition-transform hover:scale-125 active:scale-95 group/star"
+                        >
+                          <Star 
+                            className={cn(
+                              "w-7 h-7 transition-all duration-200", 
+                              starVal <= reviewRating 
+                                ? "fill-gold text-gold filter drop-shadow-[0_0_4px_rgba(255,207,51,0.6)]" 
+                                : "text-white/25 group-hover/star:text-gold/50"
+                            )} 
+                          />
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Comment Textarea */}
+                <div className="relative w-full">
+                  <textarea
+                    value={reviewComment}
+                    onChange={(e) => setReviewComment(e.target.value)}
+                    required
+                    rows={4}
+                    disabled={submittingReview}
+                    className="w-full px-4 pt-5 pb-1 rounded-xl border border-white/20 focus:border-accent bg-white/[0.02] text-white focus:outline-none focus:ring-0 peer placeholder:text-transparent text-sm font-medium transition-all resize-none"
+                    placeholder="Write your review..."
+                    id="client_review_comment"
+                  />
+                  <label 
+                    htmlFor="client_review_comment"
+                    className="absolute left-4 top-4 text-xs font-semibold text-white/50 uppercase tracking-widest pointer-events-none transition-all peer-placeholder-shown:text-xs peer-placeholder-shown:top-4 peer-placeholder-shown:font-semibold peer-focus:top-1.5 peer-focus:text-[9px] peer-focus:font-black peer-focus:text-gold peer-focus:tracking-widest peer-[:not(:placeholder-shown)]:top-1.5 peer-[:not(:placeholder-shown)]:text-[9px] peer-[:not(:placeholder-shown)]:font-black peer-[:not(:placeholder-shown)]:text-gold"
+                  >
+                    Write your review...
+                  </label>
+                </div>
+
+                {/* Submit Button */}
+                <Button
+                  type="submit"
+                  disabled={submittingReview}
+                  className="w-full h-14 bg-gold-gradient hover:opacity-95 text-primary rounded-full font-black text-xs uppercase tracking-widest m3-elevation-2 hover:m3-elevation-3 transition-all hover:scale-[1.01] active:scale-[0.99] relative overflow-hidden"
+                >
+                  {submittingReview ? "Submitting..." : "Submit Review"}
+                </Button>
+              </form>
+            </div>
           </div>
         </div>
       </section>

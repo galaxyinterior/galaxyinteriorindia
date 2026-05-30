@@ -4,12 +4,14 @@ import { getStorage } from "firebase/storage";
 import { getAuth } from "firebase/auth";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAffQCVsFBBFHNcAz05Lwg-OJak6Oqs8jM",
-  authDomain: "studio-4927413196-b3f7b.firebaseapp.com",
-  projectId: "studio-4927413196-b3f7b",
-  storageBucket: "studio-4927413196-b3f7b.firebasestorage.app",
-  messagingSenderId: "136822300940",
-  appId: "1:136822300940:web:df938b4983ecd6599d2929"
+  apiKey: "AIzaSyDb2ag6LLlWe4KHv55i8aLEgVlWbyzBbnI",
+  authDomain: "galaxy-interior.firebaseapp.com",
+  databaseURL: "https://galaxy-interior-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "galaxy-interior",
+  storageBucket: "galaxy-interior.firebasestorage.app",
+  messagingSenderId: "230292492490",
+  appId: "1:230292492490:web:6dce7f3b67865286be6433",
+  measurementId: "G-VL9CFXR81T"
 };
 
 // Initialize Firebase (prevent re-initializing in Next.js development)

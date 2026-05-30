@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { collection, query, orderBy, limit, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { LayoutDashboard, ImageIcon, MonitorPlay, Mails, Loader2, ArrowRight } from "lucide-react";
+import { LayoutDashboard, ImageIcon, MonitorPlay, Mails, Loader2, ArrowRight, ShoppingBag } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 
@@ -47,7 +47,7 @@ export default function AdminOverviewPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-6">
         <Link href="/admin-galaxy/gallery" className="group">
           <Card className="hover:border-primary transition-colors cursor-pointer shadow-sm hover:shadow-md bg-white">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -70,6 +70,32 @@ export default function AdminOverviewPage() {
             <CardContent>
               <div className="text-2xl font-bold text-gray-900">Configure</div>
               <p className="text-xs text-gray-500 mt-1">Homepage hero banners & text</p>
+            </CardContent>
+          </Card>
+        </Link>
+
+        <Link href="/admin-galaxy/projects" className="group">
+          <Card className="hover:border-blue-600 transition-colors cursor-pointer shadow-sm hover:shadow-md bg-white">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-bold text-gray-500 uppercase tracking-wider">Manage Projects</CardTitle>
+              <LayoutDashboard className="text-blue-600 w-5 h-5 group-hover:scale-110 transition-transform" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-gray-900">Configure</div>
+              <p className="text-xs text-gray-500 mt-1">Completed, ongoing, and upcoming sites</p>
+            </CardContent>
+          </Card>
+        </Link>
+
+        <Link href="/admin-galaxy/products" className="group">
+          <Card className="hover:border-purple-600 transition-colors cursor-pointer shadow-sm hover:shadow-md bg-white">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-bold text-gray-500 uppercase tracking-wider">Manage Products</CardTitle>
+              <ShoppingBag className="text-purple-600 w-5 h-5 group-hover:scale-110 transition-transform" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-gray-900">Configure</div>
+              <p className="text-xs text-gray-500 mt-1">Modular kitchen & custom fittings</p>
             </CardContent>
           </Card>
         </Link>

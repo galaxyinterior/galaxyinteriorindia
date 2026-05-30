@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ChevronRight, Map, Sofa, Zap, Wrench, ArrowRight, Check } from "lucide-react";
@@ -145,11 +146,11 @@ export default function TwoDPlanDashboardPage() {
               <Link
                 key={service.slug}
                 href={`/services/2d-plan/${service.slug}`}
-                className="group relative rounded-[32px] overflow-hidden border border-white/10 hover:border-accent/40 transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl hover:shadow-accent/10 flex flex-col"
+                className="group relative rounded-[20px] sm:rounded-[32px] overflow-hidden border border-white/10 hover:border-accent/40 transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl hover:shadow-accent/10 flex flex-col"
                 style={{ animationDelay: `${idx * 150}ms` }}
               >
                 {/* Image Section */}
-                <div className="relative h-72 w-full overflow-hidden bg-[#0a1f3d]">
+                <div className="relative h-48 sm:h-72 w-full overflow-hidden bg-[#0a1f3d]">
                   <Image
                     src={service.image}
                     alt={service.label}
@@ -158,42 +159,42 @@ export default function TwoDPlanDashboardPage() {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#051124] via-[#051124]/30 to-transparent" />
                   {/* Tag */}
-                  <div className="absolute top-5 left-5">
-                    <span className="bg-accent text-primary text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full shadow-lg">
+                  <div className="absolute top-4 left-4 sm:top-5 sm:left-5">
+                    <span className="bg-accent text-primary text-[8px] sm:text-[10px] font-black uppercase tracking-widest px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full shadow-lg">
                       {service.tagline}
                     </span>
                   </div>
                 </div>
 
                 {/* Content Section */}
-                <div className="bg-[#08162d] p-8 relative flex-1 flex flex-col justify-between">
+                <div className="bg-[#08162d] p-5 sm:p-8 relative flex-1 flex flex-col justify-between">
                   <div>
                     {/* Icon */}
-                    <div className="absolute -top-6 right-8 bg-accent text-primary w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg shadow-accent/30">
-                      {service.icon}
+                    <div className="absolute -top-5 sm:-top-6 right-6 sm:right-8 bg-accent text-primary w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg shadow-accent/30">
+                      {React.cloneElement(service.icon, { className: "w-5 h-5 sm:w-7 h-7" })}
                     </div>
 
-                    <h2 className="text-2xl md:text-3xl font-black uppercase tracking-tight text-white mb-3 mt-2">
+                    <h2 className="text-xl sm:text-3xl font-black uppercase tracking-tight text-white mb-2 sm:mb-3 mt-1 sm:mt-2">
                       {service.label}
                     </h2>
-                    <p className="text-white/60 text-sm leading-relaxed mb-6">
+                    <p className="text-white/60 text-xs sm:text-sm leading-relaxed mb-4 sm:mb-6">
                       {service.description}
                     </p>
 
                     {/* Highlights */}
-                    <ul className="space-y-2 mb-8">
+                    <ul className="space-y-1.5 sm:space-y-2 mb-6 sm:mb-8">
                       {service.highlights.map((h) => (
-                        <li key={h} className="flex items-center gap-2.5 text-sm text-white/80 font-semibold">
-                          <Check className="w-4 h-4 text-accent shrink-0" />
+                        <li key={h} className="flex items-center gap-2 text-xs sm:text-sm text-white/80 font-semibold">
+                          <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-accent shrink-0" />
                           {h}
                         </li>
                       ))}
                     </ul>
                   </div>
 
-                  <div className="flex items-center gap-2 text-accent font-black uppercase tracking-wider text-xs group-hover:gap-4 transition-all duration-300 mt-4">
+                  <div className="flex items-center gap-1.5 sm:gap-2 text-accent font-black uppercase tracking-wider text-[10px] sm:text-xs group-hover:gap-3 sm:group-hover:gap-4 transition-all duration-300 mt-2 sm:mt-4">
                     Explore Detailed {service.label}
-                    <ArrowRight className="w-4 h-4" />
+                    <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   </div>
                 </div>
               </Link>
@@ -240,7 +241,7 @@ export default function TwoDPlanDashboardPage() {
           <h3 className="text-3xl font-black uppercase text-white mb-6">
             Get Professional <span className="text-gold italic">2D Blueprints</span>
           </h3>
-          <Button asChild className="rounded-full px-10 h-14 font-black uppercase tracking-[0.15em] bg-accent hover:bg-accent/90 text-primary shadow-lg shadow-accent/20 hover:scale-105 active:scale-95 transition-all">
+          <Button asChild className="rounded-full px-6 md:px-10 h-11 md:h-14 text-xs md:text-sm font-black uppercase tracking-[0.15em] bg-accent hover:bg-accent/90 text-primary shadow-lg shadow-accent/20 hover:scale-105 active:scale-95 transition-all">
             <Link href="/contact?services=2D%20Floor%20Plan,Furniture%20Layout%20Plan,Electrical%20Layout,Plumbing%20Layout">Request Free Consultation</Link>
           </Button>
         </div>

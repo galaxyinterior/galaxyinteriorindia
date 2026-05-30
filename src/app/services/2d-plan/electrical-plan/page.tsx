@@ -92,10 +92,10 @@ export default function ElectricalPlanPage() {
             Ensure smooth electrical wiring execution and total safety. We design detailed switchboard heights, socket coordinates, power load splits, and low-voltage internet networks beforehand.
           </p>
           <div className="flex flex-wrap gap-4">
-            <Button asChild className="rounded-full px-10 h-14 font-black uppercase tracking-[0.15em] bg-accent hover:bg-accent/90 text-primary shadow-lg shadow-accent/20 hover:scale-105 active:scale-95 transition-all">
+            <Button asChild className="rounded-full px-6 md:px-10 h-11 md:h-14 text-xs md:text-sm font-black uppercase tracking-[0.15em] bg-accent hover:bg-accent/90 text-primary shadow-lg shadow-accent/20 hover:scale-105 active:scale-95 transition-all">
               <Link href="/contact?service=2D%20Electrical%20Plan">Get a Free Quote</Link>
             </Button>
-            <Button asChild variant="outline" className="rounded-full px-10 h-14 font-black uppercase tracking-[0.15em] border-white/20 hover:border-accent text-white hover:text-accent bg-transparent transition-all">
+            <Button asChild variant="outline" className="rounded-full px-6 md:px-10 h-11 md:h-14 text-xs md:text-sm font-black uppercase tracking-[0.15em] border-white/20 hover:border-accent text-white hover:text-accent bg-transparent transition-all">
               <Link href="/services/2d-plan">← Back to 2D Plan</Link>
             </Button>
           </div>
@@ -197,7 +197,7 @@ export default function ElectricalPlanPage() {
                   </li>
                 ))}
               </ul>
-              <Button asChild className="mt-10 rounded-full px-10 h-14 font-black uppercase tracking-[0.15em] bg-accent hover:bg-accent/90 text-primary shadow-lg shadow-accent/20 hover:scale-105 active:scale-95 transition-all">
+              <Button asChild className="mt-10 rounded-full px-6 md:px-10 h-11 md:h-14 text-xs md:text-sm font-black uppercase tracking-[0.15em] bg-accent hover:bg-accent/90 text-primary shadow-lg shadow-accent/20 hover:scale-105 active:scale-95 transition-all">
                 <Link href="/contact?service=2D%20Electrical%20Plan">Enquire For Electrical Plan</Link>
               </Button>
             </div>

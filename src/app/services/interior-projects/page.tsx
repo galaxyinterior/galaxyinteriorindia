@@ -104,7 +104,7 @@ export default function InteriorProjectsPage() {
           <p className="max-w-2xl mx-auto text-base md:text-lg text-white/60 font-semibold leading-relaxed">
             Turn your empty civil shells into a high-end luxury haven. Complete materials, skilled craftsmanship, and transparent pricing under one unified roof.
           </p>
-          <Button asChild className="mt-10 rounded-full px-10 h-14 font-black uppercase tracking-[0.15em] bg-accent hover:bg-accent/90 text-primary shadow-lg shadow-accent/20 hover:scale-105 active:scale-95 transition-all">
+          <Button asChild className="mt-10 rounded-full px-6 md:px-10 h-11 md:h-14 text-xs md:text-sm font-black uppercase tracking-[0.15em] bg-accent hover:bg-accent/90 text-primary shadow-lg shadow-accent/20 hover:scale-105 active:scale-95 transition-all">
             <Link href="/services/interior-projects/estimate" className="flex items-center gap-2">
               <Calculator className="w-5 h-5" />
               Use Instant Cost Estimate Maker
@@ -208,7 +208,7 @@ export default function InteriorProjectsPage() {
           <p className="text-white/55 text-sm md:text-base leading-relaxed max-w-2xl mx-auto mb-10">
             We operate with a fully transparent pricing index using branded materials, structured labor cards, and complete bill of quantities (BOQ) so you know exactly where every rupee goes.
           </p>
-          <Button asChild variant="outline" className="rounded-full px-10 h-14 font-black uppercase tracking-[0.15em] border-white/20 hover:border-accent text-white hover:text-accent bg-transparent transition-all">
+          <Button asChild variant="outline" className="rounded-full px-6 md:px-10 h-11 md:h-14 text-xs md:text-sm font-black uppercase tracking-[0.15em] border-white/20 hover:border-accent text-white hover:text-accent bg-transparent transition-all">
             <Link href="/services">Browse All Services</Link>
           </Button>
         </div>

@@ -219,7 +219,7 @@ export default function ThreeDDesignPage() {
           <h3 className="text-3xl font-black uppercase text-white mb-6">
             Talk to Our <span className="text-gold italic">Design Team</span>
           </h3>
-          <Button asChild className="rounded-full px-10 h-14 font-black uppercase tracking-[0.15em] bg-accent hover:bg-accent/90 text-primary shadow-lg shadow-accent/20 hover:scale-105 active:scale-95 transition-all">
+          <Button asChild className="rounded-full px-6 md:px-10 h-11 md:h-14 text-xs md:text-sm font-black uppercase tracking-[0.15em] bg-accent hover:bg-accent/90 text-primary shadow-lg shadow-accent/20 hover:scale-105 active:scale-95 transition-all">
             <Link href="/contact?services=3D%20Elevation,3D%20Interior%20Design">Get a Free Consultation</Link>
           </Button>
         </div>

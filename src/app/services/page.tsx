@@ -233,25 +233,25 @@ export default function ServicesPage() {
                FACILITIES
             </h2>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-3">
             {facilities.map((item) => (
               <Link href={`/services/${item.slug}`} key={item.slug} className="group">
-                <Card className="relative bg-white border-none m3-elevation-2 hover:m3-elevation-4 hover:-translate-y-1.5 m3-transition rounded-[28px] overflow-hidden aspect-square">
+                <Card className="relative bg-white border-none m3-elevation-2 hover:m3-elevation-4 hover:-translate-y-1.5 m3-transition rounded-[16px] sm:rounded-[28px] overflow-hidden aspect-square">
                    <Image 
                     src={item.image} 
                     alt={item.name} 
                     fill 
-                    className="object-cover transition-transform duration-700 group-hover:scale-110 rounded-[28px]" 
+                    className="object-cover transition-transform duration-700 group-hover:scale-110 rounded-[16px] sm:rounded-[28px]" 
                     data-ai-hint={item.imageHint}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/20 to-transparent" />
-                  <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
-                    <div className="w-14 h-14 bg-white/90 text-primary rounded-full flex items-center justify-center mb-4 shadow-xl group-hover:bg-accent group-hover:text-primary transition-all duration-300">
+                  <div className="absolute inset-0 flex flex-col items-center justify-center p-3 sm:p-6 text-center">
+                    <div className="w-10 h-10 sm:w-14 sm:h-14 bg-white/90 text-primary rounded-full flex items-center justify-center mb-2 sm:mb-4 shadow-xl group-hover:bg-accent group-hover:text-primary transition-all duration-300">
                       {item.icon}
                     </div>
-                    <h3 className="font-bold text-white text-lg uppercase tracking-wider text-shadow">{item.name}</h3>
-                    <div className="mt-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <span className="text-[10px] font-bold text-accent uppercase tracking-[0.2em] flex items-center gap-1">
+                    <h3 className="font-bold text-white text-xs sm:text-lg uppercase tracking-wider text-shadow">{item.name}</h3>
+                    <div className="mt-2 sm:mt-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <span className="text-[8px] sm:text-[10px] font-bold text-accent uppercase tracking-[0.2em] flex items-center gap-1">
                         VIEW DETAILS <ChevronRight className="w-3 h-3" />
                       </span>
                     </div>

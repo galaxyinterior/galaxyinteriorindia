@@ -26,6 +26,8 @@ const navLinks = [
   { href: '/about', label: 'COMPANY' },
   { href: '/services', label: 'SERVICES' },
   { href: '/portfolio', label: 'GALLERY' },
+  { href: '/projects', label: 'PROJECTS' },
+  { href: '/products', label: 'PRODUCTS' },
   { href: '/construction', label: 'CONSTRUCTION' },
   { href: '/pricing', label: 'PRICING' },
   { href: '/contact', label: 'CONTACT' },
@@ -44,13 +46,13 @@ const linkIcons: Record<string, React.ComponentType<{ className?: string }>> = {
 };
 
 const Logo = () => (
-  <div className="bg-logo-radial border-b border-r border-accent/20 text-white h-16 md:h-[100px] px-4 md:px-8 flex items-center gap-3 transition-all shadow-[0_0_15px_rgba(255,207,51,0.05)]">
-    <div className="h-10 w-10 md:h-12 md:w-12 rounded-full overflow-hidden border-2 border-accent/25 flex-shrink-0 bg-white/5 backdrop-blur-md">
+  <div className="bg-logo-radial border-b border-r border-accent/20 text-white h-14 md:h-[100px] px-3.5 md:px-8 flex items-center gap-2.5 transition-all shadow-[0_0_15px_rgba(255,207,51,0.05)]">
+    <div className="h-9 w-9 md:h-12 md:w-12 rounded-full overflow-hidden border-2 border-accent/25 flex-shrink-0 bg-white/5 backdrop-blur-md">
       <Image src="/logo.png" alt="Galaxy Interior Logo" width={48} height={48} className="object-contain w-full h-full" />
     </div>
     <div className="flex flex-col">
-      <span className="text-[1.2rem] md:text-3xl font-bold tracking-tighter leading-none mt-1 text-white">GALAXY</span>
-      <span className="text-[7.5px] md:text-xs font-bold tracking-[0.3em] text-accent opacity-90">INTERIOR</span>
+      <span className="text-[1.05rem] md:text-3xl font-bold tracking-tighter leading-none mt-1 text-white">GALAXY</span>
+      <span className="text-[6.5px] md:text-xs font-bold tracking-[0.3em] text-accent opacity-90">INTERIOR</span>
     </div>
   </div>
 );
@@ -109,10 +111,10 @@ export default function Header() {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="bg-white border-primary">
                 <DropdownMenuItem asChild className="cursor-pointer font-bold text-primary focus:bg-primary focus:text-white">
-                  <a href="tel:+919122795726">GODDA: +91 91227 95726</a>
+                  <a href="tel:+919122795726">GENERAL MANAGER: +91 91227 95726</a>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild className="cursor-pointer font-bold text-primary focus:bg-primary focus:text-white">
-                  <a href="tel:+919631980881">RANCHI: +91 96319 80881</a>
+                  <a href="tel:+919631980881">OWNER: +91 96319 80881</a>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -121,7 +123,7 @@ export default function Header() {
       </div>
 
       {/* Main Navbar */}
-      <div className="flex h-16 items-center relative">
+      <div className="flex h-14 md:h-16 items-center relative">
         <div className="flex-1 flex items-center justify-end px-4 lg:px-12 ml-[190px] md:ml-[380px]">
           <nav className="hidden lg:flex items-center space-x-3 xl:space-x-6">
             {navLinks.map((link) => (
@@ -141,14 +143,14 @@ export default function Header() {
           </nav>
           
           {/* Mobile Menu */}
-          <div className="lg:hidden flex items-center gap-4">
-            <a href="tel:+919122795726" className="bg-primary p-3 text-white rounded-2xl m3-elevation-2 m3-state-layer relative overflow-hidden flex items-center justify-center">
-              <Phone className="h-5 w-5" />
+          <div className="lg:hidden flex items-center gap-3">
+            <a href="tel:+919122795726" className="bg-primary p-2.5 text-white rounded-2xl m3-elevation-2 m3-state-layer relative overflow-hidden flex items-center justify-center">
+              <Phone className="h-4.5 w-4.5" />
             </a>
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className={cn(isScrolled || !isHomePage ? "text-accent hover:text-white" : "text-white")}>
-                  <Menu className="h-8 w-8" />
+                <Button variant="ghost" size="icon" className={cn(isScrolled || !isHomePage ? "text-accent hover:text-white" : "text-white", "h-9 w-9")}>
+                  <Menu className="h-6 w-6" />
                 </Button>
               </SheetTrigger>
               <SheetContent side="right" className="bg-[#051124] text-white border-l border-accent/15 rounded-l-[28px] p-0 flex flex-col h-full shadow-[0_0_50px_rgba(0,0,0,0.6)] w-[85vw] sm:max-w-sm overflow-hidden">

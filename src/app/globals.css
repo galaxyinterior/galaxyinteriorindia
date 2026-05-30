@@ -104,6 +104,7 @@
   }
 }
 
+
 /* Glassy Effects overridden for dark theme */
 .glass-panel {
   background: rgba(8, 22, 45, 0.7) !important;
@@ -120,11 +121,14 @@
   transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.glass-card:hover {
-  background: rgba(12, 32, 64, 0.7) !important;
-  border-color: rgba(255, 207, 51, 0.25) !important;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(255, 207, 51, 0.1);
-  transform: translateY(-4px);
+/* Glass card hover — desktop/mouse only */
+@media (hover: hover) {
+  .glass-card:hover {
+    background: rgba(12, 32, 64, 0.7) !important;
+    border-color: rgba(255, 207, 51, 0.25) !important;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(255, 207, 51, 0.1);
+    transform: translateY(-4px);
+  }
 }
 
 /* Material 3 Design Tokens (Standard Brand Mappings) */
@@ -191,8 +195,11 @@
   pointer-events: none;
 }
 
-.m3-state-layer:hover::after {
-  opacity: 0.08;
+/* M3 state layer hover — desktop/mouse only */
+@media (hover: hover) {
+  .m3-state-layer:hover::after {
+    opacity: 0.08;
+  }
 }
 
 .m3-state-layer:active::after {
@@ -269,5 +276,17 @@
 
 .text-shadow {
   text-shadow: 0 2px 4px rgba(0,0,0,0.4);
+}
+
+/* Premium responsive global base scale-down for mobile viewports */
+@media (max-width: 768px) {
+  html {
+    font-size: 90% !important;
+  }
+}
+
+/* Hide scrollbar on native CSS snap-scroll carousels (mobile) */
+.snap-scroll-row::-webkit-scrollbar {
+  display: none;
 }
 

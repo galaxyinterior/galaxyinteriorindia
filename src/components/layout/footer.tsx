@@ -50,8 +50,11 @@ export default function Footer() {
               <li><Link href="/about" className="hover:text-primary transition-colors flex items-center gap-2 group"><ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" /> About Us</Link></li>
               <li><Link href="/services" className="hover:text-primary transition-colors flex items-center gap-2 group"><ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" /> Our Services</Link></li>
               <li><Link href="/portfolio" className="hover:text-primary transition-colors flex items-center gap-2 group"><ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" /> Portfolio</Link></li>
+              <li><Link href="/projects" className="hover:text-primary transition-colors flex items-center gap-2 group"><ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" /> Our Projects</Link></li>
+              <li><Link href="/products" className="hover:text-primary transition-colors flex items-center gap-2 group"><ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" /> Product Catalog</Link></li>
               <li><Link href="/construction" className="hover:text-primary transition-colors flex items-center gap-2 group"><ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" /> Construction</Link></li>
               <li><Link href="/pricing" className="hover:text-primary transition-colors flex items-center gap-2 group"><ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" /> Pricing Plans</Link></li>
+              <li><Link href="/reviews" className="hover:text-primary transition-colors flex items-center gap-2 group"><ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" /> Client Reviews</Link></li>
             </ul>
           </div>
 

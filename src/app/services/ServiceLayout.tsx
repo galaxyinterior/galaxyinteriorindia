@@ -72,7 +72,7 @@ export default function ServiceLayout({ title, category, description, image, ima
                 </div>
               )}
 
-              <Button asChild size="lg" className="mt-12 rounded-full px-12 h-14 font-black uppercase tracking-[0.15em] m3-elevation-2 hover:m3-elevation-3 transition-all hover:scale-105 active:scale-95 m3-state-layer relative overflow-hidden">
+              <Button asChild size="lg" className="mt-12 rounded-full px-8 md:px-12 h-11 md:h-14 text-xs md:text-sm font-black uppercase tracking-[0.15em] m3-elevation-2 hover:m3-elevation-3 transition-all hover:scale-105 active:scale-95 m3-state-layer relative overflow-hidden">
                 <Link href={contactHref}>Enquire for {title}</Link>
               </Button>
             </div>
