@@ -1,17 +1,16 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { collection, addDoc, serverTimestamp, onSnapshot, query, orderBy, deleteDoc, doc } from "firebase/firestore";
+import { collection, addDoc, serverTimestamp, onSnapshot, query, orderBy, deleteDoc, doc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ShoppingBag, PlusCircle, CheckCircle2, Loader2, AlertCircle, Trash2, Tag } from "lucide-react";
+import { ShoppingBag, PlusCircle, CheckCircle2, Loader2, AlertCircle, Trash2, Tag, Edit3, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 export default function AdminProductsPage() {
-  // Input fields state
   const [name, setName] = useState("");
   const [category, setCategory] = useState("kitchen");
   const [price, setPrice] = useState("");
@@ -19,18 +18,23 @@ export default function AdminProductsPage() {
   const [specifications, setSpecifications] = useState("");
   const [description, setDescription] = useState("");
 
+  const [editingProduct, setEditingProduct] = useState<any | null>(null);
+  const [editName, setEditName] = useState("");
+  const [editCategory, setEditCategory] = useState("kitchen");
+  const [editPrice, setEditPrice] = useState("");
+  const [editImageUrl, setEditImageUrl] = useState("");
+  const [editSpecifications, setEditSpecifications] = useState("");
+  const [editDescription, setEditDescription] = useState("");
+
   const [products, setProducts] = useState<any[]>([]);
   const [uploadStatus, setUploadStatus] = useState<{ type: 'idle'|'success'|'error', msg: string }>({ type: 'idle', msg: '' });
   const [loading, setLoading] = useState(false);
+  const [editLoading, setEditLoading] = useState(false);
 
-  // Fetch products from Firestore
   useEffect(() => {
     const q = query(collection(db, "products"), orderBy("createdAt", "desc"));
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const fetched = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
+      const fetched = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setProducts(fetched);
     });
     return () => unsubscribe();
@@ -38,12 +42,8 @@ export default function AdminProductsPage() {
 
   const handleDelete = async (id: string) => {
     if (window.confirm("Are you sure you want to permanently delete this product from the catalog?")) {
-       try {
-         await deleteDoc(doc(db, "products", id));
-       } catch (err) {
-         console.error("Delete failed:", err);
-         alert("Failed to delete the product.");
-       }
+       try { await deleteDoc(doc(db, "products", id)); }
+       catch (err) { console.error("Delete failed:", err); alert("Failed to delete the product."); }
     }
   };
 
@@ -53,29 +53,15 @@ export default function AdminProductsPage() {
       setUploadStatus({ type: 'error', msg: "Please fill in all required fields." });
       return;
     }
-
     setLoading(true);
     setUploadStatus({ type: 'idle', msg: "Saving product to catalog..." });
-
     try {
       await addDoc(collection(db, "products"), {
-        name,
-        category,
-        price: Number(price),
-        image: imageUrl,
-        specifications,
-        description,
+        name, category, price: Number(price), image: imageUrl, specifications, description,
         createdAt: serverTimestamp()
       });
-
       setUploadStatus({ type: 'success', msg: "Product added successfully!" });
-      setName("");
-      setCategory("kitchen");
-      setPrice("");
-      setImageUrl("");
-      setSpecifications("");
-      setDescription("");
-
+      setName(""); setCategory("kitchen"); setPrice(""); setImageUrl(""); setSpecifications(""); setDescription("");
     } catch (err: any) {
       console.error("Failed to add product:", err);
       setUploadStatus({ type: 'error', msg: `Saving failed: ${err.message}` });
@@ -83,20 +69,55 @@ export default function AdminProductsPage() {
     setLoading(false);
   };
 
+  const openEditModal = (product: any) => {
+    setEditingProduct(product);
+    setEditName(product.name); setEditCategory(product.category || "kitchen"); setEditPrice(String(product.price));
+    setEditImageUrl(product.image); setEditSpecifications(product.specifications); setEditDescription(product.description);
+  };
+  const closeEditModal = () => setEditingProduct(null);
+
+  const handleUpdateProduct = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingProduct || !editName || !editPrice || !editImageUrl || !editDescription || !editSpecifications) {
+      alert("Please fill in all fields.");
+      return;
+    }
+    setEditLoading(true);
+    try {
+      const productRef = doc(db, "products", editingProduct.id);
+      await updateDoc(productRef, {
+        name: editName, category: editCategory, price: Number(editPrice),
+        image: editImageUrl, specifications: editSpecifications, description: editDescription,
+        updatedAt: serverTimestamp()
+      });
+      setEditingProduct(null);
+      alert("Product updated successfully!");
+    } catch (err: any) {
+      console.error("Failed to update product", err);
+      alert(`Update failed: ${err.message}`);
+    } finally {
+      setEditLoading(false);
+    }
+  };
+
+  const inputClass = "bg-[#051124] border-white/10 text-white placeholder:text-white/20 focus:ring-accent";
+  const selectClass = "w-full h-10 px-3 border border-white/10 bg-[#051124] text-white rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-accent";
+  const labelClass = "text-xs font-bold text-white/40 uppercase tracking-widest";
+
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-5xl mx-auto">
       <div>
-        <h1 className="text-4xl font-display font-bold text-gray-900 tracking-tight flex items-center gap-3">
-          <ShoppingBag className="w-10 h-10 text-primary" /> Products Manager
+        <h1 className="text-4xl font-display font-bold text-white tracking-tight flex items-center gap-3">
+          <ShoppingBag className="w-10 h-10 text-accent" /> Products Manager
         </h1>
-        <p className="text-gray-500 mt-2 text-lg">Manage modular products, smart switches, wardrobes, and custom lighting displayed on the public catalog page.</p>
+        <p className="text-white/40 mt-2 text-lg">Add, update, or remove modular products, smart switches, wardrobes, and custom lighting.</p>
       </div>
 
       {uploadStatus.msg && (
-        <div className={`p-4 rounded-xl border flex items-center gap-3 transition-colors ${
-          uploadStatus.type === 'success' ? 'bg-green-50 border-green-200 text-green-800' : 
-          uploadStatus.type === 'error' ? 'bg-red-50 border-red-200 text-red-800' : 
-          'bg-blue-50 border-blue-200 text-blue-800'
+        <div className={`p-4 rounded-xl border flex items-center gap-3 ${
+          uploadStatus.type === 'success' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 
+          uploadStatus.type === 'error' ? 'bg-red-500/10 border-red-500/20 text-red-400' : 
+          'bg-accent/10 border-accent/20 text-accent'
         }`}>
           {uploadStatus.type === 'success' ? <CheckCircle2 className="w-5 h-5 shrink-0" /> : 
            uploadStatus.type === 'error' ? <AlertCircle className="w-5 h-5 shrink-0" /> :
@@ -109,35 +130,24 @@ export default function AdminProductsPage() {
         
         {/* Add Product Form */}
         <div className="lg:col-span-5">
-          <Card className="border-gray-200 shadow-md bg-white">
-            <CardHeader className="border-b border-gray-100 bg-gray-50/50 pb-6 rounded-t-xl">
-              <CardTitle className="flex items-center gap-2 text-xl font-bold">
-                <PlusCircle className="text-primary w-6 h-6" /> Add Product
+          <Card className="bg-[#08162d] border border-white/10 shadow-none rounded-2xl">
+            <CardHeader className="border-b border-white/5 pb-6 rounded-t-2xl">
+              <CardTitle className="flex items-center gap-2 text-xl font-bold text-white">
+                <PlusCircle className="text-accent w-6 h-6" /> Add Product
               </CardTitle>
-              <p className="text-sm text-gray-500">Insert custom modular products into the catalog.</p>
+              <p className="text-sm text-white/40">Insert custom modular products into the catalog.</p>
             </CardHeader>
             <CardContent className="pt-6">
               <form onSubmit={handleAddProduct} className="space-y-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-gray-700 uppercase">Product Name</label>
-                  <Input 
-                    placeholder="e.g. Galaxy Acrylic Modular Kitchen Set" 
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    disabled={loading}
-                    required
-                  />
+                  <label className={labelClass}>Product Name</label>
+                  <Input placeholder="e.g. Galaxy Acrylic Modular Kitchen Set" value={name} onChange={(e) => setName(e.target.value)} disabled={loading} required className={inputClass} />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-gray-700 uppercase">Category</label>
-                    <select
-                      value={category}
-                      onChange={(e) => setCategory(e.target.value)}
-                      disabled={loading}
-                      className="w-full h-10 px-3 border border-gray-200 bg-white rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-primary"
-                    >
+                    <label className={labelClass}>Category</label>
+                    <select value={category} onChange={(e) => setCategory(e.target.value)} disabled={loading} className={selectClass}>
                       <option value="kitchen">Modular Kitchen</option>
                       <option value="furniture">Furniture Sets</option>
                       <option value="wardrobe">Wardrobes</option>
@@ -145,57 +155,28 @@ export default function AdminProductsPage() {
                       <option value="other">Other Fittings</option>
                     </select>
                   </div>
-
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-gray-700 uppercase">Estimated Price (₹)</label>
-                    <Input 
-                      type="number"
-                      placeholder="e.g. 185000" 
-                      value={price}
-                      onChange={(e) => setPrice(e.target.value)}
-                      disabled={loading}
-                      required
-                    />
+                    <label className={labelClass}>Estimated Price (₹)</label>
+                    <Input type="number" placeholder="e.g. 185000" value={price} onChange={(e) => setPrice(e.target.value)} disabled={loading} required className={inputClass} />
                   </div>
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-gray-700 uppercase">Image Link URL</label>
-                  <Input 
-                    placeholder="https://example.com/product-image.png" 
-                    value={imageUrl}
-                    onChange={(e) => setImageUrl(e.target.value)}
-                    disabled={loading}
-                    required
-                  />
-                  <p className="text-[10px] text-gray-400">Use generated watermarked links from public folders or galleries.</p>
+                  <label className={labelClass}>Image Link URL</label>
+                  <Input placeholder="https://example.com/product-image.png" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} disabled={loading} required className={inputClass} />
+                  <p className="text-[10px] text-white/20">Use generated watermarked links from public folders or galleries.</p>
                 </div>
-
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-gray-700 uppercase">Specifications (Comma separated)</label>
-                  <Input 
-                    placeholder="e.g. L-Shaped, Quartz Countertop, Hettich drawers" 
-                    value={specifications}
-                    onChange={(e) => setSpecifications(e.target.value)}
-                    disabled={loading}
-                    required
-                  />
-                  <p className="text-[10px] text-gray-400">Separate specs with commas to display them as distinct tags.</p>
+                  <label className={labelClass}>Specifications (Comma separated)</label>
+                  <Input placeholder="e.g. L-Shaped, Quartz Countertop, Hettich drawers" value={specifications} onChange={(e) => setSpecifications(e.target.value)} disabled={loading} required className={inputClass} />
+                  <p className="text-[10px] text-white/20">Separate specs with commas to display them as distinct tags.</p>
                 </div>
-
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-gray-700 uppercase">Description</label>
-                  <Textarea 
-                    placeholder="Provide full dimensions, material standards, styling guidelines, and brand integrations..." 
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    disabled={loading}
-                    rows={4}
-                    required
-                  />
+                  <label className={labelClass}>Description</label>
+                  <Textarea placeholder="Provide full dimensions, material standards, styling guidelines..." value={description} onChange={(e) => setDescription(e.target.value)} disabled={loading} rows={4} required className={inputClass} />
                 </div>
 
-                <Button type="submit" disabled={loading} className="w-full bg-primary hover:bg-primary/90 text-white font-bold h-11 mt-4">
+                <Button type="submit" disabled={loading} className="w-full bg-accent text-primary font-bold h-11 mt-4">
                   {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Save Product"}
                 </Button>
               </form>
@@ -205,43 +186,44 @@ export default function AdminProductsPage() {
 
         {/* Existing Products List */}
         <div className="lg:col-span-7 space-y-4">
-          <Card className="border-gray-200 shadow-md bg-white">
-            <CardHeader className="border-b border-gray-100 bg-gray-50/50 pb-4 rounded-t-xl flex flex-row items-center justify-between">
-              <CardTitle className="text-xl font-bold">Active Products</CardTitle>
-              <Badge variant="outline" className="bg-white">{products.length} Total</Badge>
+          <Card className="bg-[#08162d] border border-white/10 shadow-none rounded-2xl">
+            <CardHeader className="border-b border-white/5 pb-4 rounded-t-2xl flex flex-row items-center justify-between">
+              <CardTitle className="text-xl font-bold text-white">Active Products</CardTitle>
+              <Badge variant="outline" className="bg-transparent border-white/10 text-white/40">{products.length} Total</Badge>
             </CardHeader>
             <CardContent className="pt-6">
               {products.length === 0 ? (
-                <div className="text-center py-12 text-gray-400 font-medium">
+                <div className="text-center py-12 text-white/30 font-medium">
                   No custom products uploaded yet. Showing public fallback mock data.
                 </div>
               ) : (
                 <div className="space-y-4">
                   {products.map((prod) => (
-                    <div key={prod.id} className="p-4 border rounded-xl flex gap-4 bg-gray-50/50 items-start hover:border-gray-300 transition-all">
-                      <div className="w-20 h-20 rounded-lg overflow-hidden shrink-0 border bg-white">
+                    <div key={prod.id} className="p-4 border border-white/5 rounded-xl flex gap-4 bg-white/5 items-start">
+                      <div className="w-20 h-20 rounded-lg overflow-hidden shrink-0 border border-white/10 bg-[#051124]">
                         <img src={prod.image} alt={prod.name} className="w-full h-full object-cover" />
                       </div>
                       
                       <div className="flex-1 space-y-1 min-w-0">
                         <div className="flex flex-wrap items-center gap-2">
-                          <h4 className="font-bold text-gray-900 text-sm truncate uppercase">{prod.name}</h4>
-                          <Badge className="text-[9px] uppercase font-bold bg-primary text-white">{prod.category}</Badge>
+                          <h4 className="font-bold text-white text-sm truncate uppercase">{prod.name}</h4>
+                          <Badge className="text-[9px] uppercase font-bold bg-accent/20 text-accent border-none">{prod.category}</Badge>
                         </div>
-                        <p className="flex items-center gap-1 text-[10px] text-gray-400 font-bold uppercase">
-                          <Tag className="w-3 h-3 text-primary" />
+                        <p className="flex items-center gap-1 text-[10px] text-white/30 font-bold uppercase">
+                          <Tag className="w-3 h-3 text-accent" />
                           ₹{Number(prod.price).toLocaleString("en-IN")}
                         </p>
-                        <p className="text-xs text-gray-600 line-clamp-2">{prod.description}</p>
+                        <p className="text-xs text-white/40 line-clamp-2">{prod.description}</p>
                       </div>
 
-                      <button
-                        onClick={() => handleDelete(prod.id)}
-                        className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-all shrink-0 self-center"
-                        title="Delete Product"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                      <div className="flex flex-col gap-1.5 shrink-0">
+                        <button onClick={() => openEditModal(prod)} className="p-2 text-accent/70 rounded-lg" title="Edit Product">
+                          <Edit3 className="w-4 h-4" />
+                        </button>
+                        <button onClick={() => handleDelete(prod.id)} className="p-2 text-red-400/70 rounded-lg" title="Delete Product">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -251,6 +233,68 @@ export default function AdminProductsPage() {
         </div>
 
       </div>
+
+      {/* Edit Modal */}
+      {editingProduct && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <Card className="bg-[#08162d] rounded-2xl border border-white/10 max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl relative animate-in zoom-in-95 duration-200">
+            <button onClick={closeEditModal} className="absolute top-4 right-4 text-white/30 p-1.5 rounded-lg">
+              <X className="w-5 h-5" />
+            </button>
+            <CardHeader className="border-b border-white/5 pb-5">
+              <CardTitle className="flex items-center gap-2 font-bold text-xl uppercase text-white">
+                <Edit3 className="w-5 h-5 text-accent" /> Edit Product Details
+              </CardTitle>
+              <p className="text-xs text-white/30">Update modular product specifications instantly.</p>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <form onSubmit={handleUpdateProduct} className="space-y-4">
+                <div className="space-y-1.5">
+                  <label className={labelClass}>Product Name</label>
+                  <Input value={editName} onChange={(e) => setEditName(e.target.value)} disabled={editLoading} required className={inputClass} />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className={labelClass}>Category</label>
+                    <select value={editCategory} onChange={(e) => setEditCategory(e.target.value)} disabled={editLoading} className={selectClass}>
+                      <option value="kitchen">Modular Kitchen</option>
+                      <option value="furniture">Furniture Sets</option>
+                      <option value="wardrobe">Wardrobes</option>
+                      <option value="lighting">Smart Lighting</option>
+                      <option value="other">Other Fittings</option>
+                    </select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className={labelClass}>Estimated Price (₹)</label>
+                    <Input type="number" value={editPrice} onChange={(e) => setEditPrice(e.target.value)} disabled={editLoading} required className={inputClass} />
+                  </div>
+                </div>
+                <div className="space-y-1.5">
+                  <label className={labelClass}>Image Link URL</label>
+                  <Input value={editImageUrl} onChange={(e) => setEditImageUrl(e.target.value)} disabled={editLoading} required className={inputClass} />
+                </div>
+                <div className="space-y-1.5">
+                  <label className={labelClass}>Specifications (Comma separated)</label>
+                  <Input value={editSpecifications} onChange={(e) => setEditSpecifications(e.target.value)} disabled={editLoading} required className={inputClass} />
+                </div>
+                <div className="space-y-1.5">
+                  <label className={labelClass}>Description</label>
+                  <Textarea value={editDescription} onChange={(e) => setEditDescription(e.target.value)} disabled={editLoading} rows={4} required className={inputClass} />
+                </div>
+                <div className="flex gap-3 pt-3">
+                  <Button type="button" variant="outline" onClick={closeEditModal} disabled={editLoading} className="flex-1 rounded-lg border-white/10 bg-transparent text-white">
+                    Cancel
+                  </Button>
+                  <Button type="submit" disabled={editLoading} className="flex-1 bg-accent text-primary font-bold rounded-lg">
+                    {editLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Save Changes"}
+                  </Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
     </div>
   );
 }

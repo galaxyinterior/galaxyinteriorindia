@@ -165,6 +165,7 @@ export default function ProductsPage() {
                 <div>
                   <div className="relative aspect-video w-full overflow-hidden bg-black/40 border-b border-white/5">
                     <img
+                      loading="lazy"
                       src={product.image || "/generated/srv_interior.png"}
                       alt={product.name}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
@@ -218,7 +219,7 @@ export default function ProductsPage() {
               
               {/* Image banner */}
               <div className="relative aspect-video w-full bg-black/40 border-b border-white/10">
-                <img src={selectedProduct.image} alt={selectedProduct.name} className="w-full h-full object-cover" />
+                <img loading="lazy" src={selectedProduct.image} alt={selectedProduct.name} className="w-full h-full object-cover" />
                 <button 
                   onClick={() => setSelectedProduct(null)} 
                   className="absolute top-4 right-4 w-9 h-9 rounded-full bg-black/60 hover:bg-black/90 text-white font-black flex items-center justify-center border border-white/15"

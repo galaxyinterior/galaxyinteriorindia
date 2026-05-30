@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { Menu, Phone, Home, Info, Paintbrush, LayoutGrid, Hammer, Mail, Tag, Building2 } from 'lucide-react';
+import { Menu, Phone, Home, Info, Paintbrush, LayoutGrid, Hammer, Mail, Tag, Building2, Zap, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState, useEffect } from 'react';
 import {
@@ -111,10 +111,10 @@ export default function Header() {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="bg-white border-primary">
                 <DropdownMenuItem asChild className="cursor-pointer font-bold text-primary focus:bg-primary focus:text-white">
-                  <a href="tel:+919122795726">GENERAL MANAGER: +91 91227 95726</a>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild className="cursor-pointer font-bold text-primary focus:bg-primary focus:text-white">
                   <a href="tel:+919631980881">OWNER: +91 96319 80881</a>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild className="cursor-pointer font-medium text-primary/60 focus:bg-primary/10 focus:text-primary text-xs">
+                  <a href="tel:+919122795726">GM: +91 91227 95726</a>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -125,22 +125,118 @@ export default function Header() {
       {/* Main Navbar */}
       <div className="flex h-14 md:h-16 items-center relative">
         <div className="flex-1 flex items-center justify-end px-4 lg:px-12 ml-[190px] md:ml-[380px]">
-          <nav className="hidden lg:flex items-center space-x-3 xl:space-x-6">
-            {navLinks.map((link) => (
-              <Link 
-                key={link.href}
-                href={link.href} 
+          <nav className="hidden lg:flex items-center space-x-2 xl:space-x-3.5">
+            {/* HOME Link */}
+            <Link 
+              href="/" 
+              className={cn(
+                "text-[10px] xl:text-[11px] font-bold uppercase tracking-widest m3-transition relative py-1.5 px-3 rounded-full m3-state-layer",
+                pathname === '/' 
+                  ? "bg-accent/15 text-accent font-black" 
+                  : (isScrolled || !isHomePage ? "text-white/80 hover:text-accent" : "text-white hover:text-accent")
+              )}
+            >
+              HOME
+            </Link>
+
+            {/* SERVICES Dropdown */}
+            <div className="relative group">
+              <Link
+                href="/services"
                 className={cn(
-                  "text-[11px] xl:text-xs font-bold uppercase tracking-widest m3-transition relative py-2.5 px-4 rounded-full m3-state-layer",
-                  pathname === link.href 
+                  "flex items-center gap-1 text-[10px] xl:text-[11px] font-bold uppercase tracking-widest m3-transition relative py-1.5 px-3 rounded-full m3-state-layer cursor-pointer",
+                  pathname.startsWith('/services') || pathname === '/products' || pathname === '/construction' || pathname === '/projects'
                     ? "bg-accent/15 text-accent font-black" 
                     : (isScrolled || !isHomePage ? "text-white/80 hover:text-accent" : "text-white hover:text-accent")
                 )}
               >
-                {link.label}
+                SERVICES
+                <ChevronDown className="h-3 w-3 transition-transform duration-200 group-hover:rotate-180" />
               </Link>
-            ))}
+              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 w-44 bg-[#051124]/95 backdrop-blur-md border border-accent/20 rounded-2xl shadow-xl py-2 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-200 transform translate-y-2 group-hover:translate-y-0 z-50 overflow-hidden">
+                <Link href="/services" className="block px-4 py-2.5 text-[9.5px] font-black uppercase tracking-wider text-white/85 hover:text-accent hover:bg-white/5 transition-colors">
+                  All Services
+                </Link>
+                <Link href="/products" className="block px-4 py-2.5 text-[9.5px] font-black uppercase tracking-wider text-white/85 hover:text-accent hover:bg-white/5 transition-colors">
+                  Products
+                </Link>
+                <Link href="/construction" className="block px-4 py-2.5 text-[9.5px] font-black uppercase tracking-wider text-white/85 hover:text-accent hover:bg-white/5 transition-colors">
+                  Construction
+                </Link>
+                <Link href="/projects" className="block px-4 py-2.5 text-[9.5px] font-black uppercase tracking-wider text-white/85 hover:text-accent hover:bg-white/5 transition-colors">
+                  Projects
+                </Link>
+              </div>
+            </div>
+
+            {/* GALLERY Link */}
+            <Link 
+              href="/portfolio" 
+              className={cn(
+                "text-[10px] xl:text-[11px] font-bold uppercase tracking-widest m3-transition relative py-1.5 px-3 rounded-full m3-state-layer",
+                pathname === '/portfolio' 
+                  ? "bg-accent/15 text-accent font-black" 
+                  : (isScrolled || !isHomePage ? "text-white/80 hover:text-accent" : "text-white hover:text-accent")
+              )}
+            >
+              GALLERY
+            </Link>
+
+            {/* PRICING Link */}
+            <Link 
+              href="/pricing" 
+              className={cn(
+                "text-[10px] xl:text-[11px] font-bold uppercase tracking-widest m3-transition relative py-1.5 px-3 rounded-full m3-state-layer",
+                pathname === '/pricing' 
+                  ? "bg-accent/15 text-accent font-black" 
+                  : (isScrolled || !isHomePage ? "text-white/80 hover:text-accent" : "text-white hover:text-accent")
+              )}
+            >
+              PRICING
+            </Link>
+
+            {/* COMPANY Dropdown (Contact and About) */}
+            <div className="relative group">
+              <Link
+                href="/about"
+                className={cn(
+                  "flex items-center gap-1 text-[10px] xl:text-[11px] font-bold uppercase tracking-widest m3-transition relative py-1.5 px-3 rounded-full m3-state-layer cursor-pointer",
+                  pathname === '/about' || pathname === '/contact'
+                    ? "bg-accent/15 text-accent font-black" 
+                    : (isScrolled || !isHomePage ? "text-white/80 hover:text-accent" : "text-white hover:text-accent")
+                )}
+              >
+                COMPANY
+                <ChevronDown className="h-3 w-3 transition-transform duration-200 group-hover:rotate-180" />
+              </Link>
+              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 w-40 bg-[#051124]/95 backdrop-blur-md border border-accent/20 rounded-2xl shadow-xl py-2 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-200 transform translate-y-2 group-hover:translate-y-0 z-50 overflow-hidden">
+                <Link href="/about" className="block px-4 py-2.5 text-[9.5px] font-black uppercase tracking-wider text-white/85 hover:text-accent hover:bg-white/5 transition-colors">
+                  About Us
+                </Link>
+                <Link href="/contact" className="block px-4 py-2.5 text-[9.5px] font-black uppercase tracking-wider text-white/85 hover:text-accent hover:bg-white/5 transition-colors">
+                  Contact Us
+                </Link>
+              </div>
+            </div>
           </nav>
+
+          {/* Initialize Project CTA — Desktop */}
+          <Link
+            href="/consult-online"
+            className="hidden lg:flex items-center gap-1.5 ml-2 xl:ml-3 px-3.5 xl:px-4 py-1.5 rounded-full bg-accent text-primary font-black text-[10px] xl:text-[11px] uppercase tracking-widest shadow-[0_0_12px_rgba(255,207,51,0.35)] m3-transition active:scale-95 relative overflow-hidden group"
+          >
+            <span className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity rounded-full" />
+            <Zap className="h-3.5 w-3.5 fill-current" />
+            <span>Initialize Project</span>
+          </Link>
+
+          {/* User Dashboard Portal Login */}
+          <Link
+            href="/login"
+            className="hidden lg:flex items-center gap-1.5 ml-2 px-3 py-1.5 rounded-full bg-transparent hover:bg-white/5 border border-white/20 hover:border-accent text-white hover:text-accent font-black text-[10px] xl:text-[11px] uppercase tracking-widest m3-transition active:scale-95"
+          >
+            <span>Portal Login</span>
+          </Link>
           
           {/* Mobile Menu */}
           <div className="lg:hidden flex items-center gap-3">
@@ -196,16 +292,27 @@ export default function Header() {
                   })}
                 </nav>
 
-                <div className="mt-auto p-6 border-t border-accent/10 bg-white/[0.02]">
+                <div className="mt-auto p-6 border-t border-accent/10 bg-white/[0.02] space-y-3">
+                  {/* Initialize Project CTA — Mobile Drawer */}
+                  <Link
+                    href="/consult-online"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center justify-center gap-2.5 w-full p-4 rounded-2xl bg-accent text-primary font-black text-xs uppercase tracking-wider shadow-[0_0_20px_rgba(255,207,51,0.3)] active:scale-95 transition-all group relative overflow-hidden"
+                  >
+                    <span className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 rounded-2xl transition-opacity" />
+                    <Zap className="h-4 w-4 fill-current" />
+                    <span>Initialize Project</span>
+                  </Link>
+
                   <a 
                     href="tel:+919122795726" 
-                    className="flex items-center justify-center gap-3 w-full p-4 rounded-2xl bg-gradient-to-r from-accent/5 to-accent/10 border border-accent/20 text-xs font-black text-white hover:bg-accent hover:text-primary hover:border-accent shadow-md m3-transition hover:scale-[1.02] active:scale-[0.98] group"
+                    className="flex items-center justify-center gap-3 w-full p-3.5 rounded-2xl bg-gradient-to-r from-accent/5 to-accent/10 border border-accent/20 text-xs font-black text-white shadow-md m3-transition active:scale-[0.98] group"
                   >
                     <Phone className="h-4 w-4 text-accent group-hover:text-inherit transition-colors" />
                     <span className="tracking-wider text-[11px]">+91 91227 95726</span>
                   </a>
-                  <p className="text-center text-[9px] text-white/40 mt-4 uppercase tracking-widest font-bold">
-                    Ranchi & Godda Offices
+                  <p className="text-center text-[9px] text-white/40 uppercase tracking-widest font-bold">
+                    General Manager &amp; Owner
                   </p>
                 </div>
               </SheetContent>

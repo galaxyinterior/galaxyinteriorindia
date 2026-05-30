@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Menu, Phone, Home, Info, Paintbrush, LayoutGrid, Hammer, Tag } from "lucide-react";
+import { Menu, Phone, Home, Info, Paintbrush, LayoutGrid, Hammer, Tag, Zap, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
@@ -36,10 +36,10 @@ export default function MobileHeader() {
   const pathname = usePathname();
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 h-14 bg-[#051124]/95 backdrop-blur-md border-b border-white/5 flex items-center justify-between px-4 shadow-lg lg:hidden">
+    <header className="fixed top-0 left-0 right-0 z-50 h-14 bg-[#051124] border-b border-white/5 flex items-center justify-between px-4 shadow-lg lg:hidden">
       {/* Brand logo container without heavy border-r */}
       <Link href="/" className="flex items-center gap-2.5">
-        <div className="h-9 w-9 rounded-full overflow-hidden border border-accent/30 bg-white/5 backdrop-blur-md flex-shrink-0">
+        <div className="h-9 w-9 rounded-full overflow-hidden border border-accent/30 bg-[#08162d] flex-shrink-0">
           <Image
             src="/logo.png"
             alt="Galaxy Interior Logo"
@@ -58,10 +58,28 @@ export default function MobileHeader() {
       <div className="flex items-center gap-1.5">
         <a
           href="tel:+919122795726"
-          className="h-9 w-9 flex items-center justify-center rounded-xl bg-accent/10 border border-accent/20 text-accent hover:bg-accent hover:text-primary transition-colors"
+          className="h-9 w-9 flex items-center justify-center rounded-xl bg-accent/10 border border-accent/20 text-accent transition-colors"
         >
           <Phone className="h-4.5 w-4.5" />
         </a>
+
+        {/* Initialize Project — Mobile Top Bar */}
+        <Link
+          href="/consult-online"
+          className="flex items-center gap-1.5 h-9 px-3 rounded-xl bg-accent text-primary font-black text-[9px] uppercase tracking-widest shadow-[0_0_12px_rgba(255,207,51,0.4)] active:scale-95 transition-all"
+        >
+          <Zap className="h-3 w-3 fill-current flex-shrink-0" />
+          <span className="hidden xs:inline">Start</span>
+        </Link>
+
+        {/* User Login — Mobile Top Bar */}
+        <Link
+          href="/login"
+          className="h-9 w-9 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 text-white hover:text-accent transition-colors active:scale-95"
+          title="Portal Login"
+        >
+          <User className="h-4.5 w-4.5 shrink-0" />
+        </Link>
 
         <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
           <SheetTrigger asChild>

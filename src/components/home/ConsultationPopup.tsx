@@ -94,9 +94,9 @@ export default function ConsultationPopup() {
                  <p className="text-[10px] text-white/70 font-medium">(4.5 - 7 Lakh)</p>
               </div>
 
-              <div className="mt-8 space-y-1 text-white/80 text-[10px] font-bold">
-                 <p className="hover:text-accent transition-colors cursor-default">+91 91227 95726</p>
-                 <p className="hover:text-accent transition-colors cursor-default">+91 96319 80881</p>
+              <div className="mt-8 space-y-0.5 text-white/80 text-[10px] font-bold">
+                 <p className="text-white font-black text-xs hover:text-accent transition-colors cursor-default">+91 96319 80881</p>
+                 <p className="text-white/40 font-medium text-[9px] hover:text-white/60 transition-colors cursor-default">+91 91227 95726</p>
               </div>
             </div>
           </div>

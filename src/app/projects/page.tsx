@@ -289,6 +289,7 @@ function ProjectCard({ project }: { project: any }) {
       <div>
         <div className="relative aspect-video w-full overflow-hidden bg-black/40 border-b border-white/5">
           <img
+            loading="lazy"
             src={project.image || "/generated/srv_interior.png"}
             alt={project.title}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"

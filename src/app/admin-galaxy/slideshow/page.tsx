@@ -51,10 +51,8 @@ export default function SlideshowAdminPage() {
       setStatus({ type: 'error', msg: "Please provide either a media file or a media URL." });
       return;
     }
-    
     setLoading(true);
     setStatus({ type: 'idle', msg: "Publishing slide media..." });
-    
     try {
       let finalUrl = mediaUrlLink;
       if (file) {
@@ -62,26 +60,14 @@ export default function SlideshowAdminPage() {
         await uploadBytesResumable(fileRef, file);
         finalUrl = await getDownloadURL(fileRef);
       }
-      
       await addDoc(collection(db, "slideshow"), {
-        type: mediaType,
-        url: finalUrl,
-        heading,
-        subheading,
-        price: priceTag,
+        type: mediaType, url: finalUrl, heading, subheading, price: priceTag,
         createdAt: serverTimestamp()
       });
-      
       setStatus({ type: 'success', msg: "New slide successfully added to homepage!" });
-      setFile(null);
-      setMediaUrlLink("");
-      setHeading("");
-      setSubheading("");
-      setPriceTag("");
-      
+      setFile(null); setMediaUrlLink(""); setHeading(""); setSubheading(""); setPriceTag("");
       const fileInput = document.getElementById("slideMedia") as HTMLInputElement;
       if (fileInput) fileInput.value = "";
-      
     } catch (err: any) {
       console.error(err);
       setStatus({ type: 'error', msg: `Publish failed: ${err.message}` });
@@ -89,62 +75,60 @@ export default function SlideshowAdminPage() {
     setLoading(false);
   };
 
+  const inputClass = "bg-[#051124] border-white/10 text-white placeholder:text-white/20 focus:ring-accent";
+  const selectClass = "w-full h-11 px-4 rounded-lg border border-white/10 bg-[#051124] text-white text-sm focus:outline-none focus:ring-1 focus:ring-accent";
+  const labelClass = "text-xs font-bold text-white/40 uppercase tracking-widest";
+
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-4xl mx-auto border-l-4 border-accent pl-8 py-4 bg-white shadow-sm rounded-r-3xl">
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-4xl mx-auto">
       <div>
-        <h1 className="text-4xl font-display font-bold text-gray-900 tracking-tight flex items-center gap-3">
+        <h1 className="text-4xl font-display font-bold text-white tracking-tight flex items-center gap-3">
           <MonitorPlay className="w-10 h-10 text-accent" /> Hero Slideshow
         </h1>
-        <p className="text-gray-500 mt-2 text-lg">Add new sliding banners to the homepage hero section.</p>
+        <p className="text-white/40 mt-2 text-lg">Add new sliding banners to the homepage hero section.</p>
       </div>
 
       {status.msg && (
-        <div className={`p-4 rounded-xl border flex items-center gap-3 ${status.type === 'success' ? 'bg-green-50 border-green-200 text-green-800' : status.type === 'error' ? 'bg-red-50 border-red-200 text-red-800' : 'bg-blue-50 border-blue-200 text-blue-800'}`}>
+        <div className={`p-4 rounded-xl border flex items-center gap-3 ${
+          status.type === 'success' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 
+          status.type === 'error' ? 'bg-red-500/10 border-red-500/20 text-red-400' : 
+          'bg-accent/10 border-accent/20 text-accent'
+        }`}>
           {status.type === 'success' ? <CheckCircle2 className="w-5 h-5" /> : status.type === 'error' ? <AlertCircle className="w-5 h-5" /> : <Loader2 className="w-5 h-5 animate-spin" />}
           <p className="font-medium text-sm">{status.msg}</p>
         </div>
       )}
 
-      <Card className="border-gray-200 shadow-md">
-        <CardHeader className="bg-gray-50/50 border-b pb-6 rounded-t-xl">
-          <CardTitle>Create New Slide</CardTitle>
+      <Card className="bg-[#08162d] border border-white/10 shadow-none rounded-2xl">
+        <CardHeader className="border-b border-white/5 pb-6 rounded-t-2xl">
+          <CardTitle className="text-xl font-bold text-white">Create New Slide</CardTitle>
         </CardHeader>
         <CardContent className="pt-6">
           <form onSubmit={handleUpload} className="space-y-6">
-            
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="text-sm font-bold text-gray-700">Media Type</label>
-                  <select 
-                    value={mediaType} 
-                    onChange={(e) => setMediaType(e.target.value as any)}
-                    className="w-full h-11 px-4 rounded-lg border border-gray-200 bg-white"
-                  >
+                  <label className={labelClass}>Media Type</label>
+                  <select value={mediaType} onChange={(e) => setMediaType(e.target.value as any)} className={selectClass}>
                     <option value="image">Image</option>
                     <option value="video">Video</option>
                   </select>
                 </div>
                 
-                <div className="space-y-4 border p-4 rounded-xl bg-gray-50/50">
+                <div className="space-y-4 border border-white/5 p-4 rounded-xl bg-white/5">
                   <div className="space-y-2 opacity-50 relative group">
-                    <label className="text-sm font-bold text-gray-700 block">Option 1: Upload File (Disabled)</label>
-                    <div className="absolute -top-10 left-0 bg-red-600 text-white text-xs px-3 py-1 rounded hidden group-hover:block z-10 whitespace-nowrap">
+                    <label className={`${labelClass} block`}>Option 1: Upload File (Disabled)</label>
+                    <div className="absolute -top-10 left-0 bg-red-900/90 text-white text-xs px-3 py-1 rounded hidden group-hover:block z-10 whitespace-nowrap">
                        Uploading files requires configured container storage. Please use Links.
                     </div>
-                    <Input 
-                      id="slideMedia"
-                      type="file" 
-                      accept={mediaType === 'image' ? "image/*" : "video/*"}
-                      disabled={true}
-                    />
+                    <Input id="slideMedia" type="file" accept={mediaType === 'image' ? "image/*" : "video/*"} disabled={true} className={inputClass} />
                   </div>
                   <div className="relative flex items-center py-1">
-                      <div className="flex-grow border-t border-gray-200"></div>
-                      <span className="flex-shrink-0 mx-4 text-gray-400 text-xs font-bold uppercase">USE LINK ONLY</span>
-                      <div className="flex-grow border-t border-gray-200"></div>
+                      <div className="flex-grow border-t border-white/10"></div>
+                      <span className="flex-shrink-0 mx-4 text-white/20 text-xs font-bold uppercase">USE LINK ONLY</span>
+                      <div className="flex-grow border-t border-white/10"></div>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-bold text-gray-700">Option 2: Paste Media URL</label>
+                    <label className={labelClass}>Option 2: Paste Media URL</label>
                     <Input 
                       placeholder="https://example.com/media.mp4" 
                       value={mediaUrlLink}
@@ -157,43 +141,28 @@ export default function SlideshowAdminPage() {
                           }
                       }}
                       disabled={loading || !!file}
+                      className={inputClass}
                     />
                   </div>
                 </div>
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-bold text-gray-700">Heading (Large Text)</label>
-              <Input 
-                placeholder="e.g. Designing Dreams, Delivering Peace" 
-                value={heading}
-                onChange={(e) => setHeading(e.target.value)}
-                required
-              />
+              <label className={labelClass}>Heading (Large Text)</label>
+              <Input placeholder="e.g. Designing Dreams, Delivering Peace" value={heading} onChange={(e) => setHeading(e.target.value)} required className={inputClass} />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-bold text-gray-700">Subheading (Description Text)</label>
-              <Textarea 
-                placeholder="Enter a brief paragraph describing the slide..." 
-                value={subheading}
-                onChange={(e) => setSubheading(e.target.value)}
-                rows={3}
-                required
-              />
+              <label className={labelClass}>Subheading (Description Text)</label>
+              <Textarea placeholder="Enter a brief paragraph describing the slide..." value={subheading} onChange={(e) => setSubheading(e.target.value)} rows={3} required className={inputClass} />
             </div>
             
             <div className="space-y-2">
-              <label className="text-sm font-bold text-gray-700">Price/Highlight Tag</label>
-              <Input 
-                placeholder="e.g. Bespoke Plans Available" 
-                value={priceTag}
-                onChange={(e) => setPriceTag(e.target.value)}
-                required
-              />
+              <label className={labelClass}>Price/Highlight Tag</label>
+              <Input placeholder="e.g. Bespoke Plans Available" value={priceTag} onChange={(e) => setPriceTag(e.target.value)} required className={inputClass} />
             </div>
 
-            <Button type="submit" disabled={loading || (!file && !mediaUrlLink)} className="w-full bg-accent hover:bg-accent/90 text-primary font-bold h-12 mt-4 text-lg">
+            <Button type="submit" disabled={loading || (!file && !mediaUrlLink)} className="w-full bg-accent text-primary font-bold h-12 mt-4 text-sm">
               {loading ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : null}
               {loading ? "Publishing Slide..." : "Publish Slide to Homepage"}
             </Button>
@@ -202,18 +171,18 @@ export default function SlideshowAdminPage() {
       </Card>
 
       <div className="mt-12">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6 font-display">Active Slides</h2>
+        <h2 className="text-2xl font-bold text-white mb-6 font-display">Active Slides</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {slides.length === 0 && <p className="text-gray-500 italic col-span-full">No active slides found. Add one above.</p>}
+          {slides.length === 0 && <p className="text-white/30 italic col-span-full">No active slides found. Add one above.</p>}
           {slides.map(slide => (
-             <div key={slide.id} className="border border-gray-200 rounded-2xl overflow-hidden bg-white shadow-sm flex flex-col relative group">
+             <div key={slide.id} className="border border-white/10 rounded-2xl overflow-hidden bg-[#08162d] shadow-none flex flex-col relative group">
                 <button 
                   onClick={() => handleDelete(slide.id)} 
-                  className="absolute top-3 right-3 bg-red-600 hover:bg-red-700 text-white text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity font-bold shadow-lg"
+                  className="absolute top-3 right-3 bg-red-600 text-white text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity font-bold shadow-lg"
                 >
                   DELETE
                 </button>
-                <div className="relative w-full aspect-video bg-gray-100">
+                <div className="relative w-full aspect-video bg-white/5">
                    {slide.type === 'video' ? (
                      <video src={slide.url} className="w-full h-full object-cover" muted loop autoPlay playsInline />
                    ) : (
@@ -221,9 +190,9 @@ export default function SlideshowAdminPage() {
                    )}
                 </div>
                 <div className="p-4 flex-1 flex flex-col">
-                   <h3 className="font-bold text-gray-900 line-clamp-1 text-lg mb-1">{slide.heading || "Untitled"}</h3>
-                   <p className="text-sm text-gray-500 line-clamp-2 leading-relaxed mb-3 flex-1">{slide.subheading}</p>
-                   {slide.price && <p className="text-xs font-bold bg-accent/20 text-blue-900 w-fit px-2 py-1 rounded">{slide.price}</p>}
+                   <h3 className="font-bold text-white line-clamp-1 text-lg mb-1">{slide.heading || "Untitled"}</h3>
+                   <p className="text-sm text-white/40 line-clamp-2 leading-relaxed mb-3 flex-1">{slide.subheading}</p>
+                   {slide.price && <p className="text-xs font-bold bg-accent/20 text-accent w-fit px-2 py-1 rounded">{slide.price}</p>}
                 </div>
              </div>
           ))}

@@ -15,10 +15,12 @@ import { useMode } from '@/context/ModeContext';
 export default function ClientLayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isAdmin = pathname?.startsWith('/admin-galaxy');
+  const isDashboard = pathname?.startsWith('/consult-online');
+  const isLogin = pathname === '/login';
   const { mode, setMode } = useMode();
 
-  if (isAdmin) {
-    return <main className="flex-1 h-screen overflow-hidden flex flex-col">{children}</main>;
+  if (isAdmin || isDashboard || isLogin) {
+    return <main className="flex-1 min-h-screen flex flex-col">{children}</main>;
   }
 
   return (

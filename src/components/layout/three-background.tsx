@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useMemo } from 'react';
+import { useRef, useMemo, useState, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Float, Environment, ContactShadows } from '@react-three/drei';
 import * as THREE from 'three';
@@ -64,6 +64,26 @@ function FloatingShapes() {
 }
 
 export default function ThreeBackground() {
+  const [isMobile, setIsMobile] = useState(true);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  if (isMobile) {
+    return (
+      <div className="fixed inset-0 z-[-1] bg-slate-50 pointer-events-none overflow-hidden">
+        {/* Subtle overlay gradient to ensure text readability */}
+        <div className="absolute inset-0 bg-gradient-to-b from-white/60 via-white/30 to-white/60 z-[1]" />
+      </div>
+    );
+  }
+
   return (
     <div className="fixed inset-0 z-[-1] bg-slate-50 pointer-events-none overflow-hidden">
       <Canvas camera={{ position: [0, 0, 15], fov: 45 }} dpr={[1, 2]}>

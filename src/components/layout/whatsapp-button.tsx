@@ -61,22 +61,7 @@ export default function WhatsAppButton() {
           </div>
         </Link>
 
-        {/* Direct Call General Manager */}
-        <Link
-          href="tel:+919122795726"
-          className="flex items-center gap-2.5 md:gap-3.5 p-2 md:p-3 rounded-[14px] md:rounded-[20px] bg-white/[0.03] border border-white/5 hover:bg-accent hover:border-accent text-white hover:text-primary transition-all group/item shadow-sm"
-          onClick={handleClose}
-        >
-          <div className="h-8 w-8 md:h-10 md:w-10 rounded-full bg-accent/10 group-hover/item:bg-white/10 flex items-center justify-center transition-colors">
-            <Phone className="h-3.5 w-3.5 md:h-4.5 md:w-4.5 text-accent group-hover/item:text-primary transition-colors" />
-          </div>
-          <div className="flex flex-col">
-            <span className="text-[10px] md:text-xs font-black tracking-wide">General Manager</span>
-            <span className="text-[8px] md:text-[9px] text-white/50 group-hover/item:text-primary/80 font-medium">+91 91227 95726</span>
-          </div>
-        </Link>
-
-        {/* Direct Call Owner */}
+        {/* Direct Call Owner - PRIMARY */}
         <Link
           href="tel:+919631980881"
           className="flex items-center gap-2.5 md:gap-3.5 p-2 md:p-3 rounded-[14px] md:rounded-[20px] bg-white/[0.03] border border-white/5 hover:bg-accent hover:border-accent text-white hover:text-primary transition-all group/item shadow-sm"
@@ -88,6 +73,21 @@ export default function WhatsAppButton() {
           <div className="flex flex-col">
             <span className="text-[10px] md:text-xs font-black tracking-wide">Owner</span>
             <span className="text-[8px] md:text-[9px] text-white/50 group-hover/item:text-primary/80 font-medium">+91 96319 80881</span>
+          </div>
+        </Link>
+
+        {/* Direct Call General Manager - SECONDARY */}
+        <Link
+          href="tel:+919122795726"
+          className="flex items-center gap-2.5 md:gap-3.5 p-2 md:p-2.5 rounded-[14px] md:rounded-[16px] bg-white/[0.02] border border-white/5 text-white/60 transition-all group/item"
+          onClick={handleClose}
+        >
+          <div className="h-7 w-7 md:h-8 md:w-8 rounded-full bg-white/5 flex items-center justify-center transition-colors">
+            <Phone className="h-3 w-3 md:h-3.5 md:w-3.5 text-white/40 group-hover/item:text-white/70 transition-colors" />
+          </div>
+          <div className="flex flex-col">
+            <span className="text-[9px] md:text-[10px] font-bold tracking-wide text-white/50">General Manager</span>
+            <span className="text-[7px] md:text-[8px] text-white/30 font-medium">+91 91227 95726</span>
           </div>
         </Link>
       </div>

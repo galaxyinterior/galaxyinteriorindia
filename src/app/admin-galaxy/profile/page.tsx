@@ -36,10 +36,7 @@ export default function ProfileAdminPage() {
       const user = auth.currentUser;
       if (!user || user.email !== "admin@galaxy.in") throw new Error("Unauthorized user.");
       
-      // Re-authenticate to ensure recent login requirement is met
       await signInWithEmailAndPassword(auth, user.email, currentPassword);
-      
-      // Proceed to update password
       await updatePassword(user, newPassword);
       
       setStatus({ type: 'success', msg: "Administrator password updated securely!" });
@@ -53,27 +50,30 @@ export default function ProfileAdminPage() {
     setLoading(false);
   };
 
+  const inputClass = "bg-[#051124] border-white/10 text-white placeholder:text-white/20 focus:ring-accent";
+  const labelClass = "text-xs font-bold text-white/40 uppercase tracking-widest";
+
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-4xl mx-auto">
       <div>
-        <h1 className="text-4xl font-display font-bold text-gray-900 tracking-tight flex items-center gap-3">
-          <UserCircle className="w-10 h-10 text-primary" /> Administrator Profile
+        <h1 className="text-4xl font-display font-bold text-white tracking-tight flex items-center gap-3">
+          <UserCircle className="w-10 h-10 text-accent" /> Administrator Profile
         </h1>
-        <p className="text-gray-500 mt-2 text-lg">Manage your secure dashboard access credentials.</p>
+        <p className="text-white/40 mt-2 text-lg">Manage your secure dashboard access credentials.</p>
       </div>
 
-      <Card className="border-gray-200 shadow-sm max-w-2xl">
-        <CardHeader className="bg-gray-50/80 border-b pb-6 rounded-t-xl">
-          <CardTitle className="text-xl font-bold text-gray-900">Update Password</CardTitle>
-          <p className="text-sm text-gray-500">Ensure your account is using a long, random password to stay secure.</p>
+      <Card className="bg-[#08162d] border border-white/10 shadow-none rounded-2xl max-w-2xl">
+        <CardHeader className="border-b border-white/5 pb-6 rounded-t-2xl">
+          <CardTitle className="text-xl font-bold text-white">Update Password</CardTitle>
+          <p className="text-sm text-white/40">Ensure your account is using a long, random password to stay secure.</p>
         </CardHeader>
         <CardContent className="pt-6">
           
           {status.msg && (
-            <div className={`p-4 rounded-xl border flex items-center gap-3 mb-6 transition-colors ${
-              status.type === 'success' ? 'bg-green-50 border-green-200 text-green-800' : 
-              status.type === 'error' ? 'bg-red-50 border-red-200 text-red-800' : 
-              'bg-blue-50 border-blue-200 text-blue-800'
+            <div className={`p-4 rounded-xl border flex items-center gap-3 mb-6 ${
+              status.type === 'success' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 
+              status.type === 'error' ? 'bg-red-500/10 border-red-500/20 text-red-400' : 
+              'bg-accent/10 border-accent/20 text-accent'
             }`}>
               {status.type === 'success' ? <ShieldCheck className="w-5 h-5 shrink-0" /> : 
                status.type === 'error' ? <AlertCircle className="w-5 h-5 shrink-0" /> :
@@ -84,7 +84,7 @@ export default function ProfileAdminPage() {
 
           <form onSubmit={handleUpdatePassword} className="space-y-5">
             <div className="space-y-2">
-              <label className="text-sm font-bold text-gray-700">Current Password</label>
+              <label className={labelClass}>Current Password</label>
               <Input 
                 type="password"
                 placeholder="Enter your current password" 
@@ -92,13 +92,14 @@ export default function ProfileAdminPage() {
                 onChange={(e) => setCurrentPassword(e.target.value)}
                 disabled={loading}
                 required
+                className={inputClass}
               />
             </div>
             
-            <div className="py-2 border-t mt-4 border-gray-100"></div>
+            <div className="py-2 border-t mt-4 border-white/5"></div>
 
             <div className="space-y-2">
-              <label className="text-sm font-bold text-gray-700">New Password</label>
+              <label className={labelClass}>New Password</label>
               <Input 
                 type="password"
                 placeholder="Must be at least 6 characters" 
@@ -106,11 +107,12 @@ export default function ProfileAdminPage() {
                 onChange={(e) => setNewPassword(e.target.value)}
                 disabled={loading}
                 required
+                className={inputClass}
               />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-bold text-gray-700">Confirm New Password</label>
+              <label className={labelClass}>Confirm New Password</label>
               <Input 
                 type="password"
                 placeholder="Re-enter new password" 
@@ -118,10 +120,11 @@ export default function ProfileAdminPage() {
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 disabled={loading}
                 required
+                className={inputClass}
               />
             </div>
 
-            <Button type="submit" disabled={loading} className="w-full bg-primary hover:bg-primary/90 text-white font-bold h-12 mt-4">
+            <Button type="submit" disabled={loading} className="w-full bg-accent text-primary font-bold h-12 mt-4">
               {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Verify & Update Password"}
             </Button>
           </form>

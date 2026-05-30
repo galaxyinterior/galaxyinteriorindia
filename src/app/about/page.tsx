@@ -276,6 +276,7 @@ function MeetTheTeam() {
             <div className="group text-center animate-fade-up w-full max-w-sm">
               <div className="relative w-full aspect-[4/5] mx-auto rounded-[28px] overflow-hidden mb-8 m3-elevation-3 transition-all duration-700 hover:scale-[1.01] border-[6px] border-white bg-gray-50">
                 <img
+                  loading="lazy"
                   src={teamMembers[0].image}
                   alt={teamMembers[0].name}
                   className="object-cover w-full h-full"
@@ -294,6 +295,7 @@ function MeetTheTeam() {
                 {member.image ? (
                   <div className="relative w-40 h-40 sm:w-48 sm:h-48 mx-auto rounded-[24px] overflow-hidden mb-5 m3-elevation-2 transition-all duration-500 group-hover:-translate-y-1.5 border-4 border-white">
                     <img
+                      loading="lazy"
                       src={member.image}
                       alt={member.name}
                       className="object-cover w-full h-full"

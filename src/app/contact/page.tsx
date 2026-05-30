@@ -233,8 +233,8 @@ function ContactForm() {
                   <div>
                     <p className="text-xs text-white/50 font-bold uppercase tracking-wider mb-0.5">Call / WhatsApp</p>
                     <div className="flex flex-col text-sm">
-                      <a href="tel:+919122795726" className="hover:text-accent transition-colors font-bold text-white text-base">+91 91227 95726</a>
                       <a href="tel:+919631980881" className="hover:text-accent transition-colors font-bold text-white text-base">+91 96319 80881</a>
+                      <a href="tel:+919122795726" className="hover:text-accent/70 transition-colors font-medium text-white/40 text-xs mt-0.5">+91 91227 95726</a>
                     </div>
                   </div>
                 </div>

@@ -342,7 +342,7 @@ I would like to enquire about the *${enquiryPkg.name}*. Here are my client detai
                           Quick Enquiry / Poochhein
                         </Button>
                         <div className="flex gap-2">
-                          <a href="tel:+919122795726" className="flex-1">
+                          <a href="tel:+919631980881" className="flex-1">
                             <Button variant="outline" className="w-full border-white/10 text-white hover:bg-white/5 font-black uppercase tracking-wider text-[9px] h-10 rounded-full flex items-center justify-center gap-1.5 transition-all">
                               <Phone className="h-3 w-3 shrink-0" /> Call
                             </Button>
@@ -482,9 +482,9 @@ I would like to enquire about the *${enquiryPkg.name}*. Here are my client detai
                 </a>
                 <a 
                   href="tel:+919122795726" 
-                  className="flex items-center gap-4 text-white hover:text-accent transition-colors font-bold text-sm md:text-base"
+                  className="flex items-center gap-4 text-white/50 hover:text-white/80 transition-colors font-medium text-xs"
                 >
-                  <Phone className="h-5 w-5 text-accent shrink-0" />
+                  <Phone className="h-4 w-4 text-accent/50 shrink-0" />
                   <span>+91 91227 95726</span>
                 </a>
                 <div className="flex items-center gap-4 text-white font-bold text-sm md:text-base">

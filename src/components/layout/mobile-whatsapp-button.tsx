@@ -21,7 +21,7 @@ export default function MobileWhatsAppButton() {
     <div className="fixed bottom-3 right-3 z-50 flex flex-col items-end lg:hidden">
       {/* Floating Card Popover constrained for mobile screen widths */}
       <div 
-        className={`w-52 bg-[#061226]/95 backdrop-blur-md border border-accent/20 rounded-[18px] p-2.5 shadow-xl flex flex-col gap-2 transition-all duration-300 transform mb-3 ${
+        className={`w-52 bg-[#061226]/95 border border-accent/20 rounded-[18px] p-2.5 shadow-xl flex flex-col gap-2 transition-all duration-300 transform mb-3 ${
           isToggled 
             ? "opacity-100 translate-y-0 scale-100 pointer-events-auto" 
             : "opacity-0 translate-y-4 scale-95 pointer-events-none"
@@ -49,22 +49,7 @@ export default function MobileWhatsAppButton() {
           </div>
         </Link>
 
-        {/* Direct Call General Manager */}
-        <Link
-          href="tel:+919122795726"
-          className="flex items-center gap-2.5 p-2 rounded-[12px] bg-white/[0.03] border border-white/5 hover:bg-accent text-white hover:text-primary transition-all shadow-sm"
-          onClick={() => setIsToggled(false)}
-        >
-          <div className="h-7 w-7 rounded-full bg-accent/10 flex items-center justify-center">
-            <Phone className="h-3.5 w-3.5 text-accent" />
-          </div>
-          <div className="flex flex-col">
-            <span className="text-[9px] font-black tracking-wide">General Manager</span>
-            <span className="text-[7.5px] text-white/50 font-medium">+91 91227 95726</span>
-          </div>
-        </Link>
-
-        {/* Direct Call Owner */}
+        {/* Direct Call Owner - PRIMARY */}
         <Link
           href="tel:+919631980881"
           className="flex items-center gap-2.5 p-2 rounded-[12px] bg-white/[0.03] border border-white/5 hover:bg-accent text-white hover:text-primary transition-all shadow-sm"
@@ -76,6 +61,21 @@ export default function MobileWhatsAppButton() {
           <div className="flex flex-col">
             <span className="text-[9px] font-black tracking-wide">Owner</span>
             <span className="text-[7.5px] text-white/50 font-medium">+91 96319 80881</span>
+          </div>
+        </Link>
+
+        {/* Direct Call General Manager - SECONDARY */}
+        <Link
+          href="tel:+919122795726"
+          className="flex items-center gap-2.5 p-1.5 rounded-[10px] bg-white/[0.02] border border-white/5 text-white/50 transition-all"
+          onClick={() => setIsToggled(false)}
+        >
+          <div className="h-6 w-6 rounded-full bg-white/5 flex items-center justify-center">
+            <Phone className="h-3 w-3 text-white/30" />
+          </div>
+          <div className="flex flex-col">
+            <span className="text-[8.5px] font-bold tracking-wide text-white/40">General Manager</span>
+            <span className="text-[7px] text-white/25 font-medium">+91 91227 95726</span>
           </div>
         </Link>
       </div>

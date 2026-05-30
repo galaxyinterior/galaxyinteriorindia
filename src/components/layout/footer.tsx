@@ -75,11 +75,10 @@ export default function Footer() {
             <div className="mt-8 pt-8 border-t border-white/10 flex flex-col sm:flex-row gap-x-8 gap-y-4 text-white/60 text-sm">
               <div className="flex gap-3 items-center">
                 <Phone className="h-5 w-5 text-primary shrink-0" />
-                <a href="tel:+919122795726" className="font-bold text-white hover:text-accent transition-colors">+91 91227 95726</a>
-              </div>
-              <div className="flex gap-3 items-center">
-                <Phone className="h-5 w-5 text-primary shrink-0" />
-                <a href="tel:+919631980881" className="font-bold text-white hover:text-accent transition-colors">+91 96319 80881</a>
+                <div className="flex flex-col">
+                  <a href="tel:+919631980881" className="font-bold text-white hover:text-accent transition-colors text-base">+91 96319 80881</a>
+                  <a href="tel:+919122795726" className="font-medium text-white/40 hover:text-white/70 transition-colors text-xs mt-0.5">+91 91227 95726</a>
+                </div>
               </div>
               <div className="flex gap-3 items-center">
                 <Mail className="h-5 w-5 text-primary shrink-0" />
