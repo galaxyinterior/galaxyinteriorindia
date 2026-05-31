@@ -124,6 +124,9 @@ function RegisterFormContent() {
   const [errorMsg, setErrorMsg] = useState('');
   const [googleUser, setGoogleUser] = useState<any>(null);
   
+  // Custom interactive pricing calculator state from /pricing page
+  const [calculatorState, setCalculatorState] = useState<any>(null);
+
   // Full Form State mapping to GALAXY INTERIOR Enquiry Form PDF structure
   const [formData, setFormData] = useState({
     // Step 1: Credentials & Basic Info
@@ -167,7 +170,68 @@ function RegisterFormContent() {
     referredBy: ''
   });
 
-  const activePkg = packageDetails[selectedPkg] || packageDetails.standard;
+  // Check for pricing calculator configuration on mount
+  useEffect(() => {
+    const isFromCalculator = searchParams.get('source') === 'calculator';
+    if (isFromCalculator) {
+      const stored = localStorage.getItem('galaxy_calculator_state');
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored);
+          setCalculatorState(parsed);
+          setSelectedPkg('calculator_estimate');
+          
+          // Pre-fill form details based on exact brochure choices!
+          const parsedServices: string[] = [];
+          if (parsed.category === 'residential') {
+            if (parsed.services.full_package?.checked) {
+              parsedServices.push('Residential Full Package');
+            } else {
+              if (parsed.services['2d_planning']?.checked) parsedServices.push('2D Floor Plan');
+              if (parsed.services['3d_elevation']?.checked) parsedServices.push('3D Elevation Design');
+              if (parsed.services['3d_interior']?.checked) parsedServices.push('Interior Design');
+            }
+          } else {
+            if (parsed.services['2d_planning']?.checked) parsedServices.push('2D Floor Plan');
+            if (parsed.services['3d_elevation']?.checked) parsedServices.push('3D Elevation Design');
+            if (parsed.services['3d_interior']?.checked) parsedServices.push('Interior Design');
+          }
+          if (parsed.walkthrough) parsedServices.push('3D Walkthrough Tour');
+          if (parsed.consultation) parsedServices.push('Online Architect Consultation');
+
+          const specText = `Visits & Support: ${parsed.distance || '0-25 KM'}. Contractor Guidance: ${parsed.contractorGuidance ? 'Yes' : 'No'}. Material Support: ${parsed.materialSupport ? 'Yes' : 'No'}.`;
+
+          setFormData(prev => ({
+            ...prev,
+            projectType: parsed.category === 'residential' ? 'Residential House' : 'Office',
+            servicesRequired: parsedServices,
+            plotAreaSize: `${parsed.area} Sqft`,
+            estimatedBudget: `₹${parsed.totalPrice.toLocaleString('en-IN')}`,
+            specialRequirement: specText
+          }));
+        } catch (e) {
+          console.error("Error reading pricing calculator state:", e);
+        }
+      }
+    }
+  }, [searchParams]);
+
+  // Derive active package info dynamically supporting custom estimate
+  const activePkg = selectedPkg === 'calculator_estimate' && calculatorState
+    ? {
+        name: "Interactive Cost Estimate",
+        price: calculatorState.totalPrice.toLocaleString('en-IN'),
+        visits: `Site visits based on: ${calculatorState.distance || '0-25 KM'}`,
+        suitable: `${calculatorState.area} Sqft Built-up Area`,
+        benefits: [
+          `Category: ${calculatorState.category === 'residential' ? 'Residential' : 'Commercial'} Space`,
+          `Plot Area Size: ${calculatorState.area} Sqft`,
+          `Services applied: ${formData.servicesRequired.join(', ') || 'Custom Plans'}`,
+          `Contractor Guidance: ${calculatorState.contractorGuidance ? 'Included' : 'Not Included'}`,
+          `Material Support: ${calculatorState.materialSupport ? 'Included' : 'Not Included'}`
+        ]
+      }
+    : packageDetails[selectedPkg] || packageDetails.standard;
 
   // Listen to Firebase Auth state on mount to auto fast-fill if already authenticated
   useEffect(() => {
@@ -367,6 +431,7 @@ function RegisterFormContent() {
         estimatedBudget: formData.estimatedBudget,
         workStartDate: formData.workStartDate,
         expectedCompletionTime: formData.expectedCompletionTime,
+        calculatorState: selectedPkg === 'calculator_estimate' ? calculatorState : null,
 
         // Origin details
         documentsSubmitted: formData.documentsSubmitted,

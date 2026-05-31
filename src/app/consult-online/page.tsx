@@ -71,6 +71,58 @@ const packageDetails: Record<string, { name: string; price: string; priceNum: nu
   }
 };
 
+const commercialPackageDetails: Record<string, { name: string; price: string; priceNum: number; visits: string; suitable: string; benefits: string[] }> = {
+  basic: {
+    name: "Commercial Starter",
+    price: "14,999",
+    priceNum: 14999,
+    visits: "8 Site Visits",
+    suitable: "Office / Shop up to 1500 Sqft",
+    benefits: [
+      "Affordable commercial consultation",
+      "Professional spatial structural layout",
+      "Standard electrical / safety routing guidance",
+      "Saves business setup and contractor time",
+      "Dedicated workspace layout monitoring",
+      "Basic business zoning compliance check"
+    ]
+  },
+  standard: {
+    name: "Business Growth",
+    price: "24,999",
+    priceNum: 24999,
+    visits: "12 Site Visits",
+    suitable: "Malls / Hotels from 1500 – 3500 Sqft",
+    benefits: [
+      "Optimized material & luxury showroom finish",
+      "Workstation desks and wiring blueprints",
+      "Regular corporate structural reviews",
+      "Substantial expense and delay reduction",
+      "Faster engineer-to-contractor coordination",
+      "Workspace high-durability tile audit",
+      "Vastu and airflow alignment checks",
+      "Premium commercial space planning support"
+    ]
+  },
+  premium: {
+    name: "Enterprise Custom",
+    price: "39,999",
+    priceNum: 39999,
+    visits: "20 Site Visits",
+    suitable: "Hospitals / Schools above 3500 Sqft",
+    benefits: [
+      "Stress-free commercial tower construction",
+      "Stunning modern lobby & entrance structural designs",
+      "3D workspace virtual walkthrough layout included",
+      "Advanced automated ventilation & energy blue-charts",
+      "Priority structural architect consulting support",
+      "Regular progress report and timeline syncing",
+      "Comprehensive fire safety clearance routing",
+      "Complete high-fidelity setup from core to finish"
+    ]
+  }
+};
+
 const serviceOptions = [
   { id: "false_ceiling", label: "False Ceiling", icon: "🌌" },
   { id: "wallpaper", label: "Wallpaper Art", icon: "🖼️" },
@@ -84,6 +136,19 @@ const serviceOptions = [
   { id: "three_d_elevation", label: "3D Rendering & VR Walkthrough", icon: "🕶️" },
   { id: "plumbing_electrical", label: "Electrical & Plumbing blue-charts", icon: "🔌" },
   { id: "solar_consulting", label: "Green Energy Solar Blueprint", icon: "☀️" }
+];
+
+const commercialServiceOptions = [
+  { id: "corp_ceiling", label: "Corporate False Ceiling", icon: "🌌" },
+  { id: "cabin_grids", label: "Smart Cabin Partitions", icon: "🚪" },
+  { id: "desk_wiring", label: "Workstation Desk Wiring", icon: "🔌" },
+  { id: "heavy_flooring", label: "Heavy-Duty Tiles Flooring", icon: "🧱" },
+  { id: "display_units", label: "Retail Showroom Display Units", icon: "🛍️" },
+  { id: "lobby_panelling", label: "Lobby & Reception Panelling", icon: "🏢" },
+  { id: "structural_layout", label: "Office Tower Structural Plan", icon: "📐" },
+  { id: "workspace_walkthrough", label: "3D Workspace VR Walkthrough", icon: "🕶️" },
+  { id: "safety_routing", label: "Electrical & Fire Blue-Charts", icon: "🔥" },
+  { id: "ventilation_solar", label: "Automated HVAC & Solar Consulting", icon: "☀️" }
 ];
 
 export default function ConsultOnlinePage() {
@@ -122,6 +187,9 @@ export default function ConsultOnlinePage() {
   const [unreadNotificationsCount, setUnreadNotificationsCount] = useState(0);
   const [loadingProjects, setLoadingProjects] = useState(true);
   const [loadingNotifications, setLoadingNotifications] = useState(true);
+  const [appliedServicesList, setAppliedServicesList] = useState<any[]>([]);
+  const [loadingAppliedServices, setLoadingAppliedServices] = useState(true);
+  const [subTab, setSubTab] = useState<"projects" | "applied">("projects");
 
   // Profile Edit states
   const [editName, setEditName] = useState("");
@@ -141,6 +209,20 @@ export default function ConsultOnlinePage() {
   const [wizardError, setWizardError] = useState("");
   const [paymentLoading, setPaymentLoading] = useState(false);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
+  
+  const [projectSegment, setProjectSegment] = useState<"residential" | "commercial">("residential");
+  const [propertyType, setPropertyType] = useState("Duplex House");
+
+  const handleSegmentChange = (segment: "residential" | "commercial") => {
+    setProjectSegment(segment);
+    if (segment === "commercial") {
+      setPropertyType("Corporate Office");
+      setCheckedServices(["corp_ceiling", "cabin_grids", "workspace_walkthrough"]);
+    } else {
+      setPropertyType("Duplex House");
+      setCheckedServices(["false_ceiling", "modular_kitchen", "three_d_elevation"]);
+    }
+  };
 
   // Watch Auth state on mount
   useEffect(() => {
@@ -178,6 +260,7 @@ export default function ConsultOnlinePage() {
           setPortalState("app");
           subscribeToProjects(user.uid);
           subscribeToNotifications(user.uid);
+          subscribeToAppliedServices(user.uid);
         }
       } else {
         // Newly created Google users might not have a Firestore doc yet
@@ -219,6 +302,29 @@ export default function ConsultOnlinePage() {
     }, (error) => {
       console.error("Firestore projects lookup failed", error);
       setLoadingProjects(false);
+    });
+    return unsubscribe;
+  };
+
+  // Subscribe to client's applied services in real time
+  const subscribeToAppliedServices = (uid: string) => {
+    setLoadingAppliedServices(true);
+    const q = query(
+      collection(db, "applied_services"),
+      where("uid", "==", uid),
+      orderBy("createdAt", "desc")
+    );
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const services = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        createdAtFormatted: doc.data().createdAt?.toDate()?.toLocaleDateString() || "Recently"
+      }));
+      setAppliedServicesList(services);
+      setLoadingAppliedServices(false);
+    }, (error) => {
+      console.error("Firestore applied services lookup failed", error);
+      setLoadingAppliedServices(false);
     });
     return unsubscribe;
   };
@@ -374,7 +480,7 @@ export default function ConsultOnlinePage() {
       };
       await setDoc(doc(db, "users", currentUser.uid), updatedFields, { merge: true });
       
-      setUserProfile(prev => ({ ...prev, ...updatedFields }));
+      setUserProfile((prev: any) => ({ ...prev, ...updatedFields }));
       setPortalState("app");
       subscribeToProjects(currentUser.uid);
       subscribeToNotifications(currentUser.uid);
@@ -406,7 +512,7 @@ export default function ConsultOnlinePage() {
         address: editAddress
       }, { merge: true });
 
-      setUserProfile(prev => ({
+      setUserProfile((prev: any) => ({
         ...prev,
         name: editName,
         phone: editPhone,
@@ -451,25 +557,25 @@ export default function ConsultOnlinePage() {
         return;
       }
       setWizardStep(3);
-    } else if (wizardStep === 3) {
-      if (!siteLocation || !plotSize) {
-        setWizardError("Site location and area size are mandatory to configure estimations.");
-        return;
-      }
-      setWizardStep(4);
     }
   };
 
-  // Wizard: Simulated Purchase & Project final sync
+  // Wizard: Confirm & Project final sync (Offline Setup)
   const handleSimulatedPaymentSubmit = async () => {
     setWizardError("");
+    if (!siteLocation || !plotSize) {
+      setWizardError("Site location and area size are mandatory to configure estimations.");
+      return;
+    }
     setPaymentLoading(true);
 
-    const activePkg = packageDetails[selectedPkg];
+    const activePackages = projectSegment === "commercial" ? commercialPackageDetails : packageDetails;
+    const activePkg = activePackages[selectedPkg];
 
     try {
       // 1. Sync custom project configuration to Firestore 'client_projects'
-      const customServicesNames = serviceOptions
+      const currentServiceOptions = projectSegment === "commercial" ? commercialServiceOptions : serviceOptions;
+      const customServicesNames = currentServiceOptions
         .filter(opt => checkedServices.includes(opt.id))
         .map(opt => opt.label);
 
@@ -478,9 +584,11 @@ export default function ConsultOnlinePage() {
         clientName: userProfile.name,
         clientPhone: userProfile.phone,
         clientAddress: userProfile.address,
-        projectName: `${userProfile.name}'s Residence Plan`,
+        projectName: `${userProfile.name}'s ${propertyType}`,
+        projectSegment: projectSegment,
+        propertyType: propertyType,
         selectedPackage: activePkg.name,
-        packagePricePaid: `₹${activePkg.price}`,
+        packagePricePaid: "Offline Setup",
         priceNumPaid: activePkg.priceNum,
         customOptions: customServicesNames,
         siteDetails: {
@@ -489,8 +597,8 @@ export default function ConsultOnlinePage() {
           floors: floorsCount,
           remarks: specialRemarks
         },
-        paymentStatus: "Paid",
-        paymentTxId: `TXN-${Math.floor(100000 + Math.random() * 900000)}`,
+        paymentStatus: "Pending Setup",
+        paymentTxId: "Offline / Manual",
         status: "Initialized", // Initialized -> Under Audit -> Visit Scheduled -> In Progress -> Completed
         createdAt: serverTimestamp()
       };
@@ -500,8 +608,9 @@ export default function ConsultOnlinePage() {
         name: userProfile.name,
         phone: userProfile.phone,
         location: siteLocation,
-        propertyType: `Structured Portal Project: ${activePkg.name}`,
-        message: `Structured plan initialized via dashboard. Package Paid: ₹${activePkg.price}. Custom options: ${customServicesNames.join(", ")}. Site size: ${plotSize} Sqft. Remarks: ${specialRemarks}`,
+        propertyType: `${projectSegment === "commercial" ? "🏢 Commercial" : "🏠 Residential"}: ${propertyType} (${activePkg.name})`,
+        projectSegment: projectSegment,
+        message: `Structured plan initialized via dashboard. Setup Mode: Offline/Manual. Custom options: ${customServicesNames.join(", ")}. Site size: ${plotSize} Sqft. Remarks: ${specialRemarks}`,
         createdAt: serverTimestamp()
       });
 
@@ -511,7 +620,7 @@ export default function ConsultOnlinePage() {
       await addDoc(collection(db, "notifications"), {
         uid: currentUser.uid,
         title: "Project Initialized",
-        message: `Your project "${userProfile.name}'s Residence Plan" has been successfully initialized under the ${activePkg.name}!`,
+        message: `Your ${projectSegment} project "${userProfile.name}'s ${propertyType}" has been successfully initialized! Our team will contact you offline for payments.`,
         read: false,
         createdAt: serverTimestamp()
       });
@@ -519,11 +628,13 @@ export default function ConsultOnlinePage() {
       setPaymentSuccess(true);
       
       // Send dynamic WhatsApp overview
-      const whatsMessage = `*GALAXY INTERIOR - Project Initialized*
+      const whatsMessage = `*GALAXY INTERIOR - Project Initialized (${projectSegment === "commercial" ? "Commercial 🏢" : "Residential 🏠"})*
 ----------------------------------------
 *Account Owner:* ${userProfile.name}
 *Phone:* ${userProfile.phone}
-*Base Plan:* ${activePkg.name} (Simulated Payment ₹${activePkg.price} Paid)
+*Base Plan:* ${activePkg.name} (Offline Payment / Setup)
+*Property Type:* ${propertyType}
+*Floors / Space:* ${floorsCount}
 *Custom Options:* ${customServicesNames.join(", ")}
 *Site Location:* ${siteLocation}
 *Area Sizing:* ${plotSize} Sqft
@@ -545,8 +656,8 @@ export default function ConsultOnlinePage() {
       }, 2000);
 
     } catch (err: any) {
-      console.error("SIMULATED GATEWAY SYNC FAILURE", err);
-      setWizardError("Simulated payment transaction failed. Please check your Firestore database connection.");
+      console.error("GATEWAY SYNC FAILURE", err);
+      setWizardError("Project initialization failed. Please check your Firestore database connection.");
       setPaymentLoading(false);
     }
   };
@@ -934,6 +1045,13 @@ export default function ConsultOnlinePage() {
             </div>
 
             <nav className="flex flex-col space-y-1.5 w-full flex-grow">
+              <Link
+                href="/"
+                className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-white/60 hover:bg-white/5 hover:text-white transition-all text-xs font-black uppercase tracking-widest text-left mb-2 border border-white/5 bg-white/[0.01]"
+              >
+                <Compass className="w-4 h-4 shrink-0 text-accent" /> Back to Website
+              </Link>
+
               <button
                 onClick={() => setActiveTab("overview")}
                 className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-xs font-black uppercase tracking-widest text-left ${
@@ -1029,12 +1147,22 @@ export default function ConsultOnlinePage() {
                     <h1 className="text-3xl font-black uppercase tracking-tight text-white font-display">Dashboard Overview</h1>
                     <p className="text-xs text-white/50 mt-1 font-medium">Quick indicators, ongoing projects, and unread client notifications.</p>
                   </div>
-                  <Button
-                    onClick={() => setActiveTab("initialize")}
-                    className="bg-accent hover:bg-accent/90 text-primary font-black uppercase tracking-widest text-[9px] h-10 px-5 rounded-full flex items-center gap-1.5 shadow-md shrink-0 w-fit"
-                  >
-                    <PlusCircle className="w-3.5 h-3.5" /> Start New Project
-                  </Button>
+                  <div className="flex items-center gap-2 flex-wrap shrink-0">
+                    <Link href="/">
+                      <Button
+                        variant="outline"
+                        className="border-white/10 hover:bg-white/5 text-white/70 font-black uppercase tracking-widest text-[9px] h-10 px-5 rounded-full flex items-center gap-1.5"
+                      >
+                        <Compass className="w-3.5 h-3.5 text-accent" /> Back to Website
+                      </Button>
+                    </Link>
+                    <Button
+                      onClick={() => setActiveTab("initialize")}
+                      className="bg-accent hover:bg-accent/90 text-primary font-black uppercase tracking-widest text-[9px] h-10 px-5 rounded-full flex items-center gap-1.5 shadow-md shrink-0 w-fit"
+                    >
+                      <PlusCircle className="w-3.5 h-3.5" /> Start New Project
+                    </Button>
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
@@ -1078,11 +1206,22 @@ export default function ConsultOnlinePage() {
                   ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                       {projectsList.slice(0, 2).map((project) => (
-                        <Card key={project.id} className="glass-card bg-[#08162d] border-white/5 p-5 rounded-[20px] shadow-md relative overflow-hidden">
+                        <Card key={project.id} className="glass-card bg-[#08162d] border-white/5 p-5 rounded-[20px] shadow-md relative overflow-hidden flex flex-col justify-between min-h-[110px]">
                           <div className="flex justify-between items-start gap-4">
                             <div>
                               <h3 className="font-bold text-sm text-white capitalize">{project.projectName}</h3>
-                              <span className="text-[8px] font-black text-accent uppercase tracking-widest block mt-1">{project.selectedPackage}</span>
+                              <div className="flex items-center gap-1.5 mt-1">
+                                <span className="text-[8px] font-black text-accent uppercase tracking-widest">{project.selectedPackage}</span>
+                                {project.projectSegment === "commercial" ? (
+                                  <span className="bg-blue-500/10 text-blue-400 border border-blue-500/20 text-[7px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full">
+                                    🏢 Commercial
+                                  </span>
+                                ) : (
+                                  <span className="bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 text-[7px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full">
+                                    🏠 Residential
+                                  </span>
+                                )}
+                              </div>
                             </div>
                             <Badge className="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[7px] font-black uppercase tracking-widest rounded-full">
                               {project.status}
@@ -1104,442 +1243,521 @@ export default function ConsultOnlinePage() {
                   <p className="text-xs text-white/50 mt-1 font-medium">Live monitoring dashboards synced in real-time with site coordinators.</p>
                 </div>
 
-                {loadingProjects ? (
-                  <div className="py-20 text-center"><Loader2 className="w-10 h-10 text-accent animate-spin mx-auto" /></div>
-                ) : projectsList.length === 0 ? (
-                  <Card className="border border-dashed border-white/10 p-12 text-center rounded-[24px]">
-                    <p className="text-xs text-white/40 uppercase font-black tracking-widest">No projects found. Use the configurator wizard to start.</p>
-                  </Card>
-                ) : (
-                  <div className="grid grid-cols-1 gap-6">
-                    {projectsList.map((project) => {
-                      const statusesList = ["Initialized", "Under Audit", "Visit Scheduled", "In Progress", "Completed"];
-                      const currentStatusIdx = statusesList.indexOf(project.status) !== -1 ? statusesList.indexOf(project.status) : 0;
-                      return (
-                        <Card key={project.id} className="glass-card bg-[#08162d] border-white/5 p-6 rounded-[24px] shadow-md relative overflow-hidden space-y-6">
-                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/5 pb-4">
-                            <div>
-                              <h3 className="font-bold text-lg text-white capitalize">{project.projectName}</h3>
-                              <div className="flex flex-wrap items-center gap-2 mt-1.5">
-                                <Badge className="bg-accent/15 text-accent border border-accent/20 text-[7.5px] font-black uppercase tracking-widest px-2 rounded-full">{project.selectedPackage}</Badge>
-                                <Badge className="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[7.5px] font-black uppercase tracking-widest px-2 rounded-full">Paid {project.packagePricePaid}</Badge>
+                {/* Sub Tab Switcher */}
+                <div className="flex border-b border-white/5 gap-6 mb-6">
+                  <button
+                    onClick={() => setSubTab("projects")}
+                    className={`pb-2.5 font-bold text-xs uppercase tracking-widest border-b-2 transition-all flex items-center gap-1.5 ${
+                      subTab === "projects"
+                        ? "border-accent text-accent"
+                        : "border-transparent text-white/30 hover:text-white"
+                    }`}
+                  >
+                    <ClipboardList className="w-3.5 h-3.5 shrink-0" /> Custom Plans ({projectsList.length})
+                  </button>
+
+                  <button
+                    onClick={() => setSubTab("applied")}
+                    className={`pb-2.5 font-bold text-xs uppercase tracking-widest border-b-2 transition-all flex items-center gap-1.5 ${
+                      subTab === "applied"
+                        ? "border-accent text-accent"
+                        : "border-transparent text-white/30 hover:text-white"
+                    }`}
+                  >
+                    <Sparkles className="w-3.5 h-3.5 shrink-0" /> Applied Services ({appliedServicesList.length})
+                  </button>
+                </div>
+
+                {subTab === "projects" ? (
+                  loadingProjects ? (
+                    <div className="py-20 text-center"><Loader2 className="w-10 h-10 text-accent animate-spin mx-auto" /></div>
+                  ) : projectsList.length === 0 ? (
+                    <Card className="border border-dashed border-white/10 p-12 text-center rounded-[24px]">
+                      <p className="text-xs text-white/40 uppercase font-black tracking-widest">No projects found. Use the configurator wizard to start.</p>
+                    </Card>
+                  ) : (
+                    <div className="grid grid-cols-1 gap-6 animate-fade-in">
+                      {projectsList.map((project) => {
+                        const statusesList = ["Initialized", "Under Audit", "Visit Scheduled", "In Progress", "Completed"];
+                        const currentStatusIdx = statusesList.indexOf(project.status) !== -1 ? statusesList.indexOf(project.status) : 0;
+                        return (
+                          <Card key={project.id} className="glass-card bg-[#08162d] border-white/5 p-6 rounded-[24px] shadow-md relative overflow-hidden space-y-6">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/5 pb-4 text-left">
+                              <div>
+                                <h3 className="font-bold text-lg text-white capitalize">{project.projectName}</h3>
+                                <div className="flex flex-wrap items-center gap-2 mt-1.5">
+                                  <Badge className="bg-accent/15 text-accent border border-accent/20 text-[7.5px] font-black uppercase tracking-widest px-2 rounded-full">{project.selectedPackage}</Badge>
+                                  <Badge className="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[7.5px] font-black uppercase tracking-widest px-2 rounded-full">{project.packagePricePaid}</Badge>
+                                  {project.projectSegment === "commercial" ? (
+                                    <Badge className="bg-blue-500/20 text-blue-400 border border-blue-500/30 text-[7.5px] font-black uppercase tracking-widest px-2 rounded-full">🏢 Commercial</Badge>
+                                  ) : (
+                                    <Badge className="bg-yellow-500/20 text-yellow-500 border border-yellow-500/30 text-[7.5px] font-black uppercase tracking-widest px-2 rounded-full">🏠 Residential</Badge>
+                                  )}
+                                </div>
+                              </div>
+                              <span className="text-[8.5px] text-white/30 font-bold uppercase tracking-widest">TXN: {project.paymentTxId}</span>
+                            </div>
+
+                            {/* Customized services selected */}
+                            {project.customOptions && project.customOptions.length > 0 && (
+                              <div>
+                                <span className="text-[8px] font-black text-white/30 uppercase tracking-widest block pl-0.5 mb-1.5">Custom Sizing Options</span>
+                                <div className="flex flex-wrap gap-1.5">
+                                  {project.customOptions.map((opt: string, idx: number) => (
+                                    <span key={idx} className="bg-white/5 border border-white/10 text-[8px] font-bold text-white/70 px-2.5 py-1 rounded-md uppercase">
+                                      {opt}
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Dimensions & Location */}
+                            <div className="grid grid-cols-2 gap-4 text-xs font-sans text-white/60 bg-white/[0.01] border border-white/5 p-4 rounded-xl">
+                              <div>
+                                <span className="text-white/30 block text-[8px] font-black uppercase tracking-wider mb-1">Site Location</span>
+                                <span className="font-bold text-white flex items-center gap-1">
+                                  <MapPin className="w-3.5 h-3.5 text-accent" /> {project.siteDetails?.location}
+                                </span>
+                              </div>
+                              <div>
+                                <span className="text-white/30 block text-[8px] font-black uppercase tracking-wider mb-1">Plot Dimensions / Sizing</span>
+                                <span className="font-bold text-white flex items-center gap-1">
+                                  <Layers className="w-3.5 h-3.5 text-accent" /> {project.siteDetails?.plotSize} Sqft ({project.siteDetails?.floors} Floors)
+                                </span>
                               </div>
                             </div>
-                            <span className="text-[8.5px] text-white/30 font-bold uppercase tracking-widest">TXN: {project.paymentTxId}</span>
-                          </div>
 
-                          {/* Customized services selected */}
-                          {project.customOptions && project.customOptions.length > 0 && (
-                            <div>
-                              <span className="text-[8px] font-black text-white/30 uppercase tracking-widest block pl-0.5 mb-1.5">Custom Sizing Options</span>
-                              <div className="flex flex-wrap gap-1.5">
-                                {project.customOptions.map((opt: string, idx: number) => (
-                                  <span key={idx} className="bg-white/5 border border-white/10 text-[8px] font-bold text-white/70 px-2.5 py-1 rounded-md uppercase">
-                                    {opt}
-                                  </span>
-                                ))}
+                            {/* Status timeline progress visual indicator */}
+                            <div className="space-y-3 pt-2">
+                              <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest">
+                                <span className="text-white/40">Construction Siting Stage</span>
+                                <span className="text-accent">{project.status}</span>
                               </div>
+                              <div className="flex items-center gap-2 relative">
+                                {statusesList.map((st, sIdx) => {
+                                  const isCompleted = sIdx <= currentStatusIdx;
+                                  const isActive = sIdx === currentStatusIdx;
+                                  return (
+                                    <div key={sIdx} className="flex-1 flex flex-col items-center">
+                                      <div className={`h-1.5 w-full rounded-full transition-all duration-500 ${
+                                        isCompleted ? isActive ? "bg-accent shadow-[0_0_8px_rgba(255,207,51,0.6)]" : "bg-emerald-500" : "bg-white/10"
+                                      }`} />
+                                      <span className={`text-[7px] font-bold mt-1.5 uppercase ${isActive ? "text-accent font-black" : isCompleted ? "text-emerald-400" : "text-white/20"}`}>
+                                        {st}
+                                      </span>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+
+                            <div className="pt-4 border-t border-white/5 flex justify-between items-center text-[10px] font-bold text-white/30">
+                              <span>Initialized on</span>
+                              <span>{project.createdAtFormatted}</span>
+                            </div>
+                          </Card>
+                        );
+                      })}
+                    </div>
+                  )
+                ) : (
+                  loadingAppliedServices ? (
+                    <div className="py-20 text-center"><Loader2 className="w-10 h-10 text-accent animate-spin mx-auto" /></div>
+                  ) : appliedServicesList.length === 0 ? (
+                    <Card className="border border-dashed border-white/10 p-12 text-center rounded-[24px]">
+                      <p className="text-xs text-white/40 uppercase font-black tracking-widest">No service applications filed yet.</p>
+                      <p className="text-[10px] text-white/35 mt-2">Go to our services page to apply for false ceiling, modular kitchens, wall painting, or lighting layout with one click!</p>
+                    </Card>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-fade-in text-left">
+                      {appliedServicesList.map((service) => (
+                        <Card key={service.id} className="glass-card bg-[#08162d] border-white/5 p-6 rounded-[24px] shadow-md relative overflow-hidden space-y-4">
+                          <div className="flex justify-between items-start gap-4">
+                            <div>
+                              <h3 className="font-bold text-base text-white capitalize">{service.serviceName}</h3>
+                              <span className="text-[8px] text-white/40 font-bold uppercase tracking-widest block mt-0.5">Applied on {service.createdAtFormatted}</span>
+                            </div>
+                            <Badge className="bg-accent/15 text-accent border border-accent/20 text-[7px] font-black uppercase tracking-widest rounded-full px-2 py-0.5">
+                              {service.status || "Applied"}
+                            </Badge>
+                          </div>
+                          
+                          {service.adminResponse ? (
+                            <div className="p-4 bg-accent/5 border border-accent/15 rounded-xl space-y-1 mt-2 animate-fade-in">
+                              <span className="text-[8px] font-black text-accent uppercase tracking-widest block">Sameer Ahmed (Architect Response):</span>
+                              <p className="text-xs font-bold text-white/95 leading-relaxed italic">"{service.adminResponse}"</p>
+                              <span className="text-[6.5px] text-white/30 block mt-1 font-semibold uppercase">Live synced response</span>
+                            </div>
+                          ) : (
+                            <div className="p-3 bg-white/[0.01] border border-white/5 rounded-xl">
+                              <p className="text-[9.5px] font-medium text-white/40 italic">"Our engineering panel is actively auditing your service specifications. Live replies will update in real time here."</p>
                             </div>
                           )}
-
-                          {/* Dimensions & Location */}
-                          <div className="grid grid-cols-2 gap-4 text-xs font-sans text-white/60 bg-white/[0.01] border border-white/5 p-4 rounded-xl">
-                            <div>
-                              <span className="text-white/30 block text-[8px] font-black uppercase tracking-wider mb-1">Site Location</span>
-                              <span className="font-bold text-white flex items-center gap-1">
-                                <MapPin className="w-3.5 h-3.5 text-accent" /> {project.siteDetails?.location}
-                              </span>
-                            </div>
-                            <div>
-                              <span className="text-white/30 block text-[8px] font-black uppercase tracking-wider mb-1">Plot Dimensions / Sizing</span>
-                              <span className="font-bold text-white flex items-center gap-1">
-                                <Layers className="w-3.5 h-3.5 text-accent" /> {project.siteDetails?.plotSize} Sqft ({project.siteDetails?.floors} Floors)
-                              </span>
-                            </div>
-                          </div>
-
-                          {/* Status timeline progress visual indicator */}
-                          <div className="space-y-3 pt-2">
-                            <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest">
-                              <span className="text-white/40">Construction Siting Stage</span>
-                              <span className="text-accent">{project.status}</span>
-                            </div>
-                            <div className="flex items-center gap-2 relative">
-                              {statusesList.map((st, sIdx) => {
-                                const isCompleted = sIdx <= currentStatusIdx;
-                                const isActive = sIdx === currentStatusIdx;
-                                return (
-                                  <div key={sIdx} className="flex-1 flex flex-col items-center">
-                                    <div className={`h-1.5 w-full rounded-full transition-all duration-500 ${
-                                      isCompleted ? isActive ? "bg-accent shadow-[0_0_8px_rgba(255,207,51,0.6)]" : "bg-emerald-500" : "bg-white/10"
-                                    }`} />
-                                    <span className={`text-[7px] font-bold mt-1.5 uppercase ${isActive ? "text-accent font-black" : isCompleted ? "text-emerald-400" : "text-white/20"}`}>
-                                      {st}
-                                    </span>
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          </div>
                         </Card>
-                      );
-                    })}
-                  </div>
+                      ))}
+                    </div>
+                  )
                 )}
               </div>
             )}
 
             {/* INITIALIZE PROJECT PANEL */}
-            {activeTab === "initialize" && (
-              <div className="space-y-8 animate-fade-up max-w-4xl">
-                <div className="border-b border-white/10 pb-6">
-                  <h1 className="text-3xl font-black uppercase tracking-tight text-white font-display">Initialize New Project</h1>
-                  <p className="text-xs text-white/50 mt-1 font-medium">Use the custom builder wizard to configure packages and simulated checkouts.</p>
-                </div>
-
-                {/* M3 Steps Timeline */}
-                <div className="flex items-center justify-between relative max-w-lg mx-auto mb-10 pt-4">
-                  <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-[2px] bg-white/5 z-0"></div>
-                  <div 
-                    className="absolute left-0 top-1/2 -translate-y-1/2 h-[2px] bg-accent transition-all duration-500 z-0"
-                    style={{ width: `${((wizardStep - 1) / 3) * 100}%` }}
-                  ></div>
-
-                  {[1, 2, 3, 4].map((stepNum) => {
-                    const stepLabels = ["Package Base", "Custom Services", "Site Specs", "UPI Gateway"];
-                    const isActive = stepNum === wizardStep;
-                    const isCompleted = stepNum < wizardStep;
-                    return (
-                      <div key={stepNum} className="relative z-10 flex flex-col items-center">
-                        <div 
-                          className={`w-8 h-8 rounded-full flex items-center justify-center font-black text-[10px] border transition-all duration-300 ${
-                            isActive 
-                              ? 'bg-accent text-primary border-accent shadow-[0_0_8px_rgba(255,207,51,0.5)]' 
-                              : isCompleted 
-                                ? 'bg-galaxy-dark text-accent border-accent' 
-                                : 'bg-[#051124] text-white/20 border-white/5'
-                          }`}
-                        >
-                          {isCompleted ? <Check className="w-3.5 h-3.5 stroke-[3]" /> : stepNum}
-                        </div>
-                        <span className={`text-[7px] font-black uppercase tracking-widest mt-2 hidden sm:block ${
-                          isActive ? "text-accent" : "text-white/30"
-                        }`}>
-                          {stepLabels[stepNum - 1]}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                {/* Wizard Card Sheets */}
-                <Card className="glass-card border-accent/20 bg-[#08162d] rounded-[28px] p-6 md:p-8 shadow-2xl relative">
-                  {wizardError && (
-                    <div className="mb-5 p-3.5 bg-red-500/10 border border-red-500/20 text-red-200 text-xs rounded-xl font-semibold flex items-center gap-2">
-                      <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
-                      <span>{wizardError}</span>
+            {activeTab === "initialize" && (() => {
+              const activePackages = projectSegment === "commercial" ? commercialPackageDetails : packageDetails;
+              const activeServiceOptions = projectSegment === "commercial" ? commercialServiceOptions : serviceOptions;
+              return (
+                <div className="space-y-8 animate-fade-up max-w-4xl">
+                  <div className="border-b border-white/10 pb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div>
+                      <h1 className="text-3xl font-black uppercase tracking-tight text-white font-display">Initialize New Project</h1>
+                      <p className="text-xs text-white/50 mt-1 font-medium">Use the custom builder flow below to specify site layout, custom drawings package, and structural requirements.</p>
                     </div>
-                  )}
+                  </div>
 
-                  {/* STEP 1: SELECT STARTING PACKAGE */}
-                  {wizardStep === 1 && (
-                    <div className="space-y-6">
-                      <div className="text-center space-y-2">
-                        <h3 className="font-bold text-lg text-white uppercase tracking-wider font-display">Step 1: Choose Starting Package</h3>
-                        <p className="text-xs text-white/50 leading-relaxed max-w-sm mx-auto font-sans font-medium">
-                          Our starter packages setup site-audits, core structural layouts, and foundational blueprint mapping.
-                        </p>
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        {(["basic", "standard", "premium"] as const).map((pkgKey) => {
-                          const pkg = packageDetails[pkgKey];
-                          const isSelected = selectedPkg === pkgKey;
-                          return (
-                            <div
-                              key={pkgKey}
-                              onClick={() => setSelectedPkg(pkgKey)}
-                              className={`p-5 rounded-[20px] border cursor-pointer transition-all flex flex-col justify-between gap-4 relative overflow-hidden ${
-                                isSelected 
-                                  ? "bg-accent/5 border-accent shadow-lg" 
-                                  : "border-white/5 bg-white/[0.01] hover:border-white/10"
-                              }`}
-                            >
-                              {isSelected && (
-                                <div className="absolute top-3 right-3 h-5 w-5 rounded-full bg-accent flex items-center justify-center text-primary">
-                                  <Check className="w-3.5 h-3.5 stroke-[3]" />
-                                </div>
-                              )}
-
-                              <div className="space-y-2">
-                                <span className={`text-[7px] font-black uppercase tracking-wider ${isSelected ? "text-accent" : "text-white/40"}`}>Starter Base</span>
-                                <h4 className="font-black text-white text-base leading-tight uppercase">{pkg.name}</h4>
-                                <p className="text-[10px] text-white/50 font-medium font-sans">{pkg.suitable}</p>
-                                
-                                <div className="pt-2">
-                                  <span className="text-2xl font-black text-white">₹{pkg.price}</span>
-                                  <span className="text-[8px] text-white/40 block font-bold tracking-widest mt-0.5">ONCE OFF INITIALIZATION</span>
-                                </div>
-                              </div>
-
-                              <div className="border-t border-white/5 pt-3 space-y-2 text-[9px] font-sans font-semibold text-white/70">
-                                <div className="flex items-center gap-1.5 text-accent font-bold mb-1">
-                                  <Sparkles className="w-3.5 h-3.5 shrink-0" />
-                                  <span>{pkg.visits}</span>
-                                </div>
-                                {pkg.benefits.slice(0, 3).map((bf, bIdx) => (
-                                  <div key={bIdx} className="flex gap-2 items-start leading-relaxed">
-                                    <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
-                                    <span>{bf}</span>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-
-                      <div className="flex justify-end pt-4 border-t border-white/5">
-                        <Button
-                          onClick={handleWizardNext}
-                          className="bg-accent hover:bg-accent/90 text-primary font-black uppercase tracking-widest text-[9px] h-12 px-8 rounded-full flex items-center gap-1.5 shadow-md"
-                        >
-                          Configure Custom Services <ChevronRight className="w-4 h-4" />
-                        </Button>
-                      </div>
+                  {/* Segment Switcher Toggle */}
+                  <div className="flex justify-center">
+                    <div className="bg-[#051124] border border-white/10 p-1.5 rounded-full flex items-center gap-1.5 shadow-xl">
+                      <button
+                        type="button"
+                        onClick={() => handleSegmentChange("residential")}
+                        className={`px-6 py-2.5 rounded-full text-xs font-black uppercase tracking-widest transition-all duration-300 flex items-center gap-2 ${
+                          projectSegment === "residential"
+                            ? "bg-gold-gradient text-primary shadow-[0_0_12px_rgba(212,175,55,0.4)]"
+                            : "text-white/60 hover:text-white hover:bg-white/5"
+                        }`}
+                      >
+                        🏠 Residential
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleSegmentChange("commercial")}
+                        className={`px-6 py-2.5 rounded-full text-xs font-black uppercase tracking-widest transition-all duration-300 flex items-center gap-2 ${
+                          projectSegment === "commercial"
+                            ? "bg-accent text-primary shadow-[0_0_12px_rgba(255,207,51,0.4)]"
+                            : "text-white/60 hover:text-white hover:bg-white/5"
+                        }`}
+                      >
+                        🏢 Commercial
+                      </button>
                     </div>
-                  )}
+                  </div>
 
-                  {/* STEP 2: CHECKLIST SERVICES SELECTION */}
-                  {wizardStep === 2 && (
-                    <div className="space-y-6">
-                      <div className="text-center space-y-2">
-                        <h3 className="font-bold text-lg text-white uppercase tracking-wider font-display">Step 2: Customize Services Checklist</h3>
-                        <p className="text-xs text-white/50 leading-relaxed max-w-sm mx-auto font-sans font-medium">
-                          Add specific elements you want us to handle, or remove items you wish to audit manually.
-                        </p>
-                      </div>
+                  {/* M3 Steps Timeline */}
+                  <div className="flex items-center justify-between relative max-w-lg mx-auto mb-10 pt-4">
+                    <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-[2px] bg-white/5 z-0"></div>
+                    <div 
+                      className="absolute left-0 top-1/2 -translate-y-1/2 h-[2px] bg-accent transition-all duration-500 z-0"
+                      style={{ width: `${((wizardStep - 1) / 2) * 100}%` }}
+                    ></div>
 
-                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                        {serviceOptions.map((opt) => {
-                          const isChecked = checkedServices.includes(opt.id);
-                          return (
-                            <div
-                              key={opt.id}
-                              onClick={() => handleServiceToggle(opt.id)}
-                              className={`p-3.5 rounded-xl border cursor-pointer transition-all flex items-center gap-3 relative overflow-hidden select-none ${
-                                isChecked 
-                                  ? "bg-accent/15 border-accent/30 text-accent font-bold" 
-                                  : "border-white/5 bg-white/[0.01] hover:border-white/10 text-white/60"
-                              }`}
-                            >
-                              <span className="text-base shrink-0">{opt.icon}</span>
-                              <div className="flex flex-col text-left">
-                                <span className="text-[10px] uppercase tracking-wide leading-tight">{opt.label}</span>
-                              </div>
-                              
-                              {isChecked && (
-                                <div className="absolute bottom-1 right-1 h-3.5 w-3.5 rounded-full bg-accent flex items-center justify-center text-primary">
-                                  <Check className="w-2.5 h-2.5 stroke-[3]" />
-                                </div>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-
-                      <div className="flex justify-between items-center pt-4 border-t border-white/5">
-                        <Button
-                          onClick={() => setWizardStep(1)}
-                          variant="outline"
-                          className="border-white/10 hover:bg-white/5 text-white/60 font-black uppercase tracking-widest text-[9px] h-12 px-6 rounded-full"
-                        >
-                          Back
-                        </Button>
-                        
-                        <Button
-                          onClick={handleWizardNext}
-                          className="bg-accent hover:bg-accent/90 text-primary font-black uppercase tracking-widest text-[9px] h-12 px-8 rounded-full flex items-center gap-1.5 shadow-md"
-                        >
-                          Input Site Specifications <ChevronRight className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* STEP 3: SITE SPECS */}
-                  {wizardStep === 3 && (
-                    <div className="space-y-6">
-                      <div className="text-center space-y-2">
-                        <h3 className="font-bold text-lg text-white uppercase tracking-wider font-display">Step 3: Site Specifications & Logistics</h3>
-                        <p className="text-xs text-white/50 leading-relaxed max-w-sm mx-auto font-sans font-medium">
-                          Input dimensions and plot location parameters to assign local civil engineers immediately.
-                        </p>
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="space-y-1">
-                          <label className="text-[9px] font-black text-white/40 uppercase tracking-widest pl-1 block font-sans">Construction Siting Location</label>
-                          <Input
-                            type="text"
-                            placeholder="e.g. Ashok Nagar, Ranchi"
-                            value={siteLocation}
-                            onChange={(e) => setSiteLocation(e.target.value)}
-                            className="h-13 bg-white/[0.02] border-white/10 rounded-xl focus:border-accent text-white font-sans"
-                            required
-                          />
-                        </div>
-
-                        <div className="space-y-1">
-                          <label className="text-[9px] font-black text-white/40 uppercase tracking-widest pl-1 block font-sans">Plot / Area Sizing (Sqft)</label>
-                          <Input
-                            type="text"
-                            placeholder="e.g. 1200 Sqft"
-                            value={plotSize}
-                            onChange={(e) => setPlotSize(e.target.value)}
-                            className="h-13 bg-white/[0.02] border-white/10 rounded-xl focus:border-accent text-white font-sans"
-                            required
-                          />
-                        </div>
-
-                        <div className="space-y-1">
-                          <label className="text-[9px] font-black text-white/40 uppercase tracking-widest pl-1 block font-sans">Number of Floors</label>
-                          <select
-                            value={floorsCount}
-                            onChange={(e) => setFloorsCount(e.target.value)}
-                            className="w-full h-13 px-4 rounded-xl border border-white/10 focus:border-accent bg-[#08162d] text-white focus:outline-none text-xs font-semibold appearance-none cursor-pointer"
+                    {[1, 2, 3].map((stepNum) => {
+                      const stepLabels = ["Package Base", "Custom Services", "Site Specs"];
+                      const isActive = stepNum === wizardStep;
+                      const isCompleted = stepNum < wizardStep;
+                      return (
+                        <div key={stepNum} className="relative z-10 flex flex-col items-center">
+                          <div 
+                            className={`w-8 h-8 rounded-full flex items-center justify-center font-black text-[10px] border transition-all duration-300 ${
+                              isActive 
+                                ? 'bg-accent text-primary border-accent shadow-[0_0_8px_rgba(255,207,51,0.5)]' 
+                                : isCompleted 
+                                  ? 'bg-galaxy-dark text-accent border-accent' 
+                                  : 'bg-[#051124] text-white/20 border-white/5'
+                            }`}
                           >
-                            <option value="1">G (Single Floor)</option>
-                            <option value="2">G+1 (Duplex)</option>
-                            <option value="3">G+2 (3 Floors)</option>
-                            <option value="4">G+3 (4 Floors)</option>
-                            <option value="5">G+4 (Commercial High-rise)</option>
-                          </select>
+                            {isCompleted ? <Check className="w-3.5 h-3.5 stroke-[3]" /> : stepNum}
+                          </div>
+                          <span className={`text-[7px] font-black uppercase tracking-widest mt-2 hidden sm:block ${
+                            isActive ? "text-accent" : "text-white/30"
+                          }`}>
+                            {stepLabels[stepNum - 1]}
+                          </span>
                         </div>
-                      </div>
+                      );
+                    })}
+                  </div>
 
-                      <div className="space-y-1">
-                        <label className="text-[9px] font-black text-white/40 uppercase tracking-widest pl-1 block font-sans">Special Requirements / Vastu Notes</label>
-                        <Textarea
-                          placeholder="e.g. East facing road entrance, open modular kitchen design preference, structural audit needed..."
-                          value={specialRemarks}
-                          onChange={(e) => setSpecialRemarks(e.target.value)}
-                          className="bg-white/[0.02] border-white/10 rounded-xl focus:border-accent text-white min-h-[90px] font-sans"
-                        />
-                      </div>
-
-                      <div className="flex justify-between items-center pt-4 border-t border-white/5">
-                        <Button
-                          onClick={() => setWizardStep(2)}
-                          variant="outline"
-                          className="border-white/10 hover:bg-white/5 text-white/60 font-black uppercase tracking-widest text-[9px] h-12 px-6 rounded-full"
-                        >
-                          Back
-                        </Button>
-                        
-                        <Button
-                          onClick={handleWizardNext}
-                          className="bg-accent hover:bg-accent/90 text-primary font-black uppercase tracking-widest text-[9px] h-12 px-8 rounded-full flex items-center gap-1.5 shadow-md"
-                        >
-                          Simulated Checkpoint Gateway <ChevronRight className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* STEP 4: SIMULATED UPI CHECKOUT GATEWAY */}
-                  {wizardStep === 4 && (
-                    <div className="space-y-6 max-w-md mx-auto">
-                      <div className="text-center space-y-2">
-                        <h3 className="font-bold text-lg text-white uppercase tracking-wider font-display">Step 4: Secure Initialization Checkout</h3>
+                  {/* Wizard Card Sheets */}
+                  <Card className="glass-card border-accent/20 bg-[#08162d] rounded-[28px] p-6 md:p-8 shadow-2xl relative">
+                    {paymentSuccess ? (
+                      <div className="p-8 text-center space-y-4 animate-fade-in max-w-md mx-auto">
+                        <div className="h-16 w-16 bg-emerald-500/10 border border-emerald-500/20 rounded-full flex items-center justify-center mx-auto text-emerald-400">
+                          <ShieldCheck className="w-8 h-8 stroke-[2.5]" />
+                        </div>
+                        <h3 className="font-black text-lg text-white uppercase tracking-wider font-display">Project Initialized!</h3>
                         <p className="text-xs text-white/50 leading-relaxed font-sans font-medium">
-                          To start Vastu mapping and allocate engineers, please process the base starting package fee.
+                          Your project has been successfully configured under offline manual billing setup. Syncing credentials and launching WhatsApp desk...
                         </p>
                       </div>
+                    ) : (
+                      <>
+                        {wizardError && (
+                          <div className="mb-5 p-3.5 bg-red-500/10 border border-red-500/20 text-red-200 text-xs rounded-xl font-semibold flex items-center gap-2">
+                            <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
+                            <span>{wizardError}</span>
+                          </div>
+                        )}
 
-                      <div className="bg-[#051124] border border-white/5 rounded-2xl p-5 space-y-4 font-sans text-xs">
-                        <h4 className="text-[9px] font-black text-accent uppercase tracking-widest border-b border-white/5 pb-2">Order Summary</h4>
-                        
-                        <div className="flex justify-between font-medium">
-                          <span className="text-white/60">Selected Package:</span>
-                          <span className="text-white font-bold">{packageDetails[selectedPkg].name}</span>
-                        </div>
-                        
-                        <div className="flex justify-between font-medium">
-                          <span className="text-white/60">Services Configured:</span>
-                          <span className="text-white text-right max-w-[180px] truncate">{
-                            serviceOptions
-                              .filter(opt => checkedServices.includes(opt.id))
-                              .map(opt => opt.label)
-                              .join(", ")
-                          }</span>
-                        </div>
+                        {/* STEP 1: SELECT STARTING PACKAGE */}
+                        {wizardStep === 1 && (
+                          <div className="space-y-6">
+                            <div className="text-center space-y-2">
+                              <h3 className="font-bold text-lg text-white uppercase tracking-wider font-display">Step 1: Choose Starting Package</h3>
+                              <p className="text-xs text-white/50 leading-relaxed max-w-sm mx-auto font-sans font-medium">
+                                Our starter packages setup site-audits, core structural layouts, and foundational blueprint mapping.
+                              </p>
+                            </div>
 
-                        <div className="flex justify-between font-medium border-t border-white/5 pt-3 text-sm">
-                          <span className="text-accent font-bold">Total Due:</span>
-                          <span className="text-accent font-black text-base">₹{packageDetails[selectedPkg].price}/-</span>
-                        </div>
-                      </div>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                              {(["basic", "standard", "premium"] as const).map((pkgKey) => {
+                                const pkg = activePackages[pkgKey];
+                                const isSelected = selectedPkg === pkgKey;
+                                return (
+                                  <div
+                                    key={pkgKey}
+                                    onClick={() => setSelectedPkg(pkgKey)}
+                                    className={`p-5 rounded-[20px] border cursor-pointer transition-all flex flex-col justify-between gap-4 relative overflow-hidden ${
+                                      isSelected 
+                                        ? "bg-accent/5 border-accent shadow-lg" 
+                                        : "border-white/5 bg-white/[0.01] hover:border-white/10"
+                                    }`}
+                                  >
+                                    {isSelected && (
+                                      <div className="absolute top-3 right-3 h-5 w-5 rounded-full bg-accent flex items-center justify-center text-primary">
+                                        <Check className="w-3.5 h-3.5 stroke-[3]" />
+                                      </div>
+                                    )}
 
-                      {/* Payment Simulation UI */}
-                      {paymentSuccess ? (
-                        <div className="p-6 bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 rounded-[20px] text-center space-y-3.5 animate-pulse">
-                          <ShieldCheck className="w-12 h-12 text-emerald-400 mx-auto stroke-[2.5]" />
-                          <h4 className="font-black text-sm uppercase tracking-widest">Transaction Successful!</h4>
-                          <p className="text-[10px] text-white/60 leading-relaxed max-w-xs mx-auto">
-                            Payment of ₹{packageDetails[selectedPkg].price} confirmed. Syncing credentials and launching WhatsApp manager desk...
-                          </p>
-                        </div>
-                      ) : (
-                        <div className="space-y-4 pt-2">
-                          <div className="p-4 bg-white/[0.02] border border-white/5 rounded-[18px] flex items-center justify-between gap-3 text-left">
-                            <div className="flex items-center gap-3">
-                              <CreditCard className="w-5 h-5 text-accent shrink-0" />
-                              <div>
-                                <span className="text-[9.5px] font-bold block text-white font-sans">Simulated Checkout Gateway</span>
-                                <span className="text-[8px] text-white/40 font-medium block font-sans">UPI / Cards Secure Sandbox</span>
+                                    <div className="space-y-2">
+                                      <span className={`text-[7px] font-black uppercase tracking-wider ${isSelected ? "text-accent" : "text-white/40"}`}>{projectSegment === "commercial" ? "Business Base" : "Starter Base"}</span>
+                                      <h4 className="font-black text-white text-base leading-tight uppercase">{pkg.name}</h4>
+                                      <p className="text-[10px] text-white/50 font-medium font-sans">{pkg.suitable}</p>
+                                      
+                                      <div className="pt-2">
+                                        <span className="text-2xl font-black text-white">₹{pkg.price}</span>
+                                        <span className="text-[8px] text-white/40 block font-bold tracking-widest mt-0.5">ONCE OFF INITIALIZATION</span>
+                                      </div>
+                                    </div>
+
+                                    <div className="border-t border-white/5 pt-3 space-y-2 text-[9px] font-sans font-semibold text-white/70">
+                                      <div className="flex items-center gap-1.5 text-accent font-bold mb-1">
+                                        <Sparkles className="w-3.5 h-3.5 shrink-0" />
+                                        <span>{pkg.visits}</span>
+                                      </div>
+                                      {pkg.benefits.slice(0, 3).map((bf, bIdx) => (
+                                        <div key={bIdx} className="flex gap-2 items-start leading-relaxed text-left">
+                                          <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
+                                          <span>{bf}</span>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+
+                            <div className="flex justify-end pt-4 border-t border-white/5">
+                              <Button
+                                onClick={handleWizardNext}
+                                className="bg-accent hover:bg-accent/90 text-primary font-black uppercase tracking-widest text-[9px] h-12 px-8 rounded-full flex items-center gap-1.5 shadow-md"
+                              >
+                                Configure Custom Services <ChevronRight className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* STEP 2: CHECKLIST SERVICES SELECTION */}
+                        {wizardStep === 2 && (
+                          <div className="space-y-6">
+                            <div className="text-center space-y-2">
+                              <h3 className="font-bold text-lg text-white uppercase tracking-wider font-display">Step 2: Customize Services Checklist</h3>
+                              <p className="text-xs text-white/50 leading-relaxed max-w-sm mx-auto font-sans font-medium">
+                                Add specific elements you want us to handle, or remove items you wish to audit manually.
+                              </p>
+                            </div>
+
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                              {activeServiceOptions.map((opt) => {
+                                const isChecked = checkedServices.includes(opt.id);
+                                return (
+                                  <div
+                                    key={opt.id}
+                                    onClick={() => handleServiceToggle(opt.id)}
+                                    className={`p-3.5 rounded-xl border cursor-pointer transition-all flex items-center gap-3 relative overflow-hidden select-none ${
+                                      isChecked 
+                                        ? "bg-accent/15 border-accent/30 text-accent font-bold" 
+                                        : "border-white/5 bg-white/[0.01] hover:border-white/10 text-white/60"
+                                    }`}
+                                  >
+                                    <span className="text-base shrink-0">{opt.icon}</span>
+                                    <div className="flex flex-col text-left">
+                                      <span className="text-[10px] uppercase tracking-wide leading-tight">{opt.label}</span>
+                                    </div>
+                                    
+                                    {isChecked && (
+                                      <div className="absolute bottom-1 right-1 h-3.5 w-3.5 rounded-full bg-accent flex items-center justify-center text-primary">
+                                        <Check className="w-2.5 h-2.5 stroke-[3]" />
+                                      </div>
+                                    )}
+                                  </div>
+                                );
+                              })}
+                            </div>
+
+                            <div className="flex justify-between items-center pt-4 border-t border-white/5">
+                              <Button
+                                onClick={() => setWizardStep(1)}
+                                variant="outline"
+                                className="border-white/10 hover:bg-white/5 text-white/60 font-black uppercase tracking-widest text-[9px] h-12 px-6 rounded-full"
+                              >
+                                Back
+                              </Button>
+                              
+                              <Button
+                                onClick={handleWizardNext}
+                                className="bg-accent hover:bg-accent/90 text-primary font-black uppercase tracking-widest text-[9px] h-12 px-8 rounded-full flex items-center gap-1.5 shadow-md"
+                              >
+                                Input Site Specifications <ChevronRight className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* STEP 3: SITE SPECS */}
+                        {wizardStep === 3 && (
+                          <div className="space-y-6">
+                            <div className="text-center space-y-2">
+                              <h3 className="font-bold text-lg text-white uppercase tracking-wider font-display">Step 3: Site Specifications & Logistics</h3>
+                              <p className="text-xs text-white/50 leading-relaxed max-w-sm mx-auto font-sans font-medium">
+                                Input dimensions and plot location parameters to assign local civil engineers immediately.
+                              </p>
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-left">
+                              <div className="space-y-1">
+                                <label className="text-[9px] font-black text-white/40 uppercase tracking-widest pl-1 block font-sans">Construction Siting Location</label>
+                                <Input
+                                  type="text"
+                                  placeholder="e.g. Ashok Nagar, Ranchi"
+                                  value={siteLocation}
+                                  onChange={(e) => setSiteLocation(e.target.value)}
+                                  className="h-13 bg-white/[0.02] border-white/10 rounded-xl focus:border-accent text-white font-sans"
+                                  required
+                                />
+                              </div>
+
+                              <div className="space-y-1">
+                                <label className="text-[9px] font-black text-white/40 uppercase tracking-widest pl-1 block font-sans">Plot / Area Sizing (Sqft)</label>
+                                <Input
+                                  type="text"
+                                  placeholder="e.g. 1200 Sqft"
+                                  value={plotSize}
+                                  onChange={(e) => setPlotSize(e.target.value)}
+                                  className="h-13 bg-white/[0.02] border-white/10 rounded-xl focus:border-accent text-white font-sans"
+                                  required
+                                />
+                              </div>
+
+                              <div className="space-y-1 font-sans">
+                                <label className="text-[9px] font-black text-white/40 uppercase tracking-widest pl-1 block">Property Layout Type</label>
+                                <select
+                                  value={propertyType}
+                                  onChange={(e) => setPropertyType(e.target.value)}
+                                  className="w-full h-13 px-4 rounded-xl border border-white/10 focus:border-accent bg-[#08162d] text-white focus:outline-none text-xs font-semibold appearance-none cursor-pointer"
+                                >
+                                  {projectSegment === "commercial" ? (
+                                    <>
+                                      <option value="Corporate Office">🏢 Corporate Office</option>
+                                      <option value="Retail Shop / Showroom">🛍️ Retail Shop / Showroom</option>
+                                      <option value="School / College / Institution">🏫 School / College / Institution</option>
+                                      <option value="Shopping Mall">🏬 Shopping Mall</option>
+                                      <option value="Hotel / Restaurant / Cafe">🍽️ Hotel / Restaurant / Cafe</option>
+                                      <option value="Hospital / Clinic">🏥 Hospital / Clinic</option>
+                                      <option value="Commercial Building / Office Tower">🏗️ Commercial Building / Office Tower</option>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <option value="1 BHK House">🏠 1 BHK House</option>
+                                      <option value="2 BHK Apartment">🏢 2 BHK Apartment</option>
+                                      <option value="Duplex House">🏡 Duplex House</option>
+                                      <option value="Luxury Villa">🏰 Luxury Villa</option>
+                                      <option value="Bungalow">🌄 Bungalow</option>
+                                    </>
+                                  )}
+                                </select>
+                              </div>
+
+                              <div className="space-y-1 font-sans">
+                                <label className="text-[9px] font-black text-white/40 uppercase tracking-widest pl-1 block">Space Height / Floors Siting</label>
+                                <select
+                                  value={floorsCount}
+                                  onChange={(e) => setFloorsCount(e.target.value)}
+                                  className="w-full h-13 px-4 rounded-xl border border-white/10 focus:border-accent bg-[#08162d] text-white focus:outline-none text-xs font-semibold appearance-none cursor-pointer"
+                                >
+                                  {projectSegment === "commercial" ? (
+                                    <>
+                                      <option value="Single Floor Shop">🏪 Single Floor Shop</option>
+                                      <option value="Commercial Space">📐 Commercial Space</option>
+                                      <option value="Multi-floor Showroom">🏢 Multi-floor Showroom</option>
+                                      <option value="Commercial Tower (G+4)">🏗️ Commercial Tower (G+4)</option>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <option value="Single Floor (G)">G (Single Floor)</option>
+                                      <option value="Duplex (G+1)">G+1 (Duplex)</option>
+                                      <option value="Triplex (G+2)">G+2 (Triplex)</option>
+                                      <option value="Villa / Bungalow">Villa / Bungalow Space</option>
+                                    </>
+                                  )}
+                                </select>
                               </div>
                             </div>
-                            <Badge className="bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-[7px] font-black uppercase tracking-widest rounded-full">
-                              Secure Sandbox
-                            </Badge>
-                          </div>
 
-                          <div className="flex flex-col sm:flex-row gap-2">
-                            <Button
-                              type="button"
-                              onClick={() => setWizardStep(3)}
-                              disabled={paymentLoading}
-                              variant="outline"
-                              className="flex-1 border-white/10 hover:bg-white/5 text-white/60 font-black uppercase tracking-widest text-[9px] h-12 px-6 rounded-full"
-                            >
-                              Back
-                            </Button>
-                            
-                            <Button
-                              type="button"
-                              onClick={handleSimulatedPaymentSubmit}
-                              disabled={paymentLoading}
-                              className="flex-[2] bg-gold-gradient text-primary font-black uppercase tracking-widest text-[10px] h-12 rounded-full flex items-center justify-center gap-2 shadow-lg"
-                            >
-                              {paymentLoading ? (
-                                <>
-                                  <Loader2 className="w-4 h-4 animate-spin shrink-0" /> Processing Transaction...
-                                </>
-                              ) : (
-                                <>
-                                  <CheckCircle2 className="w-4 h-4 shrink-0" /> Pay & Initialize Project
-                                </>
-                              )}
-                            </Button>
+                            <div className="space-y-1 text-left">
+                              <label className="text-[9px] font-black text-white/50 uppercase tracking-widest pl-1 block font-sans">Special Requirements / Custom Remarks</label>
+                              <Textarea
+                                placeholder={projectSegment === "commercial" ? "e.g. Modern executive cabin, heavy server workspace layouts, open collaborative desks, safety certifications preferred..." : "e.g. East facing road entrance, open modular kitchen design preference, structural audit needed..."}
+                                value={specialRemarks}
+                                onChange={(e) => setSpecialRemarks(e.target.value)}
+                                className="bg-white/[0.02] border-white/10 rounded-xl focus:border-accent text-white min-h-[90px] font-sans text-xs"
+                              />
+                            </div>
+
+                            <div className="flex justify-between items-center pt-4 border-t border-white/5">
+                              <Button
+                                onClick={() => setWizardStep(2)}
+                                variant="outline"
+                                className="border-white/10 hover:bg-white/5 text-white/60 font-black uppercase tracking-widest text-[9px] h-12 px-6 rounded-full"
+                              >
+                                Back
+                              </Button>
+                              
+                              <Button
+                                onClick={handleSimulatedPaymentSubmit}
+                                disabled={paymentLoading}
+                                className="bg-accent hover:bg-accent/90 text-primary font-black uppercase tracking-widest text-[9px] h-12 px-8 rounded-full flex items-center gap-1.5 shadow-md"
+                              >
+                                {paymentLoading ? (
+                                  <>
+                                    <Loader2 className="w-4 h-4 animate-spin shrink-0" /> Initializing...
+                                  </>
+                                ) : (
+                                  <>
+                                    <CheckCircle2 className="w-4 h-4 shrink-0" /> Confirm & Initialize Project <ChevronRight className="w-4 h-4" />
+                                  </>
+                                )}
+                              </Button>
+                            </div>
                           </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </Card>
-              </div>
-            )}
+                        )}
+                      </>
+                    )}
+                  </Card>
+                </div>
+              );
+            })()}
 
             {/* NOTIFICATIONS PANEL */}
             {activeTab === "notifications" && (

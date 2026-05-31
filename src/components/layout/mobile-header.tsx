@@ -35,6 +35,19 @@ export default function MobileHeader() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pathname = usePathname();
 
+  const [user, setUser] = useState<any>(null);
+  const [authLoading, setAuthLoading] = useState(true);
+
+  React.useEffect(() => {
+    const { auth } = require('@/lib/firebase');
+    const { onAuthStateChanged } = require('firebase/auth');
+    const unsubscribe = onAuthStateChanged(auth, (u: any) => {
+      setUser(u);
+      setAuthLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
+
   return (
     <header className="fixed top-0 left-0 right-0 z-50 h-14 bg-[#051124] border-b border-white/5 flex items-center justify-between px-4 shadow-lg lg:hidden">
       {/* Brand logo container without heavy border-r */}
@@ -63,23 +76,35 @@ export default function MobileHeader() {
           <Phone className="h-4.5 w-4.5" />
         </a>
 
-        {/* Initialize Project — Mobile Top Bar */}
-        <Link
-          href="/consult-online"
-          className="flex items-center gap-1.5 h-9 px-3 rounded-xl bg-accent text-primary font-black text-[9px] uppercase tracking-widest shadow-[0_0_12px_rgba(255,207,51,0.4)] active:scale-95 transition-all"
-        >
-          <Zap className="h-3 w-3 fill-current flex-shrink-0" />
-          <span className="hidden xs:inline">Start</span>
-        </Link>
+        {!authLoading && user ? (
+          <Link
+            href="/consult-online"
+            className="flex items-center gap-1.5 h-9 px-3 rounded-xl bg-accent text-primary font-black text-[9px] uppercase tracking-widest shadow-[0_0_12px_rgba(255,207,51,0.4)] active:scale-95 transition-all"
+          >
+            <Zap className="h-3 w-3 fill-current flex-shrink-0" />
+            <span>Dashboard</span>
+          </Link>
+        ) : (
+          <>
+            {/* Initialize Project — Mobile Top Bar */}
+            <Link
+              href="/consult-online"
+              className="flex items-center gap-1.5 h-9 px-3 rounded-xl bg-accent text-primary font-black text-[9px] uppercase tracking-widest shadow-[0_0_12px_rgba(255,207,51,0.4)] active:scale-95 transition-all"
+            >
+              <Zap className="h-3 w-3 fill-current flex-shrink-0" />
+              <span className="hidden xs:inline">Start</span>
+            </Link>
 
-        {/* User Login — Mobile Top Bar */}
-        <Link
-          href="/login"
-          className="h-9 w-9 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 text-white hover:text-accent transition-colors active:scale-95"
-          title="Portal Login"
-        >
-          <User className="h-4.5 w-4.5 shrink-0" />
-        </Link>
+            {/* User Login — Mobile Top Bar */}
+            <Link
+              href="/login"
+              className="h-9 w-9 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 text-white hover:text-accent transition-colors active:scale-95"
+              title="Portal Login"
+            >
+              <User className="h-4.5 w-4.5 shrink-0" />
+            </Link>
+          </>
+        )}
 
         <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
           <SheetTrigger asChild>

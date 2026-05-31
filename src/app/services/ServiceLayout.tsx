@@ -4,9 +4,12 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { CheckCircle2, ChevronRight } from 'lucide-react';
+import { CheckCircle2, ChevronRight, Sparkles, ShieldCheck, Mail } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useState, useEffect } from 'react';
+import { auth, db } from '@/lib/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 
 interface ServicePageProps {
   title: string;
@@ -23,6 +26,112 @@ export default function ServiceLayout({ title, category, description, image, ima
   const contactHref = serviceKey
     ? `/contact?service=${encodeURIComponent(serviceKey)}`
     : '/contact';
+
+  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [userProfile, setUserProfile] = useState<any>(null);
+  const [hasApplied, setHasApplied] = useState(false);
+  const [applying, setApplying] = useState(false);
+  const [adminResponse, setAdminResponse] = useState("");
+  const [loadingAppStatus, setLoadingAppStatus] = useState(true);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        setCurrentUser(user);
+        
+        // Fetch user profile from Firestore to get name and phone
+        try {
+          const { doc, getDoc } = await import('firebase/firestore');
+          const userDoc = await getDoc(doc(db, 'users', user.uid));
+          if (userDoc.exists()) {
+            setUserProfile(userDoc.data());
+          }
+        } catch (err) {
+          console.error(err);
+        }
+        
+        // Check if user has already applied for this service
+        try {
+          const { collection, query, where, onSnapshot } = await import('firebase/firestore');
+          const q = query(
+            collection(db, 'applied_services'),
+            where('uid', '==', user.uid),
+            where('serviceName', '==', title)
+          );
+          
+          const unsubSnap = onSnapshot(q, (snap) => {
+            if (!snap.empty) {
+              setHasApplied(true);
+              const data = snap.docs[0].data();
+              if (data.adminResponse) {
+                setAdminResponse(data.adminResponse);
+              } else {
+                setAdminResponse("");
+              }
+            } else {
+              setHasApplied(false);
+              setAdminResponse("");
+            }
+            setLoadingAppStatus(false);
+          }, (err) => {
+            console.error(err);
+            setLoadingAppStatus(false);
+          });
+          
+          return unsubSnap;
+        } catch (err) {
+          console.error(err);
+          setLoadingAppStatus(false);
+        }
+      } else {
+        setCurrentUser(null);
+        setUserProfile(null);
+        setHasApplied(false);
+        setAdminResponse("");
+        setLoadingAppStatus(false);
+      }
+    });
+    return () => unsubscribe();
+  }, [title]);
+
+  const handleApply = async () => {
+    if (!currentUser) return;
+    setApplying(true);
+    try {
+      const { collection, addDoc, serverTimestamp } = await import('firebase/firestore');
+      
+      const docData = {
+        uid: currentUser.uid,
+        clientName: userProfile?.name || currentUser.displayName || "Valued Client",
+        clientPhone: userProfile?.phone || "No phone provided",
+        clientEmail: currentUser.email || "No email provided",
+        serviceName: title,
+        serviceSlug: serviceKey || title.toLowerCase().replace(/\s+/g, '-'),
+        status: "Applied",
+        adminResponse: "",
+        createdAt: serverTimestamp()
+      };
+
+      await addDoc(collection(db, 'applied_services'), docData);
+      
+      // Trigger a client notification
+      await addDoc(collection(db, 'notifications'), {
+        uid: currentUser.uid,
+        title: "Service Application Setup",
+        message: `You have successfully applied for the "${title}" service. Our senior coordinators will review and sync back direct responses here!`,
+        read: false,
+        createdAt: serverTimestamp()
+      });
+
+      setHasApplied(true);
+    } catch (err) {
+      console.error("Failed to apply for service", err);
+      alert("Failed to submit service application. Please check your Firestore database connection.");
+    } finally {
+      setApplying(false);
+    }
+  };
+
   return (
     <div className="bg-white">
       {/* Page Header */}
@@ -72,9 +181,61 @@ export default function ServiceLayout({ title, category, description, image, ima
                 </div>
               )}
 
-              <Button asChild size="lg" className="mt-12 rounded-full px-8 md:px-12 h-11 md:h-14 text-xs md:text-sm font-black uppercase tracking-[0.15em] m3-elevation-2 hover:m3-elevation-3 transition-all hover:scale-105 active:scale-95 m3-state-layer relative overflow-hidden">
-                <Link href={contactHref}>Enquire for {title}</Link>
-              </Button>
+              {/* Dynamic Application and Enquire CTAs */}
+              <div className="mt-12 space-y-6">
+                {loadingAppStatus ? (
+                  <div className="h-12 w-32 rounded-full bg-gray-100 animate-pulse"></div>
+                ) : currentUser ? (
+                  hasApplied ? (
+                    <div className="space-y-4">
+                      <div className="inline-flex items-center gap-2 p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-2xl text-xs font-bold shadow-sm">
+                        <ShieldCheck className="w-4.5 h-4.5 text-emerald-600" />
+                        <span>Registered & Applied for {title}</span>
+                      </div>
+                      
+                      {adminResponse ? (
+                        <div className="p-5 bg-primary/5 border border-primary/10 rounded-[20px] text-left animate-fade-in">
+                          <span className="text-[9px] font-black text-primary uppercase tracking-widest block mb-1.5">Sameer Ahmed (Architect response)</span>
+                          <p className="text-sm font-semibold text-gray-700 leading-relaxed italic">"{adminResponse}"</p>
+                          <span className="text-[7.5px] text-gray-400 block mt-2.5 font-bold uppercase tracking-wider">Direct synced reply note</span>
+                        </div>
+                      ) : (
+                        <div className="p-4 bg-gray-50 border border-gray-100 rounded-[20px] text-left">
+                          <p className="text-xs font-semibold text-gray-500 italic">"Your application is active under review. Lead Architect Sameer Ahmed will reply shortly inside this panel."</p>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="flex flex-col sm:flex-row gap-3">
+                      <Button 
+                        onClick={handleApply}
+                        disabled={applying}
+                        className="rounded-full bg-accent hover:bg-accent/90 text-primary px-8 md:px-12 h-12 text-xs md:text-sm font-black uppercase tracking-[0.12em] m3-elevation-2 active:scale-95 transition-all flex items-center justify-center gap-2"
+                      >
+                        <Sparkles className="w-4 h-4 text-primary shrink-0" />
+                        {applying ? "Applying..." : "Apply Online Direct"}
+                      </Button>
+                      
+                      <Button asChild variant="outline" className="rounded-full border-primary/20 hover:bg-gray-50 text-primary px-8 h-12 text-xs md:text-sm font-black uppercase tracking-[0.12em] active:scale-95 transition-all">
+                        <Link href={contactHref}>Enquire via Form</Link>
+                      </Button>
+                    </div>
+                  )
+                ) : (
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <Button asChild className="rounded-full bg-accent hover:bg-accent/90 text-primary px-8 md:px-12 h-12 text-xs md:text-sm font-black uppercase tracking-[0.12em] m3-elevation-2 active:scale-95 transition-all flex items-center justify-center gap-2">
+                      <Link href="/login">
+                        <Sparkles className="w-4 h-4 text-primary shrink-0" /> Login & Apply Online
+                      </Link>
+                    </Button>
+                    
+                    <Button asChild variant="outline" className="rounded-full border-primary/20 hover:bg-gray-50 text-primary px-8 h-12 text-xs md:text-sm font-black uppercase tracking-[0.12em] active:scale-95 transition-all">
+                      <Link href={contactHref}>Enquire for {title}</Link>
+                    </Button>
+                  </div>
+                )}
+              </div>
+
             </div>
           </div>
         </div>

@@ -17,14 +17,12 @@ const WhatsAppLogo = (props: React.SVGProps<SVGSVGElement>) => (
 export default function WhatsAppButton() {
   const [isButtonHovered, setIsButtonHovered] = useState(false);
   const [isPopoverHovered, setIsPopoverHovered] = useState(false);
-  const [isToggled, setIsToggled] = useState(false);
 
-  const isOpen = isButtonHovered || isPopoverHovered || isToggled;
+  const isOpen = isButtonHovered || isPopoverHovered;
 
   const handleClose = () => {
     setIsButtonHovered(false);
     setIsPopoverHovered(false);
-    setIsToggled(false);
   };
 
   return (
@@ -33,75 +31,58 @@ export default function WhatsAppButton() {
       <div 
         onMouseEnter={() => setIsPopoverHovered(true)}
         onMouseLeave={() => setIsPopoverHovered(false)}
-        className={`w-56 md:w-68 bg-[#061226]/95 backdrop-blur-md border border-accent/20 rounded-[20px] md:rounded-[28px] p-3 md:p-4 m3-elevation-4 flex flex-col gap-2.5 transition-all duration-300 transform mb-3 md:mb-4 ${
+        className={`w-52 bg-[#061226]/95 backdrop-blur-md border border-accent/20 rounded-[20px] p-3 md:p-4 m3-elevation-4 flex flex-col gap-2 transition-all duration-300 transform mb-3 md:mb-4 ${
           isOpen 
             ? "opacity-100 translate-y-0 scale-100 pointer-events-auto" 
             : "opacity-0 translate-y-4 scale-95 pointer-events-none"
         }`}
       >
         <div className="flex items-center justify-between border-b border-white/5 pb-2 px-1">
-          <span className="text-gold text-[9px] md:text-[10px] font-black uppercase tracking-wider">Quick Connect</span>
+          <span className="text-gold text-[9px] md:text-[10px] font-black uppercase tracking-wider">Contact Office</span>
           <span className="h-1.5 w-1.5 md:h-2 md:w-2 rounded-full bg-green-500 animate-ping"></span>
         </div>
 
-        {/* WhatsApp Option */}
-        <Link
-          href="https://wa.me/919631980881"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-2.5 md:gap-3.5 p-2 md:p-3 rounded-[14px] md:rounded-[20px] bg-white/[0.03] border border-white/5 hover:bg-[#25D366] hover:border-[#25D366] text-white hover:text-white transition-all group/item shadow-sm"
-          onClick={handleClose}
-        >
-          <div className="h-8 w-8 md:h-10 md:w-10 rounded-full bg-[#25D366]/10 group-hover/item:bg-white/10 flex items-center justify-center transition-colors">
-            <WhatsAppLogo className="h-4.5 w-4.5 md:h-5.5 md:w-5.5 text-[#25D366] group-hover/item:text-white transition-colors" />
-          </div>
-          <div className="flex flex-col">
-            <span className="text-[10px] md:text-xs font-black tracking-wide">WhatsApp Chat</span>
-            <span className="text-[8px] md:text-[9px] text-white/50 group-hover/item:text-white/80 font-medium">Chat with design expert</span>
-          </div>
-        </Link>
-
-        {/* Direct Call Owner - PRIMARY */}
+        {/* Direct Call Number 1 */}
         <Link
           href="tel:+919631980881"
-          className="flex items-center gap-2.5 md:gap-3.5 p-2 md:p-3 rounded-[14px] md:rounded-[20px] bg-white/[0.03] border border-white/5 hover:bg-accent hover:border-accent text-white hover:text-primary transition-all group/item shadow-sm"
+          className="flex items-center gap-2.5 p-2 rounded-[14px] bg-white/[0.03] border border-white/5 hover:bg-accent hover:border-accent text-white hover:text-primary transition-all group/item shadow-sm"
           onClick={handleClose}
         >
-          <div className="h-8 w-8 md:h-10 md:w-10 rounded-full bg-accent/10 group-hover/item:bg-white/10 flex items-center justify-center transition-colors">
-            <Phone className="h-3.5 w-3.5 md:h-4.5 md:w-4.5 text-accent group-hover/item:text-primary transition-colors" />
+          <div className="h-7 w-7 rounded-full bg-accent/10 group-hover/item:bg-white/10 flex items-center justify-center transition-colors">
+            <Phone className="h-3.5 w-3.5 text-accent group-hover/item:text-primary transition-colors" />
           </div>
-          <div className="flex flex-col">
-            <span className="text-[10px] md:text-xs font-black tracking-wide">Owner</span>
-            <span className="text-[8px] md:text-[9px] text-white/50 group-hover/item:text-primary/80 font-medium">+91 96319 80881</span>
+          <div className="flex flex-col text-left">
+            <span className="text-[10px] font-black tracking-wide">+91 96319 80881</span>
           </div>
         </Link>
 
-        {/* Direct Call General Manager - SECONDARY */}
+        {/* Direct Call Number 2 */}
         <Link
           href="tel:+919122795726"
-          className="flex items-center gap-2.5 md:gap-3.5 p-2 md:p-2.5 rounded-[14px] md:rounded-[16px] bg-white/[0.02] border border-white/5 text-white/60 transition-all group/item"
+          className="flex items-center gap-2.5 p-2 rounded-[14px] bg-white/[0.03] border border-white/5 hover:bg-accent hover:border-accent text-white hover:text-primary transition-all group/item shadow-sm"
           onClick={handleClose}
         >
-          <div className="h-7 w-7 md:h-8 md:w-8 rounded-full bg-white/5 flex items-center justify-center transition-colors">
-            <Phone className="h-3 w-3 md:h-3.5 md:w-3.5 text-white/40 group-hover/item:text-white/70 transition-colors" />
+          <div className="h-7 w-7 rounded-full bg-accent/10 group-hover/item:bg-white/10 flex items-center justify-center transition-colors">
+            <Phone className="h-3.5 w-3.5 text-accent group-hover/item:text-primary transition-colors" />
           </div>
-          <div className="flex flex-col">
-            <span className="text-[9px] md:text-[10px] font-bold tracking-wide text-white/50">General Manager</span>
-            <span className="text-[7px] md:text-[8px] text-white/30 font-medium">+91 91227 95726</span>
+          <div className="flex flex-col text-left">
+            <span className="text-[10px] font-black tracking-wide">+91 91227 95726</span>
           </div>
         </Link>
       </div>
 
       {/* Main Hub Floating Anchor Button - M3 Large FAB Geometry */}
-      <button
+      <Link
+        href="https://wa.me/919631980881"
+        target="_blank"
+        rel="noopener noreferrer"
         onMouseEnter={() => setIsButtonHovered(true)}
         onMouseLeave={() => setIsButtonHovered(false)}
-        onClick={() => setIsToggled(!isToggled)}
         className="flex h-12 w-12 md:h-16 md:w-16 items-center justify-center rounded-[16px] md:rounded-[24px] bg-gradient-to-tr from-[#25D366] to-[#128C7E] text-white m3-elevation-3 hover:m3-elevation-4 border-2 border-white/20 transition-all hover:scale-105 active:scale-95 duration-300 relative animate-fade-in"
       >
         <span className="absolute inset-0 rounded-[16px] md:rounded-[24px] bg-[#25D366] opacity-35 animate-ping"></span>
         <WhatsAppLogo className="h-6 w-6 md:h-8 md:w-8 relative z-10 animate-fade-in" />
-      </button>
+      </Link>
     </div>
   );
 }

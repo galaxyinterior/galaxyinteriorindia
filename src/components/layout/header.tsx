@@ -64,6 +64,19 @@ export default function Header() {
   const isHomePage = pathname === '/';
   const { mode, setMode } = useMode();
 
+  const [user, setUser] = useState<any>(null);
+  const [authLoading, setAuthLoading] = useState(true);
+
+  useEffect(() => {
+    const { auth } = require('@/lib/firebase');
+    const { onAuthStateChanged } = require('firebase/auth');
+    const unsubscribe = onAuthStateChanged(auth, (u: any) => {
+      setUser(u);
+      setAuthLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
+
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
@@ -220,23 +233,36 @@ export default function Header() {
             </div>
           </nav>
 
-          {/* Initialize Project CTA — Desktop */}
-          <Link
-            href="/consult-online"
-            className="hidden lg:flex items-center gap-1.5 ml-2 xl:ml-3 px-3.5 xl:px-4 py-1.5 rounded-full bg-accent text-primary font-black text-[10px] xl:text-[11px] uppercase tracking-widest shadow-[0_0_12px_rgba(255,207,51,0.35)] m3-transition active:scale-95 relative overflow-hidden group"
-          >
-            <span className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity rounded-full" />
-            <Zap className="h-3.5 w-3.5 fill-current" />
-            <span>Initialize Project</span>
-          </Link>
+          {!authLoading && user ? (
+            <Link
+              href="/consult-online"
+              className="hidden lg:flex items-center gap-1.5 ml-2 xl:ml-3 px-5 py-1.5 rounded-full bg-accent text-primary font-black text-[10px] xl:text-[11px] uppercase tracking-widest shadow-[0_0_12px_rgba(255,207,51,0.35)] m3-transition active:scale-95 relative overflow-hidden group"
+            >
+              <span className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity rounded-full" />
+              <LayoutGrid className="h-3.5 w-3.5" />
+              <span>Dashboard</span>
+            </Link>
+          ) : (
+            <>
+              {/* Initialize Project CTA — Desktop */}
+              <Link
+                href="/consult-online"
+                className="hidden lg:flex items-center gap-1.5 ml-2 xl:ml-3 px-3.5 xl:px-4 py-1.5 rounded-full bg-accent text-primary font-black text-[10px] xl:text-[11px] uppercase tracking-widest shadow-[0_0_12px_rgba(255,207,51,0.35)] m3-transition active:scale-95 relative overflow-hidden group"
+              >
+                <span className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity rounded-full" />
+                <Zap className="h-3.5 w-3.5 fill-current" />
+                <span>Initialize Project</span>
+              </Link>
 
-          {/* User Dashboard Portal Login */}
-          <Link
-            href="/login"
-            className="hidden lg:flex items-center gap-1.5 ml-2 px-3 py-1.5 rounded-full bg-transparent hover:bg-white/5 border border-white/20 hover:border-accent text-white hover:text-accent font-black text-[10px] xl:text-[11px] uppercase tracking-widest m3-transition active:scale-95"
-          >
-            <span>Portal Login</span>
-          </Link>
+              {/* User Dashboard Portal Login */}
+              <Link
+                href="/login"
+                className="hidden lg:flex items-center gap-1.5 ml-2 px-3 py-1.5 rounded-full bg-transparent hover:bg-white/5 border border-white/20 hover:border-accent text-white hover:text-accent font-black text-[10px] xl:text-[11px] uppercase tracking-widest m3-transition active:scale-95"
+              >
+                <span>Portal Login</span>
+              </Link>
+            </>
+          )}
           
           {/* Mobile Menu */}
           <div className="lg:hidden flex items-center gap-3">
@@ -293,16 +319,27 @@ export default function Header() {
                 </nav>
 
                 <div className="mt-auto p-6 border-t border-accent/10 bg-white/[0.02] space-y-3">
-                  {/* Initialize Project CTA — Mobile Drawer */}
-                  <Link
-                    href="/consult-online"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="flex items-center justify-center gap-2.5 w-full p-4 rounded-2xl bg-accent text-primary font-black text-xs uppercase tracking-wider shadow-[0_0_20px_rgba(255,207,51,0.3)] active:scale-95 transition-all group relative overflow-hidden"
-                  >
-                    <span className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 rounded-2xl transition-opacity" />
-                    <Zap className="h-4 w-4 fill-current" />
-                    <span>Initialize Project</span>
-                  </Link>
+                  {!authLoading && user ? (
+                    <Link
+                      href="/consult-online"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="flex items-center justify-center gap-2.5 w-full p-4 rounded-2xl bg-accent text-primary font-black text-xs uppercase tracking-wider shadow-[0_0_20px_rgba(255,207,51,0.3)] active:scale-95 transition-all group relative overflow-hidden"
+                    >
+                      <span className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 rounded-2xl transition-opacity" />
+                      <LayoutGrid className="h-4 w-4" />
+                      <span>Go to Dashboard</span>
+                    </Link>
+                  ) : (
+                    <Link
+                      href="/consult-online"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="flex items-center justify-center gap-2.5 w-full p-4 rounded-2xl bg-accent text-primary font-black text-xs uppercase tracking-wider shadow-[0_0_20px_rgba(255,207,51,0.3)] active:scale-95 transition-all group relative overflow-hidden"
+                    >
+                      <span className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 rounded-2xl transition-opacity" />
+                      <Zap className="h-4 w-4 fill-current" />
+                      <span>Initialize Project</span>
+                    </Link>
+                  )}
 
                   <a 
                     href="tel:+919122795726" 

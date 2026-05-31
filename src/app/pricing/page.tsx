@@ -1,22 +1,119 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { 
   Check, Phone, Mail, MapPin, Users, Award, Clock, FileText, Info, ChevronRight, 
-  Activity, ShieldCheck, HelpCircle, Sparkles, Loader2, X 
+  Activity, ShieldCheck, HelpCircle, Sparkles, Loader2, X, Calculator, Layers
 } from 'lucide-react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 
-const packages = [
+// Exact rates from the flyer brochure
+const PRICING_DATA = {
+  residential: {
+    '2d_planning': {
+      label: '2D Planning',
+      description: 'Includes: Floor Plan with Dimensions, Furniture Layout Plan, Door & Window Detail Plan, Electrical Layout (Switch + Light Points), Plumbing Layout (Bathroom + Kitchen), Basic Vastu Planning',
+      tiers: [
+        { name: 'Basic', rate: 5, unit: 'sq.ft' },
+        { name: 'Standard', rate: 8, unit: 'sq.ft' },
+        { name: 'Premium', rate: 12, unit: 'sq.ft' }
+      ]
+    },
+    '3d_elevation': {
+      label: '3D Elevation (Front Design)',
+      description: 'Includes: 3D Front Elevation (Day View), 3D Night View (Lighting Effect), 2-3 Color Options, Material Concept (Tiles / Paint / Texture)',
+      tiers: [
+        { name: 'Simple', rate: 20, unit: 'sq.ft' },
+        { name: 'Modern', rate: 30, unit: 'sq.ft' },
+        { name: 'Luxury', rate: 40, unit: 'sq.ft' }
+      ]
+    },
+    '3d_interior': {
+      label: '3D Interior Design',
+      description: 'Includes: 3D Views (Bedroom, Hall, Kitchen etc.), Furniture Layout Plan, False Ceiling Design Drawing, Lighting Layout Plan, Color Theme & Concept Sheet, Material Suggestion (Laminate, Tiles, Paint)',
+      tiers: [
+        { name: 'Basic', rate: 30, unit: 'sq.ft' },
+        { name: 'Standard', rate: 50, unit: 'sq.ft' },
+        { name: 'Premium', rate: 80, unit: 'sq.ft' }
+      ]
+    },
+    'full_package': {
+      label: 'Residential Full Package',
+      description: 'COMPLETE DRAWINGS SET: All 2D Drawings, Working Drawings for Execution, 3D Elevation, Material Specification Sheet, Full Interior 3D',
+      tiers: [
+        { name: 'Basic', rate: 70, unit: 'sq.ft' },
+        { name: 'Standard', rate: 85, unit: 'sq.ft' },
+        { name: 'Premium', rate: 100, unit: 'sq.ft' }
+      ]
+    }
+  },
+  commercial: {
+    '2d_planning': {
+      label: '2D Planning (Commercial)',
+      description: 'Includes: Layout Plan (Shop / Office), Furniture / Workstation Layout, Customer Flow Planning, Electrical + Lighting Plan, Fire Safety Basic Layout, Display / Counter Placement',
+      tiers: [
+        { name: 'Basic', rate: 8, unit: 'sq.ft' },
+        { name: 'Standard', rate: 12, unit: 'sq.ft' },
+        { name: 'Premium', rate: 18, unit: 'sq.ft' }
+      ]
+    },
+    '3d_elevation': {
+      label: '3D Elevation (Commercial)',
+      description: 'Includes: 3D Front Design, Branding / Signage Placement, Day + Night View, Glass / ACP / Cladding Design',
+      tiers: [
+        { name: 'Basic', rate: 30, unit: 'sq.ft' },
+        { name: 'Modern', rate: 40, unit: 'sq.ft' },
+        { name: 'Luxury', rate: 60, unit: 'sq.ft' }
+      ]
+    },
+    '3d_interior': {
+      label: '3D Interior (Commercial)',
+      description: 'Includes: 3D Interior Views (Shop / Office), Display Unit Design, Ceiling + Lighting Plan, Branding Placement Design, Furniture Layout Plan, Material Specification',
+      tiers: [
+        { name: 'Basic', rate: 50, unit: 'sq.ft' },
+        { name: 'Standard', rate: 80, unit: 'sq.ft' },
+        { name: 'Premium', rate: 120, unit: 'sq.ft' }
+      ]
+    }
+  },
+  extra_services: {
+    '3d_walkthrough': {
+      label: '3D Walkthrough',
+      description: 'Immersive virtual tour of the layout',
+      tiers: [
+        { name: 'Basic Walkthrough', rate: 5000 },
+        { name: 'Standard Walkthrough', rate: 15000 },
+        { name: 'Premium Walkthrough', rate: 25000 }
+      ]
+    },
+    'online_consultation': {
+      label: 'Online Consultation',
+      description: 'Live virtual consult with senior design architect',
+      tiers: [
+        { name: 'Basic Session', rate: 500 },
+        { name: 'Standard Session', rate: 1000 },
+        { name: 'Premium Session', rate: 1500 }
+      ]
+    }
+  },
+  site_visits: [
+    { range: '0 - 25 KM', price: 1000 },
+    { range: '25 - 50 KM', price: 2000 },
+    { range: '50 - 75 KM', price: 3000 },
+    { range: '75 - 100 KM', price: 4000 }
+  ]
+};
+
+// Existing supervision packages
+const supervisionPackages = [
   {
-    name: "Basic Package",
+    name: "Basic Supervision Package",
     price: "9,999",
     suitableFor: "Suitable for Projects up to 1000 Sqft",
     features: [
@@ -40,7 +137,7 @@ const packages = [
     slug: "basic"
   },
   {
-    name: "Standard Package",
+    name: "Standard Supervision Package",
     price: "17,999",
     suitableFor: "Suitable for Projects from 1000 – 1800 Sqft",
     features: [
@@ -68,7 +165,7 @@ const packages = [
     slug: "standard"
   },
   {
-    name: "Premium Package",
+    name: "Premium Supervision Package",
     price: "29,999",
     suitableFor: "Suitable for Projects above 1800 Sqft",
     features: [
@@ -133,6 +230,36 @@ const whyChooseItems = [
 ];
 
 export default function PricingPage() {
+  // Page Tab Controller
+  const [activeTab, setActiveTab] = useState<'calculator' | 'packages'>('calculator');
+
+  // Calculator State
+  const [category, setCategory] = useState<'residential' | 'commercial'>('residential');
+  const [area, setArea] = useState<number>(1200);
+  
+  // Track services & chosen tiers
+  const [services, setServices] = useState<Record<string, { checked: boolean; tier: number }>>({
+    '2d_planning': { checked: true, tier: 1 }, // index of tier: 0=Basic, 1=Standard, 2=Premium
+    '3d_elevation': { checked: false, tier: 1 },
+    '3d_interior': { checked: false, tier: 1 },
+    'full_package': { checked: false, tier: 1 }
+  });
+
+  // Site visits distance index
+  const [distanceIdx, setDistanceIdx] = useState<number>(0); // 0 = 0-25 KM, etc.
+
+  // Optional Extra Toggles
+  const [walkthrough, setWalkthrough] = useState<boolean>(false);
+  const [walkthroughTier, setWalkthroughTier] = useState<number>(1); // 0=Basic, 1=Standard, 2=Premium
+  
+  const [consultation, setConsultation] = useState<boolean>(false);
+  const [consultationTier, setConsultationTier] = useState<number>(1); // 0=Basic, 1=Standard, 2=Premium
+
+  // Extra Site Guidance Add-ons
+  const [contractorGuidance, setContractorGuidance] = useState<boolean>(false);
+  const [materialSupport, setMaterialSupport] = useState<boolean>(false);
+
+  // Enquiry Modal States
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [enquiryPkg, setEnquiryPkg] = useState<any>(null);
   const [loading, setLoading] = useState(false);
@@ -146,17 +273,209 @@ export default function PricingPage() {
     projectLocation: ''
   });
 
+  // Calculations Logic
+  const calculateTotal = () => {
+    let subtotal = 0;
+    const items: Array<{ name: string; cost: number; desc: string }> = [];
+
+    const activeServices = category === 'residential' ? PRICING_DATA.residential : PRICING_DATA.commercial;
+
+    // Check if full package is selected for residential
+    const isFullPackage = category === 'residential' && services['full_package']?.checked;
+
+    if (isFullPackage) {
+      // Full package overrides individual service items
+      const tierObj = PRICING_DATA.residential.full_package.tiers[services['full_package'].tier];
+      const rate = tierObj.rate;
+      const cost = rate * area;
+      subtotal += cost;
+      items.push({
+        name: `Residential Full Package (${tierObj.name})`,
+        cost: cost,
+        desc: `₹${rate}/sq.ft × ${area} sq.ft`
+      });
+    } else {
+      // Add individual services
+      Object.entries(services).forEach(([key, val]) => {
+        if (key === 'full_package') return; // skip full package
+        if (val.checked && activeServices[key as keyof typeof activeServices]) {
+          const serviceObj = activeServices[key as keyof typeof activeServices];
+          const tierObj = serviceObj.tiers[val.tier];
+          const rate = tierObj.rate;
+          const cost = rate * area;
+          subtotal += cost;
+          items.push({
+            name: `${serviceObj.label} (${tierObj.name})`,
+            cost: cost,
+            desc: `₹${rate}/sq.ft × ${area} sq.ft`
+          });
+        }
+      });
+    }
+
+    // Site visit charges
+    const visitObj = PRICING_DATA.site_visits[distanceIdx];
+    subtotal += visitObj.price;
+    items.push({
+      name: `Site Visit Charges (${visitObj.range})`,
+      cost: visitObj.price,
+      desc: `Distance premium rates (with car)`
+    });
+
+    // Extra Services Add-ons
+    if (walkthrough) {
+      const walkObj = PRICING_DATA.extra_services['3d_walkthrough'].tiers[walkthroughTier];
+      subtotal += walkObj.rate;
+      items.push({
+        name: `3D Walkthrough (${walkObj.name})`,
+        cost: walkObj.rate,
+        desc: `Interactive spatial visualization walkthrough`
+      });
+    }
+
+    if (consultation) {
+      const consObj = PRICING_DATA.extra_services['online_consultation'].tiers[consultationTier];
+      subtotal += consObj.rate;
+      items.push({
+        name: `Online Consultation (${consObj.name})`,
+        cost: consObj.rate,
+        desc: `Virtual design guidance sessions`
+      });
+    }
+
+    // Guidance Support switches
+    if (contractorGuidance) {
+      // Free in Premium Tiers, else ₹5,000 flat
+      const isPremiumTier = Object.values(services).some(s => s.checked && s.tier === 2) || (isFullPackage && services['full_package'].tier === 2);
+      const price = isPremiumTier ? 0 : 5000;
+      subtotal += price;
+      items.push({
+        name: "Contractor Guidance Support",
+        cost: price,
+        desc: price === 0 ? "Included with Premium Tier" : "Execution guidance flat charge"
+      });
+    }
+
+    if (materialSupport) {
+      subtotal += 3000;
+      items.push({
+        name: "Material Selection Support",
+        cost: 3000,
+        desc: "Designated procurement checklist audit support"
+      });
+    }
+
+    return { total: subtotal, items };
+  };
+
+  const { total: calculatedTotal, items: calculatedItems } = calculateTotal();
+
+  // Reset services toggle based on category selection
+  useEffect(() => {
+    if (category === 'commercial') {
+      setServices(prev => ({
+        ...prev,
+        'full_package': { checked: false, tier: 1 }
+      }));
+    }
+  }, [category]);
+
+  const handleServiceChecked = (key: string, checked: boolean) => {
+    setServices(prev => {
+      const copy = { ...prev };
+      
+      if (key === 'full_package' && checked) {
+        // Uncheck others if Full Package is checked
+        copy['2d_planning'].checked = false;
+        copy['3d_elevation'].checked = false;
+        copy['3d_interior'].checked = false;
+        copy['full_package'].checked = true;
+      } else if (key !== 'full_package' && checked) {
+        // Uncheck Full Package if other items checked
+        copy['full_package'].checked = false;
+        copy[key].checked = true;
+      } else {
+        copy[key].checked = checked;
+      }
+      
+      return copy;
+    });
+  };
+
+  const handleServiceTier = (key: string, tierIndex: number) => {
+    setServices(prev => ({
+      ...prev,
+      [key]: { ...prev[key], tier: tierIndex }
+    }));
+  };
+
+  // Compile detailed WhatsApp quote message
+  const getWhatsAppMessage = () => {
+    const activeText = category === 'residential' ? 'Residential Space' : 'Commercial Space';
+    
+    let msg = `*GALAXY INTERIOR - Interactive Estimate Request*\n`;
+    msg += `-------------------------------------------\n`;
+    msg += `*Category:* ${activeText}\n`;
+    msg += `*Plot Area:* ${area} Sq.ft\n\n`;
+    msg += `*Services Cost Breakdown:*\n`;
+
+    calculatedItems.forEach(item => {
+      msg += `• *${item.name}*: ₹${item.cost.toLocaleString('en-IN')}/- (${item.desc})\n`;
+    });
+
+    msg += `\n*TOTAL ESTIMATED COST: ₹${calculatedTotal.toLocaleString('en-IN')}/*`;
+    msg += `\n-------------------------------------------\n`;
+    msg += `Please connect me with a project coordinator to review this calculation.`;
+
+    return msg;
+  };
+
+  // Onboarding Redirection Package Saving
+  const handleProceedOnboarding = () => {
+    const activeText = category === 'residential' ? 'Residential House' : 'Commercial Office/Shop';
+    const stateObj = {
+      category,
+      area,
+      services,
+      distance: PRICING_DATA.site_visits[distanceIdx].range,
+      walkthrough,
+      walkthroughTier,
+      consultation,
+      consultationTier,
+      contractorGuidance,
+      materialSupport,
+      totalPrice: calculatedTotal,
+      projectType: activeText,
+      items: calculatedItems
+    };
+
+    localStorage.setItem('galaxy_calculator_state', JSON.stringify(stateObj));
+  };
+
+  // Modal open helpers
   const handleOpenEnquiryModal = (pkg: any) => {
     setErrorMsg('');
     setEnquiryPkg(pkg);
-    setEnquiryData({
-      name: '',
-      mobile: '',
-      address: '',
-      projectType: pkg.isCustom ? 'Commercial Building' : pkg.slug === 'basic' ? 'Residential House' : 'Residential Duplex',
-      areaSize: pkg.slug === 'basic' ? '1000 Sqft' : pkg.slug === 'standard' ? '1500 Sqft' : '2000 Sqft',
-      projectLocation: ''
-    });
+    
+    if (pkg.isCalculator) {
+      setEnquiryData({
+        name: '',
+        mobile: '',
+        address: '',
+        projectType: category === 'residential' ? 'Residential Project' : 'Commercial Project',
+        areaSize: `${area} Sqft`,
+        projectLocation: ''
+      });
+    } else {
+      setEnquiryData({
+        name: '',
+        mobile: '',
+        address: '',
+        projectType: pkg.isCustom ? 'Commercial Building' : pkg.slug === 'basic' ? 'Residential House' : 'Residential Duplex',
+        areaSize: pkg.slug === 'basic' ? '1000 Sqft' : pkg.slug === 'standard' ? '1500 Sqft' : '2000 Sqft',
+        projectLocation: ''
+      });
+    }
     setIsModalOpen(true);
   };
 
@@ -184,7 +503,19 @@ export default function PricingPage() {
     setLoading(true);
 
     try {
-      // 1. Sync quick enquiry details to Firestore quick_enquiries collection
+      const detailedPayload = enquiryPkg.isCalculator ? {
+        category: category,
+        area: area,
+        services: services,
+        distanceRange: PRICING_DATA.site_visits[distanceIdx].range,
+        walkthrough,
+        consultation,
+        contractorGuidance,
+        materialSupport,
+        breakdownItems: calculatedItems
+      } : null;
+
+      // 1. Sync quick enquiry details to Firestore
       await addDoc(collection(db, "quick_enquiries"), {
         clientName: enquiryData.name,
         mobileNumber: enquiryData.mobile,
@@ -194,19 +525,39 @@ export default function PricingPage() {
         projectLocation: enquiryData.projectLocation,
         packageName: enquiryPkg.name,
         packageSlug: enquiryPkg.slug,
+        calculatorData: detailedPayload,
+        totalPrice: enquiryPkg.isCalculator ? calculatedTotal : enquiryPkg.price,
         createdAt: serverTimestamp()
       });
 
       // 2. Open WhatsApp redirection to architectural desk
-      const whatsappMsg = `*GALAXY INTERIOR - Quick Package Enquiry*
------------------------------------------
-I would like to enquire about the *${enquiryPkg.name}*. Here are my client details:
-- *Name:* ${enquiryData.name}
-- *Mobile:* ${enquiryData.mobile}
-- *Address:* ${enquiryData.address}
-- *Project Type:* ${enquiryData.projectType}
-- *Area Size:* ${enquiryData.areaSize}
-- *Project Location:* ${enquiryData.projectLocation}`;
+      let whatsappMsg = '';
+      if (enquiryPkg.isCalculator) {
+        whatsappMsg = `*GALAXY INTERIOR - Calculator Enquiry Submission*\n`;
+        whatsappMsg += `-----------------------------------------\n`;
+        whatsappMsg += `I have calculated an estimate using the website pricing portal:\n`;
+        whatsappMsg += `- *Client Name:* ${enquiryData.name}\n`;
+        whatsappMsg += `- *Mobile:* ${enquiryData.mobile}\n`;
+        whatsappMsg += `- *Address:* ${enquiryData.address}\n`;
+        whatsappMsg += `- *Project Location:* ${enquiryData.projectLocation}\n`;
+        whatsappMsg += `- *Area Size:* ${enquiryData.areaSize}\n`;
+        whatsappMsg += `- *Category:* ${category === 'residential' ? 'Residential' : 'Commercial'}\n`;
+        whatsappMsg += `- *Total Estimate:* ₹${calculatedTotal.toLocaleString('en-IN')}/-\n\n`;
+        whatsappMsg += `*Calculated Services Breakdown:*\n`;
+        calculatedItems.forEach(item => {
+          whatsappMsg += `• ${item.name}: ₹${item.cost.toLocaleString('en-IN')}/-\n`;
+        });
+      } else {
+        whatsappMsg = `*GALAXY INTERIOR - Quick Package Enquiry*\n`;
+        whatsappMsg += `-----------------------------------------\n`;
+        whatsappMsg += `I would like to enquire about the *${enquiryPkg.name}*. Here are my client details:\n`;
+        whatsappMsg += `- *Name:* ${enquiryData.name}\n`;
+        whatsappMsg += `- *Mobile:* ${enquiryData.mobile}\n`;
+        whatsappMsg += `- *Address:* ${enquiryData.address}\n`;
+        whatsappMsg += `- *Project Type:* ${enquiryData.projectType}\n`;
+        whatsappMsg += `- *Area Size:* ${enquiryData.areaSize}\n`;
+        whatsappMsg += `- *Project Location:* ${enquiryData.projectLocation}`;
+      }
 
       setTimeout(() => {
         const whatsappUrl = `https://wa.me/919631980881?text=${encodeURIComponent(whatsappMsg)}`;
@@ -229,159 +580,728 @@ I would like to enquire about the *${enquiryPkg.name}*. Here are my client detai
         <div className="absolute inset-0 bg-gradient-to-b from-[#051124]/40 to-[#051124] z-0" />
         <div className="container mx-auto px-4 relative z-10 text-center max-w-5xl">
           <Badge className="mb-6 rounded-full bg-accent text-primary font-black tracking-[0.2em] px-6 py-2 uppercase border-none shadow-lg animate-fade-up">
-            CONSTRUCTION HANDLING
+            OFFICIAL RATE CALCULATOR
           </Badge>
           <h1 className="font-display text-4xl md:text-7xl font-black tracking-tight mb-6 leading-none animate-fade-up text-white font-sans">
-            Stress-Free Construction <br />
-            <span className="text-gold italic">Starts Here!</span>
+            Calculate Your Design <br />
+            <span className="text-gold italic">Budget Instantly!</span>
           </h1>
           <p className="max-w-3xl mx-auto text-base md:text-lg text-white/70 font-medium leading-relaxed mb-10 font-sans">
-            Galaxy Interior handles your construction professionally with proper site monitoring, 
-            labour coordination & quality management – saving your time, money & effort.
+            Use our interactive pricing portal based strictly on the Galaxy Interior official pricing blueprint. 
+            Select your architectural needs, customize tiers, and export accurate custom estimates.
           </p>
 
           {/* Quick Badges (Flyer Header features) */}
           <div className="grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-4 max-w-4xl mx-auto mt-12 font-sans">
             <div className="bg-white/5 border border-white/10 rounded-2xl p-4 flex flex-col items-center justify-center text-center shadow-md hover:border-accent/30 transition-all">
               <Activity className="h-6 w-6 text-accent mb-2" />
-              <span className="text-[10px] md:text-xs font-bold uppercase tracking-wider text-white/80">Professional Site Monitoring</span>
+              <span className="text-[10px] md:text-xs font-bold uppercase tracking-wider text-white/80">Residential & Commercial</span>
             </div>
             <div className="bg-white/5 border border-white/10 rounded-2xl p-4 flex flex-col items-center justify-center text-center shadow-md hover:border-accent/30 transition-all">
               <Users className="h-6 w-6 text-accent mb-2" />
-              <span className="text-[10px] md:text-xs font-bold uppercase tracking-wider text-white/80">Better Labour Coordination</span>
+              <span className="text-[10px] md:text-xs font-bold uppercase tracking-wider text-white/80">Site Supervision support</span>
             </div>
             <div className="bg-white/5 border border-white/10 rounded-2xl p-4 flex flex-col items-center justify-center text-center shadow-md hover:border-accent/30 transition-all">
               <ShieldCheck className="h-6 w-6 text-accent mb-2" />
-              <span className="text-[10px] md:text-xs font-bold uppercase tracking-wider text-white/80">Quality Management</span>
+              <span className="text-[10px] md:text-xs font-bold uppercase tracking-wider text-white/80">Precise Area Calculation</span>
             </div>
             <div className="bg-white/5 border border-white/10 rounded-2xl p-4 flex flex-col items-center justify-center text-center shadow-md hover:border-accent/30 transition-all">
               <Clock className="h-6 w-6 text-accent mb-2" />
-              <span className="text-[10px] md:text-xs font-bold uppercase tracking-wider text-white/80">Saves Your Time & Money</span>
+              <span className="text-[10px] md:text-xs font-bold uppercase tracking-wider text-white/80">100% Transparency Rates</span>
             </div>
             <div className="col-span-2 md:col-span-1 bg-accent/15 border border-accent/30 rounded-2xl p-4 flex flex-col items-center justify-center text-center shadow-lg hover:border-accent transition-all group">
               <Sparkles className="h-6 w-6 text-accent mb-2 group-hover:scale-110 transition-transform" />
-              <span className="text-[10px] md:text-xs font-black uppercase tracking-wider text-accent">Elevation Work Support Included</span>
+              <span className="text-[10px] md:text-xs font-black uppercase tracking-wider text-accent">Flyer Blueprint Prices</span>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Main Packages Section */}
-      <section className="py-20 bg-transparent">
-        <div className="container mx-auto px-4 max-w-[95vw] xl:max-w-7xl">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-6xl font-black uppercase tracking-tight text-white mb-4 font-sans">Construction Handling Packages</h2>
-            <div className="w-20 h-1 bg-accent mx-auto"></div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
-            {packages.map((pkg, idx) => (
-              <Card 
-                key={idx} 
-                className={cn(
-                  "relative glass-card border-white/10 overflow-hidden flex flex-col rounded-[32px] m3-elevation-3 transition-all duration-500 hover:scale-[1.01] hover:-translate-y-1 bg-[#08162b]",
-                  pkg.tag ? "border-accent/30 shadow-[0_4px_30px_rgba(255,207,51,0.05)]" : ""
-                )}
-              >
-                {/* Decorative glowing gradient for best choice card */}
-                {pkg.tag && (
-                  <div className="absolute top-0 right-0 bg-accent text-primary text-[9px] font-black py-2 px-4 rounded-bl-[16px] shadow-md uppercase tracking-widest z-10">
-                    {pkg.tag}
-                  </div>
-                )}
-
-                <CardContent className="p-5 md:p-6 flex-grow flex flex-col justify-between">
-                  <div className="flex-grow">
-                    {/* Header */}
-                    <div className="mb-6">
-                      <h3 className="text-lg md:text-xl font-black text-white uppercase tracking-wider mb-3 leading-tight h-14 flex items-center font-sans">{pkg.name}</h3>
-                      <div className="inline-block bg-gold-gradient text-primary px-5 py-2.5 rounded-2xl text-xl md:text-2xl font-black shadow-lg">
-                        {pkg.isCustom ? "Custom" : `₹${pkg.price}/-`}
-                      </div>
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-accent mt-3 min-h-[32px] leading-relaxed font-sans">{pkg.suitableFor}</p>
-                    </div>
-
-                    {/* Features checklist */}
-                    <div className="py-5 border-t border-white/10">
-                      <ul className="space-y-3 font-sans">
-                        {pkg.features.map((feat, i) => (
-                          <li key={i} className="flex gap-2.5 text-xs font-semibold text-white/95 items-center">
-                            <div className="w-4.5 h-4.5 rounded-full bg-accent/15 border border-accent/30 flex items-center justify-center flex-shrink-0 text-accent">
-                              <Check className="h-2.5 w-2.5 stroke-[3]" />
-                            </div>
-                            <span>{feat}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-
-                  {/* Client Benefits section inside card */}
-                  <div className="mt-6 pt-5 border-t border-white/10">
-                    <div className="bg-white/[0.01] border border-white/5 rounded-[20px] p-4 shadow-inner min-h-[220px] font-sans">
-                      <h4 className="text-[10px] font-black text-gold uppercase tracking-widest mb-3.5">Client Benefits</h4>
-                      <ul className="space-y-2.5">
-                        {pkg.benefits.map((benefit, i) => (
-                          <li key={i} className="flex gap-2 text-[11px] font-medium text-white/60 items-start leading-relaxed">
-                            <Check className="h-3.5 w-3.5 text-accent shrink-0 mt-0.5" />
-                            <span>{benefit}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-
-                  {/* Action buttons footer inside cards */}
-                  <div className="mt-6 font-sans">
-                    {pkg.isCustom ? (
-                      <div className="flex flex-col gap-2">
-                        <Button 
-                          onClick={() => handleOpenEnquiryModal(pkg)}
-                          className="w-full bg-accent hover:bg-accent/90 text-primary font-black uppercase tracking-wider text-[10px] h-11 rounded-full shadow-md flex items-center justify-center gap-2 transition-all active:scale-95"
-                        >
-                          Quick Enquiry / Poochhein
-                        </Button>
-                        <div className="flex gap-2">
-                          <a href="tel:+919631980881" className="flex-1">
-                            <Button variant="outline" className="w-full border-white/10 text-white hover:bg-white/5 font-black uppercase tracking-wider text-[9px] h-10 rounded-full flex items-center justify-center gap-1.5 transition-all">
-                              <Phone className="h-3 w-3 shrink-0" /> Call
-                            </Button>
-                          </a>
-                          <a 
-                            href={`https://wa.me/919631980881?text=${encodeURIComponent("Hi Galaxy Interior team, I would like to enquire about the Custom Pricing & Large Project package. Please contact me.")}`} 
-                            target="_blank" 
-                            rel="noopener noreferrer" 
-                            className="flex-1"
-                          >
-                            <Button variant="outline" className="w-full border-accent text-accent hover:bg-accent/10 font-black uppercase tracking-wider text-[9px] h-10 rounded-full flex items-center justify-center gap-1.5 transition-all">
-                              WhatsApp
-                            </Button>
-                          </a>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="flex flex-col gap-2">
-                        <Link href={`/pricing/continue?package=${pkg.slug}`} className="block w-full">
-                          <Button className="w-full bg-gold-gradient hover:opacity-95 text-primary font-black uppercase tracking-wider text-xs h-12 rounded-full shadow-md flex items-center justify-center gap-1.5 m3-transition hover:scale-[1.02] active:scale-[0.98] group relative overflow-hidden m3-state-layer">
-                            Book & Continue <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                          </Button>
-                        </Link>
-                        <Button 
-                          onClick={() => handleOpenEnquiryModal(pkg)}
-                          variant="outline" 
-                          className="w-full border-accent text-accent hover:bg-accent/10 font-black uppercase tracking-wider text-[10px] h-11 rounded-full flex items-center justify-center gap-2 transition-all active:scale-95"
-                        >
-                          Quick Enquiry / Poochhein
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+      {/* Tabs Selector Navigation */}
+      <section className="pt-12 pb-6">
+        <div className="container mx-auto px-4 max-w-xl">
+          <div className="bg-white/5 p-1.5 rounded-full border border-white/10 grid grid-cols-2 shadow-inner">
+            <button
+              onClick={() => setActiveTab('calculator')}
+              className={`py-3.5 px-6 rounded-full text-xs font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${
+                activeTab === 'calculator'
+                  ? 'bg-gold-gradient text-primary shadow-md font-black scale-102'
+                  : 'text-white/60 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              <Calculator className="h-4 w-4" /> Cost Calculator
+            </button>
+            <button
+              onClick={() => setActiveTab('packages')}
+              className={`py-3.5 px-6 rounded-full text-xs font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${
+                activeTab === 'packages'
+                  ? 'bg-gold-gradient text-primary shadow-md font-black scale-102'
+                  : 'text-white/60 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              <Layers className="h-4 w-4" /> Supervision Packages
+            </button>
           </div>
         </div>
       </section>
+
+      {/* INTERACTIVE COST CALCULATOR SECTION */}
+      {activeTab === 'calculator' && (
+        <section className="py-10 animate-fade-in duration-300">
+          <div className="container mx-auto px-4 max-w-[95vw] xl:max-w-7xl">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+              
+              {/* Left Column: Form Controls */}
+              <div className="lg:col-span-7 space-y-6">
+                <Card className="glass-card border-white/10 bg-[#08162b] rounded-[32px] p-6 md:p-8 shadow-2xl relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-accent/5 rounded-full blur-3xl pointer-events-none"></div>
+                  
+                  <div className="mb-6">
+                    <span className="text-[10px] font-black text-accent uppercase tracking-widest">Configuration Desk</span>
+                    <h3 className="text-xl md:text-2xl font-black text-white uppercase tracking-wider mt-1 font-sans">1. Scope Parameters</h3>
+                  </div>
+
+                  <div className="space-y-6">
+                    {/* Category Selection Toggle */}
+                    <div className="space-y-2.5">
+                      <label className="text-[10px] font-black text-white/50 uppercase tracking-widest block font-sans">Project Category / Segment</label>
+                      <div className="grid grid-cols-2 gap-3">
+                        <button
+                          type="button"
+                          onClick={() => setCategory('residential')}
+                          className={`py-3.5 rounded-2xl text-xs font-black uppercase tracking-widest border transition-all flex items-center justify-center gap-2 ${
+                            category === 'residential' 
+                              ? 'bg-accent/15 text-accent border-accent/40 shadow-inner' 
+                              : 'border-white/10 text-white/60 bg-white/5 hover:border-accent/40'
+                          }`}
+                        >
+                          🏠 Residential Project
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setCategory('commercial')}
+                          className={`py-3.5 rounded-2xl text-xs font-black uppercase tracking-widest border transition-all flex items-center justify-center gap-2 ${
+                            category === 'commercial' 
+                              ? 'bg-accent/15 text-accent border-accent/40 shadow-inner' 
+                              : 'border-white/10 text-white/60 bg-white/5 hover:border-accent/40'
+                          }`}
+                        >
+                          🏢 Commercial Project
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Area Slider & Numeric Input */}
+                    <div className="space-y-3 pt-4 border-t border-white/5">
+                      <div className="flex justify-between items-center">
+                        <label className="text-[10px] font-black text-white/50 uppercase tracking-widest font-sans">Plot / Built-up Area</label>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="number"
+                            value={area}
+                            onChange={(e) => setArea(Math.max(100, Math.min(10000, Number(e.target.value))))}
+                            className="w-24 bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-right text-xs font-black text-gold focus:outline-none focus:border-accent"
+                          />
+                          <span className="text-[10px] font-bold text-white/55">SQ.FT</span>
+                        </div>
+                      </div>
+                      <div className="relative pt-2">
+                        <input
+                          type="range"
+                          min="100"
+                          max="10000"
+                          step="50"
+                          value={area}
+                          onChange={(e) => setArea(Number(e.target.value))}
+                          className="w-full h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer accent-accent"
+                        />
+                        <div className="flex justify-between text-[9px] text-white/40 font-bold uppercase mt-1">
+                          <span>100 sqft</span>
+                          <span>5,000 sqft</span>
+                          <span>10,000 sqft</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+
+                {/* Services Checklist Card */}
+                <Card className="glass-card border-white/10 bg-[#08162b] rounded-[32px] p-6 md:p-8 shadow-2xl relative overflow-hidden">
+                  <div className="mb-6">
+                    <span className="text-[10px] font-black text-accent uppercase tracking-widest">Pricing Plan</span>
+                    <h3 className="text-xl md:text-2xl font-black text-white uppercase tracking-wider mt-1 font-sans">2. Select Services & Tiers</h3>
+                  </div>
+
+                  <div className="space-y-6">
+                    {category === 'residential' ? (
+                      // RESIDENTIAL CHECKLIST WITH FULL PACKAGE INTERACTIVE LOGIC
+                      <div className="space-y-5">
+                        
+                        {/* 1. Full Package Option */}
+                        <div className={`p-5 rounded-3xl border transition-all duration-300 ${
+                          services['full_package']?.checked 
+                            ? 'bg-accent/10 border-accent shadow-[0_0_15px_rgba(255,207,51,0.08)]' 
+                            : 'border-white/5 bg-white/[0.01]'
+                        }`}>
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="flex items-start gap-3">
+                              <input
+                                type="checkbox"
+                                id="fp_checkbox"
+                                checked={services['full_package']?.checked || false}
+                                onChange={(e) => handleServiceChecked('full_package', e.target.checked)}
+                                className="rounded mt-1 border-white/20 bg-white/5 text-accent focus:ring-0 focus:ring-offset-0"
+                              />
+                              <div>
+                                <label htmlFor="fp_checkbox" className="text-sm font-black text-white uppercase tracking-wider cursor-pointer hover:text-accent flex items-center gap-2">
+                                  👑 {PRICING_DATA.residential.full_package.label}
+                                </label>
+                                <p className="text-[11px] text-white/50 leading-relaxed font-semibold mt-1 max-w-md">
+                                  {PRICING_DATA.residential.full_package.description}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <span className="text-xs font-black text-gold uppercase tracking-wider">₹{PRICING_DATA.residential.full_package.tiers[services['full_package']?.tier || 1].rate}/sq.ft</span>
+                            </div>
+                          </div>
+
+                          {services['full_package']?.checked && (
+                            <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between gap-4 animate-fade-down duration-200">
+                              <span className="text-[10px] font-black text-accent uppercase tracking-widest">Select Drawing Tier</span>
+                              <div className="flex bg-white/5 rounded-xl p-1 border border-white/10">
+                                {PRICING_DATA.residential.full_package.tiers.map((t, idx) => (
+                                  <button
+                                    key={idx}
+                                    type="button"
+                                    onClick={() => handleServiceTier('full_package', idx)}
+                                    className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-wider transition-all ${
+                                      services['full_package'].tier === idx 
+                                        ? 'bg-accent text-primary font-black shadow-md' 
+                                        : 'text-white/60 hover:text-white'
+                                    }`}
+                                  >
+                                    {t.name} (₹{t.rate})
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Note explaining exclusive selection */}
+                        {services['full_package']?.checked && (
+                          <div className="bg-blue-500/10 border border-blue-500/20 rounded-2xl p-4 flex gap-3 items-start animate-fade-in font-sans">
+                            <Info className="h-4.5 w-4.5 text-blue-400 shrink-0 mt-0.5" />
+                            <p className="text-[11px] text-white/70 leading-relaxed font-medium">
+                              Note: *Full Package* is selected. Selections for individual 2D Planning, 3D Elevation, and 3D Interior items are disabled since they are bundled inside this full drawings package at a better consolidated rate.
+                            </p>
+                          </div>
+                        )}
+
+                        {/* 2. Individual Services Toggles */}
+                        <div className={`space-y-4 pt-4 border-t border-white/5 ${services['full_package']?.checked ? 'opacity-40 pointer-events-none' : ''}`}>
+                          {['2d_planning', '3d_elevation', '3d_interior'].map((sKey) => {
+                            const service = PRICING_DATA.residential[sKey as keyof typeof PRICING_DATA.residential];
+                            const current = services[sKey] || { checked: false, tier: 1 };
+                            const activeTier = service.tiers[current.tier];
+
+                            return (
+                              <div 
+                                key={sKey} 
+                                className={`p-4 rounded-3xl border transition-all ${
+                                  current.checked ? 'bg-white/5 border-white/20' : 'border-white/5 bg-transparent'
+                                }`}
+                              >
+                                <div className="flex items-start justify-between gap-4">
+                                  <div className="flex items-start gap-3">
+                                    <input
+                                      type="checkbox"
+                                      id={`res_${sKey}`}
+                                      checked={current.checked}
+                                      disabled={services['full_package']?.checked}
+                                      onChange={(e) => handleServiceChecked(sKey, e.target.checked)}
+                                      className="rounded mt-1 border-white/20 bg-white/5 text-accent focus:ring-0 focus:ring-offset-0 cursor-pointer"
+                                    />
+                                    <div>
+                                      <label htmlFor={`res_${sKey}`} className="text-xs font-black text-white uppercase tracking-wider cursor-pointer hover:text-accent flex items-center gap-1.5">
+                                        {service.label}
+                                      </label>
+                                      <p className="text-[10px] text-white/50 leading-relaxed font-medium mt-1">
+                                        {service.description}
+                                      </p>
+                                    </div>
+                                  </div>
+                                  <div className="text-right">
+                                    <span className="text-xs font-black text-gold uppercase tracking-wider">₹{activeTier.rate}/sq.ft</span>
+                                  </div>
+                                </div>
+
+                                {current.checked && !services['full_package']?.checked && (
+                                  <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between gap-4 animate-fade-down duration-200">
+                                    <span className="text-[9px] font-black text-accent uppercase tracking-widest">Select Plan Tier</span>
+                                    <div className="flex bg-white/5 rounded-xl p-1 border border-white/10">
+                                      {service.tiers.map((t, idx) => (
+                                        <button
+                                          key={idx}
+                                          type="button"
+                                          onClick={() => handleServiceTier(sKey, idx)}
+                                          className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-wider transition-all ${
+                                            current.tier === idx 
+                                              ? 'bg-accent text-primary font-black shadow-md' 
+                                              : 'text-white/60 hover:text-white'
+                                          }`}
+                                        >
+                                          {t.name} (₹{t.rate})
+                                        </button>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ) : (
+                      // COMMERCIAL SERVICES CHECKLIST
+                      <div className="space-y-4">
+                        {['2d_planning', '3d_elevation', '3d_interior'].map((sKey) => {
+                          const service = PRICING_DATA.commercial[sKey as keyof typeof PRICING_DATA.commercial];
+                          const current = services[sKey] || { checked: false, tier: 1 };
+                          const activeTier = service.tiers[current.tier];
+
+                          return (
+                            <div 
+                              key={sKey} 
+                              className={`p-4 rounded-3xl border transition-all ${
+                                current.checked ? 'bg-white/5 border-white/20' : 'border-white/5 bg-transparent'
+                              }`}
+                            >
+                              <div className="flex items-start justify-between gap-4">
+                                <div className="flex items-start gap-3">
+                                  <input
+                                    type="checkbox"
+                                    id={`comm_${sKey}`}
+                                    checked={current.checked}
+                                    onChange={(e) => handleServiceChecked(sKey, e.target.checked)}
+                                    className="rounded mt-1 border-white/20 bg-white/5 text-accent focus:ring-0 focus:ring-offset-0 cursor-pointer"
+                                  />
+                                  <div>
+                                    <label htmlFor={`comm_${sKey}`} className="text-xs font-black text-white uppercase tracking-wider cursor-pointer hover:text-accent">
+                                      {service.label}
+                                    </label>
+                                    <p className="text-[10px] text-white/50 leading-relaxed font-medium mt-1">
+                                      {service.description}
+                                    </p>
+                                  </div>
+                                </div>
+                                <div className="text-right">
+                                  <span className="text-xs font-black text-gold uppercase tracking-wider">₹{activeTier.rate}/sq.ft</span>
+                                </div>
+                              </div>
+
+                              {current.checked && (
+                                <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between gap-4 animate-fade-down duration-200">
+                                  <span className="text-[9px] font-black text-accent uppercase tracking-widest">Select Plan Tier</span>
+                                  <div className="flex bg-white/5 rounded-xl p-1 border border-white/10">
+                                    {service.tiers.map((t, idx) => (
+                                      <button
+                                        key={idx}
+                                        type="button"
+                                        onClick={() => handleServiceTier(sKey, idx)}
+                                        className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-wider transition-all ${
+                                          current.tier === idx 
+                                            ? 'bg-accent text-primary font-black shadow-md' 
+                                            : 'text-white/60 hover:text-white'
+                                        }`}
+                                      >
+                                        {t.name} (₹{t.rate})
+                                      </button>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                </Card>
+
+                {/* Distance & Extra Services Add-ons */}
+                <Card className="glass-card border-white/10 bg-[#08162b] rounded-[32px] p-6 md:p-8 shadow-2xl relative overflow-hidden">
+                  <div className="mb-6">
+                    <span className="text-[10px] font-black text-accent uppercase tracking-widest">Site Visits & Add-ons</span>
+                    <h3 className="text-xl md:text-2xl font-black text-white uppercase tracking-wider mt-1 font-sans">3. Site Visit Distance & Extras</h3>
+                  </div>
+
+                  <div className="space-y-6 font-sans">
+                    {/* Site Visit Distance */}
+                    <div className="space-y-2.5">
+                      <label className="text-[10px] font-black text-white/50 uppercase tracking-widest block">Site Visit Distance Charges (With Car)</label>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        {PRICING_DATA.site_visits.map((vis, idx) => (
+                          <button
+                            key={idx}
+                            type="button"
+                            onClick={() => setDistanceIdx(idx)}
+                            className={`py-3 px-2 rounded-2xl border text-center flex flex-col items-center justify-center gap-1 transition-all ${
+                              distanceIdx === idx 
+                                ? 'bg-accent/15 border-accent text-accent' 
+                                : 'border-white/5 text-white/65 bg-white/[0.01]'
+                            }`}
+                          >
+                            <span className="text-[10px] font-black">{vis.range}</span>
+                            <span className="text-[9px] font-bold text-white/40">₹{vis.price}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Extra Services Checklist Toggles */}
+                    <div className="space-y-4 pt-4 border-t border-white/5">
+                      <label className="text-[10px] font-black text-white/50 uppercase tracking-widest block">Additional Interactive Extra Services</label>
+                      
+                      {/* Walkthrough */}
+                      <div className={`p-4 rounded-3xl border transition-all ${
+                        walkthrough ? 'bg-white/5 border-white/20' : 'border-white/5 bg-transparent'
+                      }`}>
+                        <div className="flex items-center justify-between gap-4">
+                          <div className="flex items-center gap-3">
+                            <input
+                              type="checkbox"
+                              id="extra_walk"
+                              checked={walkthrough}
+                              onChange={(e) => setWalkthrough(e.target.checked)}
+                              className="rounded border-white/20 bg-white/5 text-accent focus:ring-0 cursor-pointer"
+                            />
+                            <div>
+                              <label htmlFor="extra_walk" className="text-xs font-black text-white uppercase tracking-wider cursor-pointer">
+                                📹 3D Walkthrough Tour
+                              </label>
+                              <p className="text-[10px] text-white/50 leading-relaxed font-semibold">
+                                Complete 3D virtual tour of the layout
+                              </p>
+                            </div>
+                          </div>
+                          <span className="text-xs font-black text-gold">₹{PRICING_DATA.extra_services['3d_walkthrough'].tiers[walkthroughTier].rate.toLocaleString('en-IN')}</span>
+                        </div>
+
+                        {walkthrough && (
+                          <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between gap-4 animate-fade-down duration-200">
+                            <span className="text-[9px] font-black text-accent uppercase tracking-widest">Select Walkthrough Option</span>
+                            <div className="flex bg-white/5 rounded-xl p-1 border border-white/10">
+                              {PRICING_DATA.extra_services['3d_walkthrough'].tiers.map((w, idx) => (
+                                <button
+                                  key={idx}
+                                  type="button"
+                                  onClick={() => setWalkthroughTier(idx)}
+                                  className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-wider transition-all ${
+                                    walkthroughTier === idx 
+                                      ? 'bg-accent text-primary font-black shadow-md' 
+                                      : 'text-white/60 hover:text-white'
+                                  }`}
+                                >
+                                  {w.name} (₹{w.rate.toLocaleString('en-IN')})
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Online Consultation */}
+                      <div className={`p-4 rounded-3xl border transition-all ${
+                        consultation ? 'bg-white/5 border-white/20' : 'border-white/5 bg-transparent'
+                      }`}>
+                        <div className="flex items-center justify-between gap-4">
+                          <div className="flex items-center gap-3">
+                            <input
+                              type="checkbox"
+                              id="extra_cons"
+                              checked={consultation}
+                              onChange={(e) => setConsultation(e.target.checked)}
+                              className="rounded border-white/20 bg-white/5 text-accent focus:ring-0 cursor-pointer"
+                            />
+                            <div>
+                              <label htmlFor="extra_cons" className="text-xs font-black text-white uppercase tracking-wider cursor-pointer">
+                                🌐 Online Architect Consultation
+                              </label>
+                              <p className="text-[10px] text-white/50 leading-relaxed font-semibold">
+                                Live virtual session with senior planning team
+                              </p>
+                            </div>
+                          </div>
+                          <span className="text-xs font-black text-gold">₹{PRICING_DATA.extra_services['online_consultation'].tiers[consultationTier].rate.toLocaleString('en-IN')}</span>
+                        </div>
+
+                        {consultation && (
+                          <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between gap-4 animate-fade-down duration-200">
+                            <span className="text-[9px] font-black text-accent uppercase tracking-widest">Select Session Tier</span>
+                            <div className="flex bg-white/5 rounded-xl p-1 border border-white/10">
+                              {PRICING_DATA.extra_services['online_consultation'].tiers.map((c, idx) => (
+                                <button
+                                  key={idx}
+                                  type="button"
+                                  onClick={() => setConsultationTier(idx)}
+                                  className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-wider transition-all ${
+                                    consultationTier === idx 
+                                      ? 'bg-accent text-primary font-black shadow-md' 
+                                      : 'text-white/60 hover:text-white'
+                                  }`}
+                                >
+                                  {c.name} (₹{c.rate.toLocaleString('en-IN')})
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Site Guidance Switches */}
+                    <div className="space-y-4 pt-4 border-t border-white/5 grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Contractor Guidance */}
+                      <button
+                        type="button"
+                        onClick={() => setContractorGuidance(prev => !prev)}
+                        className={`p-4 rounded-3xl border text-left flex justify-between items-center transition-all ${
+                          contractorGuidance ? 'bg-accent/10 border-accent/40 text-accent' : 'border-white/5 bg-[#051124]'
+                        }`}
+                      >
+                        <div className="space-y-1">
+                          <span className="text-xs font-black uppercase tracking-wider">Contractor Guidance</span>
+                          <p className="text-[9px] text-white/50 leading-relaxed font-semibold">Included in Premium</p>
+                        </div>
+                        <div className={`w-9 h-5 rounded-full p-0.5 transition-colors ${contractorGuidance ? 'bg-accent' : 'bg-white/10'}`}>
+                          <div className={`w-4 h-4 bg-primary rounded-full transition-transform ${contractorGuidance ? 'translate-x-4' : 'translate-x-0'}`}></div>
+                        </div>
+                      </button>
+
+                      {/* Material Support */}
+                      <button
+                        type="button"
+                        onClick={() => setMaterialSupport(prev => !prev)}
+                        className={`p-4 rounded-3xl border text-left flex justify-between items-center transition-all ${
+                          materialSupport ? 'bg-accent/10 border-accent/40 text-accent' : 'border-white/5 bg-[#051124]'
+                        }`}
+                      >
+                        <div className="space-y-1">
+                          <span className="text-xs font-black uppercase tracking-wider">Material Support</span>
+                          <p className="text-[9px] text-white/50 leading-relaxed font-semibold">Procurement support</p>
+                        </div>
+                        <div className={`w-9 h-5 rounded-full p-0.5 transition-colors ${materialSupport ? 'bg-accent' : 'bg-white/10'}`}>
+                          <div className={`w-4 h-4 bg-primary rounded-full transition-transform ${materialSupport ? 'translate-x-4' : 'translate-x-0'}`}></div>
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+                </Card>
+              </div>
+
+              {/* Right Column: Cost Receipt */}
+              <div className="lg:col-span-5 sticky top-28 space-y-6">
+                <Card className="glass-card border-accent/25 bg-[#08162b] rounded-[32px] p-6 md:p-8 shadow-2xl relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-accent/5 rounded-full blur-2xl pointer-events-none"></div>
+                  
+                  <div className="border-b border-white/10 pb-6 mb-6">
+                    <span className="text-[10px] font-black text-accent uppercase tracking-widest">LIVE ESTIMATION</span>
+                    <h3 className="text-xl md:text-2xl font-black text-white uppercase tracking-wider mt-1 font-sans">Calculator Receipt</h3>
+                  </div>
+
+                  {/* Calculations Details Ledger */}
+                  <div className="space-y-4 font-sans max-h-[380px] overflow-y-auto pr-1">
+                    {calculatedItems.length === 0 ? (
+                      <p className="text-xs text-white/40 italic font-semibold py-8 text-center">
+                        Select services from the configuration panel to audit your design estimate.
+                      </p>
+                    ) : (
+                      calculatedItems.map((item, idx) => (
+                        <div key={idx} className="flex justify-between items-start gap-4 border-b border-white/5 pb-3">
+                          <div className="space-y-1">
+                            <h4 className="text-[11px] font-black text-white uppercase tracking-wider leading-relaxed">{item.name}</h4>
+                            <p className="text-[10px] text-white/50 font-bold uppercase tracking-wider">{item.desc}</p>
+                          </div>
+                          <span className="text-xs font-black text-accent whitespace-nowrap">₹{item.cost.toLocaleString('en-IN')}/-</span>
+                        </div>
+                      ))
+                    )}
+                  </div>
+
+                  {/* Total pricing highlighted */}
+                  <div className="pt-6 border-t border-white/10 mt-6 space-y-4">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs font-black text-white uppercase tracking-widest">Grand Total Estimate:</span>
+                      <span className="text-2xl md:text-3xl font-black text-gold bg-gold-gradient bg-clip-text text-transparent font-sans">
+                        ₹{calculatedTotal.toLocaleString('en-IN')}/-
+                      </span>
+                    </div>
+
+                    <div className="bg-white/[0.01] border border-white/5 rounded-2xl p-4 space-y-2">
+                      <div className="flex justify-between text-[10px] font-bold text-white/60">
+                        <span>Expected Timelines:</span>
+                        <span className="text-accent uppercase tracking-wider">{area < 1500 ? '15 - 25 Working Days' : area < 3000 ? '30 - 45 Working Days' : '60+ Working Days'}</span>
+                      </div>
+                      <div className="flex justify-between text-[10px] font-bold text-white/60">
+                        <span>Drawing Set Drafts:</span>
+                        <span className="text-accent uppercase tracking-wider">3 Architectural Sets included</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Booking actions */}
+                  <div className="mt-8 space-y-3 font-sans">
+                    <Link 
+                      href="/pricing/continue?source=calculator" 
+                      onClick={handleProceedOnboarding}
+                      className="block w-full"
+                    >
+                      <Button className="w-full bg-gold-gradient text-primary font-black uppercase tracking-widest h-14 rounded-full shadow-lg m3-transition hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-1.5">
+                        Book This Estimate <ChevronRight className="h-4 w-4 stroke-[3]" />
+                      </Button>
+                    </Link>
+
+                    <Button
+                      onClick={() => handleOpenEnquiryModal({ isCalculator: true, name: "Flyer Estimate Calculator", slug: "calculator" })}
+                      className="w-full bg-accent hover:bg-accent/90 text-primary font-black uppercase tracking-widest h-12 rounded-full shadow-md transition-all active:scale-95 flex items-center justify-center gap-2"
+                    >
+                      Quick Enquiry / Poochhein
+                    </Button>
+
+                    <a 
+                      href={`https://wa.me/919631980881?text=${encodeURIComponent(getWhatsAppMessage())}`}
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="block w-full"
+                    >
+                      <Button variant="outline" className="w-full border-accent text-accent hover:bg-accent/10 font-black uppercase tracking-widest h-12 rounded-full flex items-center justify-center gap-1.5 transition-all">
+                        Get Estimate on WhatsApp
+                      </Button>
+                    </a>
+                  </div>
+                </Card>
+              </div>
+
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* STANDARD SITE SUPERVISION PACKAGES SECTION */}
+      {activeTab === 'packages' && (
+        <section className="py-10 animate-fade-in duration-300">
+          <div className="container mx-auto px-4 max-w-[95vw] xl:max-w-7xl">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
+              {supervisionPackages.map((pkg, idx) => (
+                <Card 
+                  key={idx} 
+                  className={cn(
+                    "relative glass-card border-white/10 overflow-hidden flex flex-col rounded-[32px] m3-elevation-3 transition-all duration-500 hover:scale-[1.01] hover:-translate-y-1 bg-[#08162b]",
+                    pkg.tag ? "border-accent/30 shadow-[0_4px_30px_rgba(255,207,51,0.05)]" : ""
+                  )}
+                >
+                  {/* Decorative glowing tag for best choice card */}
+                  {pkg.tag && (
+                    <div className="absolute top-0 right-0 bg-accent text-primary text-[9px] font-black py-2 px-4 rounded-bl-[16px] shadow-md uppercase tracking-widest z-10">
+                      {pkg.tag}
+                    </div>
+                  )}
+
+                  <CardContent className="p-5 md:p-6 flex-grow flex flex-col justify-between">
+                    <div className="flex-grow">
+                      {/* Header */}
+                      <div className="mb-6 font-sans">
+                        <h3 className="text-lg md:text-xl font-black text-white uppercase tracking-wider mb-3 leading-tight h-14 flex items-center">{pkg.name}</h3>
+                        <div className="inline-block bg-gold-gradient text-primary px-5 py-2.5 rounded-2xl text-xl md:text-2xl font-black shadow-lg">
+                          {pkg.isCustom ? "Custom" : `₹${pkg.price}/-`}
+                        </div>
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-accent mt-3 min-h-[32px] leading-relaxed">{pkg.suitableFor}</p>
+                      </div>
+
+                      {/* Features checklist */}
+                      <div className="py-5 border-t border-white/10">
+                        <ul className="space-y-3 font-sans">
+                          {pkg.features.map((feat, i) => (
+                            <li key={i} className="flex gap-2.5 text-xs font-semibold text-white/95 items-center">
+                              <div className="w-4.5 h-4.5 rounded-full bg-accent/15 border border-accent/30 flex items-center justify-center flex-shrink-0 text-accent">
+                                <Check className="h-2.5 w-2.5 stroke-[3]" />
+                              </div>
+                              <span>{feat}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+
+                    {/* Client Benefits section inside card */}
+                    <div className="mt-6 pt-5 border-t border-white/10 font-sans">
+                      <div className="bg-white/[0.01] border border-white/5 rounded-[20px] p-4 shadow-inner min-h-[220px]">
+                        <h4 className="text-[10px] font-black text-gold uppercase tracking-widest mb-3.5">Client Benefits</h4>
+                        <ul className="space-y-2.5">
+                          {pkg.benefits.map((benefit, i) => (
+                            <li key={i} className="flex gap-2 text-[11px] font-medium text-white/60 items-start leading-relaxed">
+                              <Check className="h-3.5 w-3.5 text-accent shrink-0 mt-0.5" />
+                              <span>{benefit}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+
+                    {/* Action buttons footer inside cards */}
+                    <div className="mt-6 font-sans">
+                      {pkg.isCustom ? (
+                        <div className="flex flex-col gap-2">
+                          <Button 
+                            onClick={() => handleOpenEnquiryModal(pkg)}
+                            className="w-full bg-accent hover:bg-accent/90 text-primary font-black uppercase tracking-wider text-[10px] h-11 rounded-full shadow-md flex items-center justify-center gap-2 transition-all active:scale-95"
+                          >
+                            Quick Enquiry / Poochhein
+                          </Button>
+                          <div className="flex gap-2">
+                            <a href="tel:+919631980881" className="flex-1">
+                              <Button variant="outline" className="w-full border-white/10 text-white hover:bg-white/5 font-black uppercase tracking-wider text-[9px] h-10 rounded-full flex items-center justify-center gap-1.5 transition-all">
+                                <Phone className="h-3 w-3 shrink-0" /> Call
+                              </Button>
+                            </a>
+                            <a 
+                              href={`https://wa.me/919631980881?text=${encodeURIComponent("Hi Galaxy Interior team, I would like to enquire about the Custom Pricing & Large Project package. Please contact me.")}`} 
+                              target="_blank" 
+                              rel="noopener noreferrer" 
+                              className="flex-1"
+                            >
+                              <Button variant="outline" className="w-full border-accent text-accent hover:bg-accent/10 font-black uppercase tracking-wider text-[9px] h-10 rounded-full flex items-center justify-center gap-1.5 transition-all">
+                                WhatsApp
+                              </Button>
+                            </a>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col gap-2">
+                          <Link href={`/pricing/continue?package=${pkg.slug}`} className="block w-full">
+                            <Button className="w-full bg-gold-gradient hover:opacity-95 text-primary font-black uppercase tracking-wider text-xs h-12 rounded-full shadow-md flex items-center justify-center gap-1.5 m3-transition hover:scale-[1.02] active:scale-[0.98] group relative overflow-hidden m3-state-layer">
+                              Book & Continue <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                            </Button>
+                          </Link>
+                          <Button 
+                            onClick={() => handleOpenEnquiryModal(pkg)}
+                            variant="outline" 
+                            className="w-full border-accent text-accent hover:bg-accent/10 font-black uppercase tracking-wider text-[10px] h-11 rounded-full flex items-center justify-center gap-2 transition-all active:scale-95"
+                          >
+                            Quick Enquiry / Poochhein
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Visited Depend Distance & Custom Info Section */}
       <section className="py-10 bg-transparent font-sans">
@@ -529,7 +1449,7 @@ I would like to enquire about the *${enquiryPkg.name}*. Here are my client detai
                 <span className="text-[10px] font-black text-accent uppercase tracking-widest">GALAXY INTERIOR</span>
                 <h3 className="text-xl md:text-2xl font-black text-white uppercase tracking-wider mt-1 leading-tight">Client Work Enquiry</h3>
                 <p className="text-[10px] text-white/50 font-semibold leading-relaxed mt-1">
-                  Inquiry Regarding Package: <span className="text-gold font-bold">{enquiryPkg.name}</span>
+                  Inquiry Regarding Plan: <span className="text-gold font-bold">{enquiryPkg.name}</span>
                 </p>
               </div>
 
@@ -541,7 +1461,7 @@ I would like to enquire about the *${enquiryPkg.name}*. Here are my client detai
                     value={enquiryData.name}
                     onChange={handleEnquiryChange}
                     required
-                    className="h-14 px-4 pt-4 pb-1 rounded-2xl border-white/20 focus:border-accent bg-white/[0.02] text-white focus:ring-0 focus-visible:ring-0 peer placeholder:text-transparent text-xs"
+                    className="h-14 px-4 pt-4 pb-1 rounded-2xl border-white/20 focus:border-accent bg-white/[0.02] text-white focus:ring-0 focus-visible:ring-0 peer placeholder:text-transparent text-xs font-sans"
                     placeholder="Name" 
                   />
                   <label className="absolute left-4 top-4 text-xs font-semibold text-white/50 uppercase tracking-widest pointer-events-none transition-all peer-placeholder-shown:text-xs peer-placeholder-shown:top-4 peer-placeholder-shown:font-semibold peer-focus:top-1.5 peer-focus:text-[9px] peer-focus:font-black peer-focus:text-gold peer-focus:tracking-widest peer-[:not(:placeholder-shown)]:top-1.5 peer-[:not(:placeholder-shown)]:text-[9px] peer-[:not(:placeholder-shown)]:font-black peer-[:not(:placeholder-shown)]:text-gold">
@@ -557,7 +1477,7 @@ I would like to enquire about the *${enquiryPkg.name}*. Here are my client detai
                     value={enquiryData.mobile}
                     onChange={handleEnquiryChange}
                     required
-                    className="h-14 px-4 pt-4 pb-1 rounded-2xl border-white/20 focus:border-accent bg-white/[0.02] text-white focus:ring-0 focus-visible:ring-0 peer placeholder:text-transparent text-xs"
+                    className="h-14 px-4 pt-4 pb-1 rounded-2xl border-white/20 focus:border-accent bg-white/[0.02] text-white focus:ring-0 focus-visible:ring-0 peer placeholder:text-transparent text-xs font-sans"
                     placeholder="Mobile Number" 
                   />
                   <label className="absolute left-4 top-4 text-xs font-semibold text-white/50 uppercase tracking-widest pointer-events-none transition-all peer-placeholder-shown:text-xs peer-placeholder-shown:top-4 peer-placeholder-shown:font-semibold peer-focus:top-1.5 peer-focus:text-[9px] peer-focus:font-black peer-focus:text-gold peer-focus:tracking-widest peer-[:not(:placeholder-shown)]:top-1.5 peer-[:not(:placeholder-shown)]:text-[9px] peer-[:not(:placeholder-shown)]:font-black peer-[:not(:placeholder-shown)]:text-gold">
@@ -572,7 +1492,7 @@ I would like to enquire about the *${enquiryPkg.name}*. Here are my client detai
                     value={enquiryData.address}
                     onChange={handleEnquiryChange}
                     required
-                    className="h-14 px-4 pt-4 pb-1 rounded-2xl border-white/20 focus:border-accent bg-white/[0.02] text-white focus:ring-0 focus-visible:ring-0 peer placeholder:text-transparent text-xs"
+                    className="h-14 px-4 pt-4 pb-1 rounded-2xl border-white/20 focus:border-accent bg-white/[0.02] text-white focus:ring-0 focus-visible:ring-0 peer placeholder:text-transparent text-xs font-sans"
                     placeholder="Address" 
                   />
                   <label className="absolute left-4 top-4 text-xs font-semibold text-white/50 uppercase tracking-widest pointer-events-none transition-all peer-placeholder-shown:text-xs peer-placeholder-shown:top-4 peer-placeholder-shown:font-semibold peer-focus:top-1.5 peer-focus:text-[9px] peer-focus:font-black peer-focus:text-gold peer-focus:tracking-widest peer-[:not(:placeholder-shown)]:top-1.5 peer-[:not(:placeholder-shown)]:text-[9px] peer-[:not(:placeholder-shown)]:font-black peer-[:not(:placeholder-shown)]:text-gold">
