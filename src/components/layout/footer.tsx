@@ -1,12 +1,11 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { Facebook, Instagram, Linkedin, Youtube, MapPin, Phone, Mail, ArrowRight } from 'lucide-react';
+import { Facebook, Instagram, Youtube, Phone, Mail, ArrowRight } from 'lucide-react';
 
 const socialLinks = [
-  { name: 'Facebook', icon: <Facebook className="h-5 w-5" />, href: '#' },
-  { name: 'Instagram', icon: <Instagram className="h-5 w-5" />, href: '#' },
-  { name: 'LinkedIn', icon: <Linkedin className="h-5 w-5" />, href: '#' },
+  { name: 'Facebook', icon: <Facebook className="h-5 w-5" />, href: 'https://www.facebook.com/share/1CtjPKYSbr/' },
+  { name: 'Instagram', icon: <Instagram className="h-5 w-5" />, href: 'https://www.instagram.com/galaxy.interior05?igsh=MTNhajZpbnUwcDIwbA==' },
   { name: 'YouTube', icon: <Youtube className="h-5 w-5" />, href: 'https://www.youtube.com/channel/UCl0XEaJwoo_1rQ0w-bxCOZg' },
 ];
 
@@ -71,7 +70,7 @@ export default function Footer() {
               <span>PURNEA</span> <span className="text-accent">|</span>
               <span>KISHANGANJ</span>
             </div>
-            
+
             <div className="mt-8 pt-8 border-t border-white/10 flex flex-col sm:flex-row gap-x-8 gap-y-4 text-white/60 text-sm">
               <div className="flex gap-3 items-center">
                 <Phone className="h-5 w-5 text-primary shrink-0" />
