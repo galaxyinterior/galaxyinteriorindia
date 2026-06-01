@@ -220,6 +220,16 @@ const supervisionPackages = [
   }
 ];
 
+const whyChooseItems = [
+  { title: "Professional Site Management", icon: Activity },
+  { title: "Expert Planning & Coordination", icon: FileText },
+  { title: "Smooth Construction Execution", icon: ShieldCheck },
+  { title: "Better Labour & Material Management", icon: Users },
+  { title: "Time-Saving Professional Support", icon: Clock },
+  { title: "Trusted Construction Guidance", icon: Award },
+  { title: "Customized Packages Available", icon: HelpCircle }
+];
+
 // Bespoke Estimator Constants
 const BESPOKE_TIER_PRICING = {
   standard: {
