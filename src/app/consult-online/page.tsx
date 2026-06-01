@@ -627,18 +627,28 @@ export default function ConsultOnlinePage() {
 
       setPaymentSuccess(true);
       
-      // Send dynamic WhatsApp overview
-      const whatsMessage = `*GALAXY INTERIOR - Project Initialized (${projectSegment === "commercial" ? "Commercial 🏢" : "Residential 🏠"})*
-----------------------------------------
-*Account Owner:* ${userProfile.name}
-*Phone:* ${userProfile.phone}
-*Base Plan:* ${activePkg.name} (Offline Payment / Setup)
-*Property Type:* ${propertyType}
-*Floors / Space:* ${floorsCount}
-*Custom Options:* ${customServicesNames.join(", ")}
-*Site Location:* ${siteLocation}
-*Area Sizing:* ${plotSize} Sqft
-*Remarks:* ${specialRemarks || 'N/A'}`;
+      // Trigger Webhook post to Make.com for email notification
+      fetch("https://hook.eu1.make.com/xv4lp625r8o1ree9sgyd7416dkn4kz7n", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          accountOwner: userProfile.name || "Client",
+          phone: userProfile.phone || "N/A",
+          email: currentUser.email || "N/A",
+          segment: projectSegment,
+          basePlan: activePkg.name,
+          propertyType: propertyType,
+          floors: floorsCount,
+          customOptions: customServicesNames,
+          siteLocation: siteLocation,
+          areaSize: plotSize,
+          remarks: specialRemarks || ""
+        })
+      }).catch(err => {
+        console.error("Webhook POST failure:", err);
+      });
 
       setTimeout(() => {
         setPaymentLoading(false);
@@ -649,10 +659,6 @@ export default function ConsultOnlinePage() {
         setFloorsCount("1");
         setSpecialRemarks("");
         setActiveTab("projects");
-        
-        // Fast-path redirection to WhatsApp desk
-        const waUrl = `https://wa.me/919631980881?text=${encodeURIComponent(whatsMessage)}`;
-        window.open(waUrl, "_blank");
       }, 2000);
 
     } catch (err: any) {
