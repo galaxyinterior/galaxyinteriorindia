@@ -51,56 +51,7 @@
     background-color: hsl(215, 90%, 6%);
   }
   h1, h2, h3, h4, h5, h6 {
-    @apply font-display text-white;
-  }
-}
-
-/* Redefining Tailwind defaults to transition light elements seamlessly into luxury dark mode */
-@layer utilities {
-  .bg-white {
-    background-color: hsl(215, 80% 9%) !important;
-  }
-  
-  .bg-gray-50 {
-    background-color: hsl(215, 70% 12%) !important;
-  }
-
-  .bg-gray-100 {
-    background-color: hsl(215, 60% 15%) !important;
-  }
-
-  .text-gray-900 {
-    color: hsl(210, 20%, 96%) !important;
-  }
-
-  .text-gray-800 {
-    color: hsl(210, 20%, 92%) !important;
-  }
-
-  .text-gray-700 {
-    color: hsl(210, 15%, 86%) !important;
-  }
-
-  .text-gray-600 {
-    color: hsl(210, 15%, 78%) !important;
-  }
-
-  .text-gray-500 {
-    color: hsl(210, 15%, 70%) !important;
-  }
-
-  .border-gray-100, .border-gray-200 {
-    border-color: hsl(215, 40%, 18%) !important;
-  }
-  
-  /* Buttons and Badge overrides to prevent flat grey / white boxes */
-  .bg-primary {
-    background-color: hsl(215, 85%, 12%) !important;
-    color: hsl(210, 20%, 98%) !important;
-  }
-
-  .hover\:bg-primary\/90:hover {
-    background-color: hsl(215, 85%, 16%) !important;
+    @apply font-display;
   }
 }
 

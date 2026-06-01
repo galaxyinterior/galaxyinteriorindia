@@ -105,7 +105,7 @@ export default function InteriorProjectsPage() {
             Turn your empty civil shells into a high-end luxury haven. Complete materials, skilled craftsmanship, and transparent pricing under one unified roof.
           </p>
           <Button asChild className="mt-10 rounded-full px-6 md:px-10 h-11 md:h-14 text-xs md:text-sm font-black uppercase tracking-[0.15em] bg-accent hover:bg-accent/90 text-primary shadow-lg shadow-accent/20 hover:scale-105 active:scale-95 transition-all">
-            <Link href="/services/interior-projects/estimate" className="flex items-center gap-2">
+            <Link href="/pricing?tab=interior-estimate" className="flex items-center gap-2">
               <Calculator className="w-5 h-5" />
               Use Instant Cost Estimate Maker
             </Link>
@@ -184,7 +184,7 @@ export default function InteriorProjectsPage() {
                 {/* Footer Link */}
                 <div className="px-8 pb-8 pt-4">
                   <Button asChild className="w-full rounded-full h-12 font-black uppercase tracking-wider bg-accent hover:bg-accent/90 text-primary transition-all">
-                    <Link href={`/services/interior-projects/estimate?type=${pkg.slug}`}>
+                    <Link href={`/pricing?tab=interior-estimate&type=${pkg.slug}`}>
                       Calculate {pkg.slug === "customized" ? "Bespoke" : pkg.slug.toUpperCase()} Estimate
                       <ArrowRight className="w-4 h-4 ml-2" />
                     </Link>

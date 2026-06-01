@@ -27,6 +27,7 @@ const config = {
         display: ['"Google Sans"', 'var(--font-poppins)', 'sans-serif'],
       },
       colors: {
+        'galaxy-dark': '#051124',
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',

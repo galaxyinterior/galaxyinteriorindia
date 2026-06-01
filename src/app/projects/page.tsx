@@ -363,7 +363,7 @@ export default function ProjectsPage() {
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <Button asChild className="rounded-full h-12 px-8 font-black uppercase tracking-wider bg-accent hover:bg-accent/90 text-primary">
-              <Link href="/services/interior-projects/estimate">
+              <Link href="/pricing?tab=interior-estimate">
                 Instant Estimate Calculator
                 <ArrowRight className="w-4 h-4 ml-1" />
               </Link>
