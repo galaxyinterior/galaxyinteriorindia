@@ -193,6 +193,7 @@ export default function ConsultOnlinePage() {
 
   // Profile Edit states
   const [editName, setEditName] = useState("");
+  const [editAge, setEditAge] = useState("");
   const [editPhone, setEditPhone] = useState("");
   const [editAddress, setEditAddress] = useState("");
   const [editLoading, setEditLoading] = useState(false);
@@ -250,6 +251,7 @@ export default function ConsultOnlinePage() {
         const data = userSnapshot.data();
         setUserProfile(data);
         setEditName(data.name || "");
+        setEditAge(data.age ? String(data.age) : "");
         setEditPhone(data.phone || "");
         setEditAddress(data.address || "");
 
@@ -268,8 +270,10 @@ export default function ConsultOnlinePage() {
           uid: user.uid,
           name: user.displayName || "",
           email: user.email || "",
+          age: "",
           phone: "",
           address: "",
+          membershipType: "Standard Member",
           provider: user.providerData[0]?.providerId || "google",
           createdAt: new Date().toISOString()
         };
@@ -405,8 +409,10 @@ export default function ConsultOnlinePage() {
         uid: user.uid,
         name: onboardName,
         email: onboardEmail,
+        age: "",
         phone: onboardPhone,
         address: onboardAddress,
+        membershipType: "Standard Member",
         provider: "email",
         createdAt: new Date().toISOString()
       };
@@ -498,7 +504,7 @@ export default function ConsultOnlinePage() {
     setEditLoading(true);
     setEditSuccess(false);
 
-    if (!editName || !editPhone || !editAddress) {
+    if (!editName || !editAge || !editPhone || !editAddress) {
       alert("All fields are required.");
       setEditLoading(false);
       return;
@@ -508,13 +514,15 @@ export default function ConsultOnlinePage() {
       const userRef = doc(db, "users", currentUser.uid);
       await setDoc(userRef, {
         name: editName,
+        age: editAge,
         phone: editPhone,
         address: editAddress
       }, { merge: true });
-
+      
       setUserProfile((prev: any) => ({
         ...prev,
         name: editName,
+        age: editAge,
         phone: editPhone,
         address: editAddress
       }));
@@ -1824,6 +1832,50 @@ export default function ConsultOnlinePage() {
                   <p className="text-xs text-white/50 mt-1 font-medium">Update account names, contact information, and coordinates.</p>
                 </div>
 
+                <Card className="glass-card border-accent/20 bg-[#08162d] rounded-[24px] p-6 shadow-md">
+                  <div className="flex items-start justify-between gap-4 border-b border-white/5 pb-4 mb-5">
+                    <div>
+                      <p className="text-[9px] font-black text-accent uppercase tracking-[0.25em]">Profile Overview</p>
+                      <h2 className="text-xl font-black text-white mt-1 font-display">Your account details</h2>
+                    </div>
+                    <div className="h-12 w-12 rounded-2xl bg-accent/10 border border-accent/20 flex items-center justify-center">
+                      <User className="w-6 h-6 text-accent" />
+                    </div>
+                  </div>
+
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-4">
+                      <p className="text-[9px] font-black uppercase tracking-widest text-white/40">Name</p>
+                      <p className="mt-1 text-sm font-bold text-white break-words">{userProfile?.name || "Not available"}</p>
+                    </div>
+                    <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-4">
+                      <p className="text-[9px] font-black uppercase tracking-widest text-white/40">Email</p>
+                      <p className="mt-1 text-sm font-bold text-white break-words">{currentUser?.email || userProfile?.email || "Not available"}</p>
+                    </div>
+                    <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-4">
+                      <p className="text-[9px] font-black uppercase tracking-widest text-white/40">Age</p>
+                      <p className="mt-1 text-sm font-bold text-white">{userProfile?.age || "Not added"}</p>
+                    </div>
+                    <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-4">
+                      <p className="text-[9px] font-black uppercase tracking-widest text-white/40">Membership Type</p>
+                      <p className="mt-1 text-sm font-bold text-white">{userProfile?.membershipType || "Standard Member"}</p>
+                    </div>
+                    <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-4 sm:col-span-2">
+                      <p className="text-[9px] font-black uppercase tracking-widest text-white/40">Location</p>
+                      <p className="mt-1 text-sm font-bold text-white break-words">{userProfile?.address || "Not available"}</p>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    <Badge className="bg-accent/15 text-accent border border-accent/20 text-[8px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full">
+                      {userProfile?.provider || "google"} account
+                    </Badge>
+                    <Badge className="bg-emerald-500/15 text-emerald-300 border border-emerald-500/20 text-[8px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full">
+                      Verified session
+                    </Badge>
+                  </div>
+                </Card>
+
                 <Card className="glass-card border-white/5 bg-[#08162d] rounded-[24px] p-6 shadow-md">
                   {editSuccess && (
                     <div className="mb-5 p-3.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-200 text-xs rounded-xl font-semibold flex items-center gap-2">
@@ -1839,6 +1891,20 @@ export default function ConsultOnlinePage() {
                         type="text"
                         value={editName}
                         onChange={(e) => setEditName(e.target.value)}
+                        disabled={editLoading}
+                        className="h-13 bg-white/[0.02] border-white/10 rounded-xl focus:border-accent text-white font-sans"
+                        required
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-black text-white/50 uppercase tracking-widest pl-1 block font-sans">Age</label>
+                      <Input
+                        type="number"
+                        min="1"
+                        max="120"
+                        value={editAge}
+                        onChange={(e) => setEditAge(e.target.value)}
                         disabled={editLoading}
                         className="h-13 bg-white/[0.02] border-white/10 rounded-xl focus:border-accent text-white font-sans"
                         required
