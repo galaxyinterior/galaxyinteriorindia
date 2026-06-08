@@ -1,13 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { collection, addDoc, serverTimestamp, onSnapshot, query, orderBy, deleteDoc, doc } from "firebase/firestore";
-import { storage, db } from "@/lib/firebase";
+import { db } from "@/lib/firebase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ImageIcon, UploadCloud, CheckCircle2, Loader2, AlertCircle } from "lucide-react";
+import { validateImageFile, uploadImageToStorage } from "@/lib/media-upload";
 
 export default function GalleryAdminPage() {
   const [singleFile, setSingleFile] = useState<File | null>(null);
@@ -54,14 +54,19 @@ export default function GalleryAdminPage() {
     try {
       let url = singleUrlLink;
       if (singleFile) {
-        const fileRef = ref(storage, `gallery/${Date.now()}_${singleFile.name}`);
-        await uploadBytesResumable(fileRef, singleFile);
-        url = await getDownloadURL(fileRef);
+        const fileError = validateImageFile(singleFile);
+        if (fileError) {
+          setStatus({ type: 'error', msg: fileError });
+          setLoading(false);
+          return;
+        }
+        url = await uploadImageToStorage(singleFile, "gallery");
       }
       
       await addDoc(collection(db, "gallery"), {
         title: singleTitle || "Untitled",
         url,
+        storageType: singleFile ? "firebase-storage" : "external-link",
         createdAt: serverTimestamp()
       });
       
@@ -124,18 +129,32 @@ export default function GalleryAdminPage() {
                 />
               </div>
               <div className="space-y-4 border border-white/5 p-4 rounded-xl bg-white/5">
-                <div className="space-y-2 opacity-50 relative group">
-                  <label className="text-xs font-bold text-white/50 block uppercase tracking-widest">Option 1: Upload File (Disabled)</label>
-                  <div className="absolute -top-10 left-0 bg-red-900/90 text-white text-xs px-3 py-1 rounded hidden group-hover:block z-10 whitespace-nowrap">
-                     Uploading files requires configured container storage. Please use Links.
-                  </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-white/50 block uppercase tracking-widest">Option 1: Upload Image File</label>
                   <Input 
                     id="singleFile"
                     type="file" 
                     accept="image/*"
-                    disabled={true}
-                    className="bg-[#051124] border-white/10 text-white/40"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0] || null;
+                      if (!file) {
+                        setSingleFile(null);
+                        return;
+                      }
+                      const fileError = validateImageFile(file);
+                      if (fileError) {
+                        setStatus({ type: 'error', msg: fileError });
+                        e.currentTarget.value = "";
+                        setSingleFile(null);
+                        return;
+                      }
+                      setSingleFile(file);
+                      setSingleUrlLink("");
+                    }}
+                    disabled={loading}
+                    className="bg-[#051124] border-white/10 text-white"
                   />
+                  <p className="text-[10px] text-white/30">Max size: 1 MB. Larger images will be blocked.</p>
                 </div>
                 <div className="relative flex items-center py-1">
                     <div className="flex-grow border-t border-white/10"></div>

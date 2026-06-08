@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { collection, addDoc, serverTimestamp, onSnapshot, query, orderBy, deleteDoc, doc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { validateImageFile, uploadImageToStorage } from "@/lib/media-upload";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -15,6 +16,7 @@ export default function AdminProductsPage() {
   const [category, setCategory] = useState("kitchen");
   const [price, setPrice] = useState("");
   const [imageUrl, setImageUrl] = useState("");
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const [specifications, setSpecifications] = useState("");
   const [description, setDescription] = useState("");
 
@@ -23,6 +25,7 @@ export default function AdminProductsPage() {
   const [editCategory, setEditCategory] = useState("kitchen");
   const [editPrice, setEditPrice] = useState("");
   const [editImageUrl, setEditImageUrl] = useState("");
+  const [editImageFile, setEditImageFile] = useState<File | null>(null);
   const [editSpecifications, setEditSpecifications] = useState("");
   const [editDescription, setEditDescription] = useState("");
 
@@ -49,19 +52,30 @@ export default function AdminProductsPage() {
 
   const handleAddProduct = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !price || !imageUrl || !description || !specifications) {
+    if (!name || !price || (!imageUrl && !imageFile) || !description || !specifications) {
       setUploadStatus({ type: 'error', msg: "Please fill in all required fields." });
       return;
     }
     setLoading(true);
     setUploadStatus({ type: 'idle', msg: "Saving product to catalog..." });
     try {
+      let finalImageUrl = imageUrl;
+      if (imageFile) {
+        const fileError = validateImageFile(imageFile);
+        if (fileError) {
+          setUploadStatus({ type: 'error', msg: fileError });
+          setLoading(false);
+          return;
+        }
+        finalImageUrl = await uploadImageToStorage(imageFile, "products");
+      }
       await addDoc(collection(db, "products"), {
-        name, category, price: Number(price), image: imageUrl, specifications, description,
+        name, category, price: Number(price), image: finalImageUrl, specifications, description,
+        storageType: imageFile ? "firebase-storage" : "external-link",
         createdAt: serverTimestamp()
       });
       setUploadStatus({ type: 'success', msg: "Product added successfully!" });
-      setName(""); setCategory("kitchen"); setPrice(""); setImageUrl(""); setSpecifications(""); setDescription("");
+      setName(""); setCategory("kitchen"); setPrice(""); setImageUrl(""); setImageFile(null); setSpecifications(""); setDescription("");
     } catch (err: any) {
       console.error("Failed to add product:", err);
       setUploadStatus({ type: 'error', msg: `Saving failed: ${err.message}` });
@@ -72,22 +86,33 @@ export default function AdminProductsPage() {
   const openEditModal = (product: any) => {
     setEditingProduct(product);
     setEditName(product.name); setEditCategory(product.category || "kitchen"); setEditPrice(String(product.price));
-    setEditImageUrl(product.image); setEditSpecifications(product.specifications); setEditDescription(product.description);
+    setEditImageUrl(product.image); setEditImageFile(null); setEditSpecifications(product.specifications); setEditDescription(product.description);
   };
   const closeEditModal = () => setEditingProduct(null);
 
   const handleUpdateProduct = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!editingProduct || !editName || !editPrice || !editImageUrl || !editDescription || !editSpecifications) {
+    if (!editingProduct || !editName || !editPrice || (!editImageUrl && !editImageFile) || !editDescription || !editSpecifications) {
       alert("Please fill in all fields.");
       return;
     }
     setEditLoading(true);
     try {
+      let finalImageUrl = editImageUrl;
+      if (editImageFile) {
+        const fileError = validateImageFile(editImageFile);
+        if (fileError) {
+          alert(fileError);
+          setEditLoading(false);
+          return;
+        }
+        finalImageUrl = await uploadImageToStorage(editImageFile, "products");
+      }
       const productRef = doc(db, "products", editingProduct.id);
       await updateDoc(productRef, {
         name: editName, category: editCategory, price: Number(editPrice),
-        image: editImageUrl, specifications: editSpecifications, description: editDescription,
+        image: finalImageUrl, specifications: editSpecifications, description: editDescription,
+        storageType: editImageFile ? "firebase-storage" : "external-link",
         updatedAt: serverTimestamp()
       });
       setEditingProduct(null);
@@ -162,9 +187,35 @@ export default function AdminProductsPage() {
                 </div>
 
                 <div className="space-y-1.5">
+                  <label className={labelClass}>Upload Product Image</label>
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0] || null;
+                      if (!file) {
+                        setImageFile(null);
+                        return;
+                      }
+                      const fileError = validateImageFile(file);
+                      if (fileError) {
+                        setUploadStatus({ type: 'error', msg: fileError });
+                        e.currentTarget.value = "";
+                        setImageFile(null);
+                        return;
+                      }
+                      setImageFile(file);
+                      setImageUrl("");
+                    }}
+                    disabled={loading}
+                    className={inputClass}
+                  />
+                  <p className="text-[10px] text-white/20">Max image size: 1 MB.</p>
+                </div>
+                <div className="space-y-1.5">
                   <label className={labelClass}>Image Link URL</label>
-                  <Input placeholder="https://example.com/product-image.png" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} disabled={loading} required className={inputClass} />
-                  <p className="text-[10px] text-white/20">Use generated watermarked links from public folders or galleries.</p>
+                  <Input placeholder="https://example.com/product-image.png" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} disabled={loading || !!imageFile} className={inputClass} />
+                  <p className="text-[10px] text-white/20">Link is optional if you upload a file.</p>
                 </div>
                 <div className="space-y-1.5">
                   <label className={labelClass}>Specifications (Comma separated)</label>
@@ -270,8 +321,34 @@ export default function AdminProductsPage() {
                   </div>
                 </div>
                 <div className="space-y-1.5">
+                  <label className={labelClass}>Upload New Image</label>
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0] || null;
+                      if (!file) {
+                        setEditImageFile(null);
+                        return;
+                      }
+                      const fileError = validateImageFile(file);
+                      if (fileError) {
+                        alert(fileError);
+                        e.currentTarget.value = "";
+                        setEditImageFile(null);
+                        return;
+                      }
+                      setEditImageFile(file);
+                      setEditImageUrl("");
+                    }}
+                    disabled={editLoading}
+                    className={inputClass}
+                  />
+                  <p className="text-[10px] text-white/20">Max image size: 1 MB.</p>
+                </div>
+                <div className="space-y-1.5">
                   <label className={labelClass}>Image Link URL</label>
-                  <Input value={editImageUrl} onChange={(e) => setEditImageUrl(e.target.value)} disabled={editLoading} required className={inputClass} />
+                  <Input value={editImageUrl} onChange={(e) => setEditImageUrl(e.target.value)} disabled={editLoading || !!editImageFile} className={inputClass} />
                 </div>
                 <div className="space-y-1.5">
                   <label className={labelClass}>Specifications (Comma separated)</label>

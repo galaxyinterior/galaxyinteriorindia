@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { collection, addDoc, serverTimestamp, onSnapshot, query, orderBy, deleteDoc, doc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { validateImageFile, uploadImageToStorage } from "@/lib/media-upload";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -15,6 +16,7 @@ export default function AdminProjectsPage() {
   const [category, setCategory] = useState("interior");
   const [status, setStatus] = useState("completed");
   const [imageUrl, setImageUrl] = useState("");
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const [location, setLocation] = useState("");
   const [description, setDescription] = useState("");
 
@@ -23,6 +25,7 @@ export default function AdminProjectsPage() {
   const [editCategory, setEditCategory] = useState("interior");
   const [editStatus, setEditStatus] = useState("completed");
   const [editImageUrl, setEditImageUrl] = useState("");
+  const [editImageFile, setEditImageFile] = useState<File | null>(null);
   const [editLocation, setEditLocation] = useState("");
   const [editDescription, setEditDescription] = useState("");
 
@@ -56,20 +59,31 @@ export default function AdminProjectsPage() {
 
   const handleAddProject = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title || !imageUrl || !location || !description) {
+    if (!title || (!imageUrl && !imageFile) || !location || !description) {
       setUploadStatus({ type: 'error', msg: "Please fill in all required fields." });
       return;
     }
     setLoading(true);
     setUploadStatus({ type: 'idle', msg: "Saving project details to database..." });
     try {
+      let finalImageUrl = imageUrl;
+      if (imageFile) {
+        const fileError = validateImageFile(imageFile);
+        if (fileError) {
+          setUploadStatus({ type: 'error', msg: fileError });
+          setLoading(false);
+          return;
+        }
+        finalImageUrl = await uploadImageToStorage(imageFile, "projects");
+      }
       await addDoc(collection(db, "projects"), {
-        title, category, status, image: imageUrl, location, description,
+        title, category, status, image: finalImageUrl, location, description,
+        storageType: imageFile ? "firebase-storage" : "external-link",
         createdAt: serverTimestamp()
       });
       setUploadStatus({ type: 'success', msg: "Project added successfully!" });
       setTitle(""); setCategory("interior"); setStatus("completed");
-      setImageUrl(""); setLocation(""); setDescription("");
+      setImageUrl(""); setImageFile(null); setLocation(""); setDescription("");
     } catch (err: any) {
       console.error("Failed to add project:", err);
       setUploadStatus({ type: 'error', msg: `Saving failed: ${err.message}` });
@@ -83,6 +97,7 @@ export default function AdminProjectsPage() {
     setEditCategory(project.category || "interior");
     setEditStatus(project.status || "completed");
     setEditImageUrl(project.image);
+    setEditImageFile(null);
     setEditLocation(project.location);
     setEditDescription(project.description);
   };
@@ -92,16 +107,27 @@ export default function AdminProjectsPage() {
   const handleUpdateProject = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingProject) return;
-    if (!editTitle || !editImageUrl || !editLocation || !editDescription) {
+    if (!editTitle || (!editImageUrl && !editImageFile) || !editLocation || !editDescription) {
       alert("Please fill in all fields.");
       return;
     }
     setEditLoading(true);
     try {
+      let finalImageUrl = editImageUrl;
+      if (editImageFile) {
+        const fileError = validateImageFile(editImageFile);
+        if (fileError) {
+          alert(fileError);
+          setEditLoading(false);
+          return;
+        }
+        finalImageUrl = await uploadImageToStorage(editImageFile, "projects");
+      }
       const projectRef = doc(db, "projects", editingProject.id);
       await updateDoc(projectRef, {
         title: editTitle, category: editCategory, status: editStatus,
-        image: editImageUrl, location: editLocation, description: editDescription,
+        image: finalImageUrl, location: editLocation, description: editDescription,
+        storageType: editImageFile ? "firebase-storage" : "external-link",
         updatedAt: serverTimestamp()
       });
       setEditingProject(null);
@@ -182,9 +208,35 @@ export default function AdminProjectsPage() {
                   <Input placeholder="e.g. Ranchi, Jharkhand" value={location} onChange={(e) => setLocation(e.target.value)} disabled={loading} required className={inputClass} />
                 </div>
                 <div className="space-y-1.5">
+                  <label className={labelClass}>Upload Project Image</label>
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0] || null;
+                      if (!file) {
+                        setImageFile(null);
+                        return;
+                      }
+                      const fileError = validateImageFile(file);
+                      if (fileError) {
+                        setUploadStatus({ type: 'error', msg: fileError });
+                        e.currentTarget.value = "";
+                        setImageFile(null);
+                        return;
+                      }
+                      setImageFile(file);
+                      setImageUrl("");
+                    }}
+                    disabled={loading}
+                    className={inputClass}
+                  />
+                  <p className="text-[10px] text-white/20">Max image size: 1 MB.</p>
+                </div>
+                <div className="space-y-1.5">
                   <label className={labelClass}>Image Link URL</label>
-                  <Input placeholder="https://example.com/project-image.png" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} disabled={loading} required className={inputClass} />
-                  <p className="text-[10px] text-white/20">Use watermarked links from active albums or generated sets.</p>
+                  <Input placeholder="https://example.com/project-image.png" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} disabled={loading || !!imageFile} className={inputClass} />
+                  <p className="text-[10px] text-white/20">Link is optional if you upload a file.</p>
                 </div>
                 <div className="space-y-1.5">
                   <label className={labelClass}>Description</label>
@@ -292,8 +344,34 @@ export default function AdminProjectsPage() {
                   <Input value={editLocation} onChange={(e) => setEditLocation(e.target.value)} disabled={editLoading} required className={inputClass} />
                 </div>
                 <div className="space-y-1.5">
+                  <label className={labelClass}>Upload New Image</label>
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0] || null;
+                      if (!file) {
+                        setEditImageFile(null);
+                        return;
+                      }
+                      const fileError = validateImageFile(file);
+                      if (fileError) {
+                        alert(fileError);
+                        e.currentTarget.value = "";
+                        setEditImageFile(null);
+                        return;
+                      }
+                      setEditImageFile(file);
+                      setEditImageUrl("");
+                    }}
+                    disabled={editLoading}
+                    className={inputClass}
+                  />
+                  <p className="text-[10px] text-white/20">Max image size: 1 MB.</p>
+                </div>
+                <div className="space-y-1.5">
                   <label className={labelClass}>Image Link URL</label>
-                  <Input value={editImageUrl} onChange={(e) => setEditImageUrl(e.target.value)} disabled={editLoading} required className={inputClass} />
+                  <Input value={editImageUrl} onChange={(e) => setEditImageUrl(e.target.value)} disabled={editLoading || !!editImageFile} className={inputClass} />
                 </div>
                 <div className="space-y-1.5">
                   <label className={labelClass}>Description</label>

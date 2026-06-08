@@ -1,14 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { collection, addDoc, serverTimestamp, onSnapshot, query, orderBy, deleteDoc, doc } from "firebase/firestore";
-import { storage, db } from "@/lib/firebase";
+import { db } from "@/lib/firebase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MonitorPlay, CheckCircle2, Loader2, AlertCircle } from "lucide-react";
+import { validateImageFile, uploadImageToStorage } from "@/lib/media-upload";
 
 export default function SlideshowAdminPage() {
   const [file, setFile] = useState<File | null>(null);
@@ -56,12 +56,17 @@ export default function SlideshowAdminPage() {
     try {
       let finalUrl = mediaUrlLink;
       if (file) {
-        const fileRef = ref(storage, `slideshow/${Date.now()}_${file.name}`);
-        await uploadBytesResumable(fileRef, file);
-        finalUrl = await getDownloadURL(fileRef);
+        const fileError = validateImageFile(file);
+        if (fileError) {
+          setStatus({ type: 'error', msg: fileError });
+          setLoading(false);
+          return;
+        }
+        finalUrl = await uploadImageToStorage(file, "slideshow");
       }
       await addDoc(collection(db, "slideshow"), {
         type: mediaType, url: finalUrl, heading, subheading, price: priceTag,
+        storageType: file ? "firebase-storage" : "external-link",
         createdAt: serverTimestamp()
       });
       setStatus({ type: 'success', msg: "New slide successfully added to homepage!" });
@@ -115,12 +120,36 @@ export default function SlideshowAdminPage() {
                 </div>
                 
                 <div className="space-y-4 border border-white/5 p-4 rounded-xl bg-white/5">
-                  <div className="space-y-2 opacity-50 relative group">
-                    <label className={`${labelClass} block`}>Option 1: Upload File (Disabled)</label>
-                    <div className="absolute -top-10 left-0 bg-red-900/90 text-white text-xs px-3 py-1 rounded hidden group-hover:block z-10 whitespace-nowrap">
-                       Uploading files requires configured container storage. Please use Links.
-                    </div>
-                    <Input id="slideMedia" type="file" accept={mediaType === 'image' ? "image/*" : "video/*"} disabled={true} className={inputClass} />
+                  <div className="space-y-2">
+                    <label className={`${labelClass} block`}>Option 1: Upload File</label>
+                    <Input
+                      id="slideMedia"
+                      type="file"
+                      accept={mediaType === 'image' ? "image/*" : "video/*"}
+                      onChange={(e) => {
+                        const selected = e.target.files?.[0] || null;
+                        if (!selected) {
+                          setFile(null);
+                          return;
+                        }
+                        if (mediaType === "image") {
+                          const fileError = validateImageFile(selected);
+                          if (fileError) {
+                            setStatus({ type: 'error', msg: fileError });
+                            e.currentTarget.value = "";
+                            setFile(null);
+                            return;
+                          }
+                        }
+                        setFile(selected);
+                        setMediaUrlLink("");
+                      }}
+                      disabled={loading}
+                      className={inputClass}
+                    />
+                    <p className="text-[10px] text-white/30">
+                      {mediaType === "image" ? "Image limit: 1 MB." : "Video uploads do not have the 1 MB image limit."}
+                    </p>
                   </div>
                   <div className="relative flex items-center py-1">
                       <div className="flex-grow border-t border-white/10"></div>
