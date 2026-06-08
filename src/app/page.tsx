@@ -19,31 +19,6 @@ import { collection, addDoc, serverTimestamp, onSnapshot, query, orderBy } from 
 import { Card, CardContent } from '@/components/ui/card';
 import { MessageCircle, Mail, ChevronRight, Star } from 'lucide-react';
 
-// Residential Datasets (Houses, Flats, Living Rooms)
-const residentialHeroSlides = [
-  {
-    type: 'video',
-    url: 'https://assets.mixkit.co/videos/preview/mixkit-interior-of-a-modern-living-room-4142-large.mp4',
-    heading: "India's Most Trusted Interior Company",
-    subheading: "Luxury Architecture & Premium Interior Solutions for Jharkhand's Elite.",
-    price: 'Starting at 6.3 Lac*'
-  },
-  {
-    type: 'image',
-    url: '/generated/hero_interior_1.png',
-    heading: 'Designing Dreams, Delivering Peace',
-    subheading: 'Experience the future of home design with our advanced 3D & VR planning.',
-    price: 'Bespoke Plans Available'
-  },
-  {
-    type: 'image',
-    url: '/generated/hero_exterior_1.png',
-    heading: 'Bespoke Craftsmanship',
-    subheading: 'From conceptual sketches to final handover, we build with precision.',
-    price: 'Quality You Can Trust'
-  }
-];
-
 const residentialServices = [
   { name: 'Architectural Plan', slug: 'architectural-plan', image: '/generated/hero_exterior_1.png', desc: 'Modern architectural & structural blueprints for your dream home.' },
   { name: '2D Floor Plan', slug: '2d-plan', image: '/generated/proc_planning.png', desc: 'Detailed 2D floor plans ensuring solid foundations and accurate mapping.' },
@@ -59,31 +34,6 @@ const residentialFurniture = [
   { name: 'Designer King Bed', category: 'Home', image: '/generated/furniture_bed.png', price: 'Grand' },
   { name: 'Sleek Glass Wardrobe', category: 'Home', image: '/generated/furniture_wardrobe.png', price: 'Modern' },
   { name: 'Modern Coffee Table', category: 'Home', image: '/generated/furniture_coffee_table.png', price: 'Chic' },
-];
-
-// Commercial Datasets (Malls, Clinics, Offices, Shops)
-const commercialHeroSlides = [
-  {
-    type: 'image',
-    url: '/generated/hero_exterior_1.png',
-    heading: "Corporate Head Offices & Retail Malls",
-    subheading: "Advanced structural blueprints and premium interior mapping for corporate offices, retail showrooms, and clinics.",
-    price: 'Starting at 12.5 Lac*'
-  },
-  {
-    type: 'image',
-    url: '/generated/srv_construction.png',
-    heading: 'Smart Offices, High Productivity',
-    subheading: 'Experience modern office designs with state-of-the-art acoustic setups, smart cabins, and lobbies.',
-    price: 'Layout Plans Included'
-  },
-  {
-    type: 'image',
-    url: '/generated/srv_interior.png',
-    heading: 'Luxury Malls & Shop Outlets',
-    subheading: 'Turnkey execution of elegant shopping showrooms and multi-floor clinics across Jharkhand.',
-    price: 'Elite Craftsmanship'
-  }
 ];
 
 const commercialServices = [
@@ -172,6 +122,7 @@ export default function HomePage() {
   const [isMuted, setIsMuted] = React.useState(true);
   const [activeIndex, setActiveIndex] = React.useState(0);
   const [furnitureFilter, setFurnitureFilter] = React.useState('All');
+  const [heroSlides, setHeroSlides] = React.useState<any[]>([]);
 
   // Expertise & Furniture slide indices for mobile carousels
   const [activeServiceIndex, setActiveServiceIndex] = React.useState(0);
@@ -276,6 +227,21 @@ export default function HomePage() {
     return () => unsubscribe();
   }, []);
 
+  React.useEffect(() => {
+    const q = query(collection(db, "slideshow"), orderBy("createdAt", "desc"));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const fetched = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setHeroSlides(fetched);
+    }, (error) => {
+      console.warn("Firestore slideshow error:", error);
+      setHeroSlides([]);
+    });
+    return () => unsubscribe();
+  }, []);
+
   const handleReviewSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!reviewName.trim() || !reviewComment.trim()) {
@@ -322,7 +288,7 @@ export default function HomePage() {
 
 
   // Dynamically swap datasets based on switch notch mode
-  const activeHeroSlides = mode === "residential" ? residentialHeroSlides : commercialHeroSlides;
+  const activeHeroSlides = heroSlides;
   const activeServices = mode === "residential" ? residentialServices : commercialServices;
   const activeFurnitureItems = mode === "residential" ? residentialFurniture : commercialFurniture;
 
@@ -381,76 +347,90 @@ export default function HomePage() {
 
         {/* Hero Slideshow */}
         <section className="relative h-screen w-full overflow-hidden bg-black">
-          <Carousel
-            plugins={[heroAutoplayPlugin.current]}
-            className="w-full h-full"
-            opts={{
-              loop: true,
-              duration: 40,
-            }}
-            setApi={setApi}
-          >
-            <CarouselContent className="h-full ml-0">
-              {activeHeroSlides.map((slide, index) => (
-                <CarouselItem key={index} className="relative w-full h-screen pl-0 overflow-hidden">
-                  <div className="absolute inset-0 z-0">
-                    {slide.type === 'video' ? (
-                      <>
-                        {/* Video shown only on desktop */}
-                        <video
-                          autoPlay
-                          muted={isMuted}
-                          loop
-                          playsInline
-                          className="hidden md:block w-full h-full object-cover scale-105 lg:animate-slow-zoom"
-                        >
-                          <source src={slide.url} type="video/mp4" />
-                        </video>
-                        {/* Lightweight high-quality image placeholder shown on mobile */}
-                        <div className="block md:hidden absolute inset-0">
+          {activeHeroSlides.length > 0 ? (
+            <Carousel
+              plugins={[heroAutoplayPlugin.current]}
+              className="w-full h-full"
+              opts={{
+                loop: true,
+                duration: 40,
+              }}
+              setApi={setApi}
+            >
+              <CarouselContent className="h-full ml-0">
+                {activeHeroSlides.map((slide, index) => (
+                  <CarouselItem key={index} className="relative w-full h-screen pl-0 overflow-hidden">
+                    <div className="absolute inset-0 z-0">
+                      {slide.type === 'video' ? (
+                        <>
+                          {/* Video shown only on desktop */}
+                          <video
+                            autoPlay
+                            muted={isMuted}
+                            loop
+                            playsInline
+                            className="hidden md:block w-full h-full object-cover scale-105 lg:animate-slow-zoom"
+                          >
+                            <source src={slide.url} type="video/mp4" />
+                          </video>
+                          {/* Lightweight fallback shown on mobile only when a slide is a video */}
+                          <div className="block md:hidden absolute inset-0">
+                            <Image
+                              src={slide.mobileFallbackUrl || "/generated/hero_interior_1.png"}
+                              alt={slide.heading || "Hero slide"}
+                              fill
+                              className="object-cover scale-105"
+                              priority={index === 0}
+                            />
+                          </div>
+                        </>
+                      ) : (
                           <Image
-                            src={mode === "residential" ? "/generated/hero_interior_1.png" : "/generated/hero_exterior_1.png"}
-                            alt={slide.heading}
+                            src={slide.url}
+                            alt={slide.heading || "Hero slide"}
                             fill
-                            className="object-cover scale-105"
+                            className="object-cover scale-105 lg:animate-slow-zoom"
                             priority={index === 0}
                           />
-                        </div>
-                      </>
-                    ) : (
-                      <Image
-                        src={slide.url}
-                        alt={slide.heading}
-                        fill
-                        className="object-cover scale-105 lg:animate-slow-zoom"
-                        priority={index === 0}
-                      />
-                    )}
-                    <div className="absolute inset-0 bg-black/40" />
-                  </div>
-
-                  <div className="relative z-10 h-full flex items-center px-6 md:px-24">
-                    <div className="max-w-4xl text-left animate-fade-up">
-                      <h1 className="font-display text-3.5xl sm:text-5xl md:text-8xl font-black text-white mb-4 md:mb-8 leading-tight drop-shadow-2xl text-shadow-lg uppercase tracking-tight mt-12 md:mt-0">
-                        {slide.heading}
-                      </h1>
-
-                      <div className="mb-6 md:mb-10 inline-block">
-                        <div className="bg-accent text-primary font-black px-6 md:px-8 py-2.5 rounded-full text-base md:text-2xl m3-elevation-3">
-                          {slide.price}
-                        </div>
-                        <p className="text-white/60 text-[10px] md:text-xs mt-2 font-semibold">*T&C Apply</p>
-                      </div>
-
-                      <p className="text-base md:text-2xl text-white/90 max-w-2xl mb-8 md:mb-12 font-medium drop-shadow-lg leading-snug md:leading-normal">
-                        {slide.subheading}
-                      </p>
+                      )}
+                      <div className="absolute inset-0 bg-black/40" />
                     </div>
-                  </div>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-          </Carousel>
+
+                    <div className="relative z-10 h-full flex items-center px-6 md:px-24">
+                      <div className="max-w-4xl text-left animate-fade-up">
+                        <h1 className="font-display text-3.5xl sm:text-5xl md:text-8xl font-black text-white mb-4 md:mb-8 leading-tight drop-shadow-2xl text-shadow-lg uppercase tracking-tight mt-12 md:mt-0">
+                          {slide.heading || "Featured Project"}
+                        </h1>
+
+                        <div className="mb-6 md:mb-10 inline-block">
+                          <div className="bg-accent text-primary font-black px-6 md:px-8 py-2.5 rounded-full text-base md:text-2xl m3-elevation-3">
+                            {slide.price || "View Our Work"}
+                          </div>
+                          <p className="text-white/60 text-[10px] md:text-xs mt-2 font-semibold">*T&C Apply</p>
+                        </div>
+
+                        <p className="text-base md:text-2xl text-white/90 max-w-2xl mb-8 md:mb-12 font-medium drop-shadow-lg leading-snug md:leading-normal">
+                          {slide.subheading || "New uploads from the admin panel will appear here automatically."}
+                        </p>
+                      </div>
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+            </Carousel>
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center text-center px-6">
+              <div className="max-w-2xl">
+                <p className="text-accent font-black uppercase tracking-[0.25em] text-[10px] mb-4">Slideshow Empty</p>
+                <h1 className="font-display text-3xl md:text-6xl font-black text-white uppercase tracking-tight">
+                  Upload a hero slide from admin
+                </h1>
+                <p className="mt-4 text-white/70 text-sm md:text-lg">
+                  The homepage now uses only Firebase uploads from the slideshow panel.
+                </p>
+              </div>
+            </div>
+          )}
 
           {/* Floating Sidebar Icons (Hidden on Mobile viewports) */}
           <div className="absolute right-0 top-1/2 -translate-y-1/2 z-20 hidden md:flex flex-col gap-1 scale-75 md:scale-100 origin-right">

@@ -153,7 +153,7 @@ export default function SlideshowAdminPage() {
                   </div>
                   <div className="relative flex items-center py-1">
                       <div className="flex-grow border-t border-white/10"></div>
-                      <span className="flex-shrink-0 mx-4 text-white/20 text-xs font-bold uppercase">USE LINK ONLY</span>
+                    <span className="flex-shrink-0 mx-4 text-white/20 text-xs font-bold uppercase">OR PASTE LINK</span>
                       <div className="flex-grow border-t border-white/10"></div>
                   </div>
                   <div className="space-y-2">

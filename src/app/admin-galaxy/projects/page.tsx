@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { collection, addDoc, serverTimestamp, onSnapshot, query, orderBy, deleteDoc, doc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { validateImageFile, uploadImageToStorage } from "@/lib/media-upload";
+import { validateImageFile, uploadImageToStorage, uploadImagesToStorage } from "@/lib/media-upload";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -17,6 +17,7 @@ export default function AdminProjectsPage() {
   const [status, setStatus] = useState("completed");
   const [imageUrl, setImageUrl] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [location, setLocation] = useState("");
   const [description, setDescription] = useState("");
 
@@ -26,6 +27,7 @@ export default function AdminProjectsPage() {
   const [editStatus, setEditStatus] = useState("completed");
   const [editImageUrl, setEditImageUrl] = useState("");
   const [editImageFile, setEditImageFile] = useState<File | null>(null);
+  const [editImageFiles, setEditImageFiles] = useState<File[]>([]);
   const [editLocation, setEditLocation] = useState("");
   const [editDescription, setEditDescription] = useState("");
 
@@ -59,31 +61,33 @@ export default function AdminProjectsPage() {
 
   const handleAddProject = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title || (!imageUrl && !imageFile) || !location || !description) {
+    if (!title || (!imageUrl && imageFiles.length === 0 && !imageFile) || !location || !description) {
       setUploadStatus({ type: 'error', msg: "Please fill in all required fields." });
       return;
     }
     setLoading(true);
     setUploadStatus({ type: 'idle', msg: "Saving project details to database..." });
     try {
-      let finalImageUrl = imageUrl;
-      if (imageFile) {
+      let finalImageUrls: string[] = imageUrl ? [imageUrl] : [];
+      if (imageFiles.length > 0) {
+        finalImageUrls = await uploadImagesToStorage(imageFiles, "projects");
+      } else if (imageFile) {
         const fileError = validateImageFile(imageFile);
         if (fileError) {
           setUploadStatus({ type: 'error', msg: fileError });
           setLoading(false);
           return;
         }
-        finalImageUrl = await uploadImageToStorage(imageFile, "projects");
+        finalImageUrls = [await uploadImageToStorage(imageFile, "projects")];
       }
       await addDoc(collection(db, "projects"), {
-        title, category, status, image: finalImageUrl, location, description,
-        storageType: imageFile ? "firebase-storage" : "external-link",
+        title, category, status, image: finalImageUrls[0], images: finalImageUrls, location, description,
+        storageType: imageFiles.length > 0 || imageFile ? "firebase-storage" : "external-link",
         createdAt: serverTimestamp()
       });
       setUploadStatus({ type: 'success', msg: "Project added successfully!" });
       setTitle(""); setCategory("interior"); setStatus("completed");
-      setImageUrl(""); setImageFile(null); setLocation(""); setDescription("");
+      setImageUrl(""); setImageFile(null); setImageFiles([]); setLocation(""); setDescription("");
     } catch (err: any) {
       console.error("Failed to add project:", err);
       setUploadStatus({ type: 'error', msg: `Saving failed: ${err.message}` });
@@ -96,8 +100,9 @@ export default function AdminProjectsPage() {
     setEditTitle(project.title);
     setEditCategory(project.category || "interior");
     setEditStatus(project.status || "completed");
-    setEditImageUrl(project.image);
+    setEditImageUrl(Array.isArray(project.images) ? project.images[0] : project.image);
     setEditImageFile(null);
+    setEditImageFiles([]);
     setEditLocation(project.location);
     setEditDescription(project.description);
   };
@@ -107,27 +112,29 @@ export default function AdminProjectsPage() {
   const handleUpdateProject = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingProject) return;
-    if (!editTitle || (!editImageUrl && !editImageFile) || !editLocation || !editDescription) {
+    if (!editTitle || (!editImageUrl && editImageFiles.length === 0 && !editImageFile) || !editLocation || !editDescription) {
       alert("Please fill in all fields.");
       return;
     }
     setEditLoading(true);
     try {
-      let finalImageUrl = editImageUrl;
-      if (editImageFile) {
+      let finalImageUrls: string[] = editImageUrl ? [editImageUrl] : [];
+      if (editImageFiles.length > 0) {
+        finalImageUrls = await uploadImagesToStorage(editImageFiles, "projects");
+      } else if (editImageFile) {
         const fileError = validateImageFile(editImageFile);
         if (fileError) {
           alert(fileError);
           setEditLoading(false);
           return;
         }
-        finalImageUrl = await uploadImageToStorage(editImageFile, "projects");
+        finalImageUrls = [await uploadImageToStorage(editImageFile, "projects")];
       }
       const projectRef = doc(db, "projects", editingProject.id);
       await updateDoc(projectRef, {
         title: editTitle, category: editCategory, status: editStatus,
-        image: finalImageUrl, location: editLocation, description: editDescription,
-        storageType: editImageFile ? "firebase-storage" : "external-link",
+        image: finalImageUrls[0], images: finalImageUrls, location: editLocation, description: editDescription,
+        storageType: editImageFiles.length > 0 || editImageFile ? "firebase-storage" : "external-link",
         updatedAt: serverTimestamp()
       });
       setEditingProject(null);
@@ -213,29 +220,33 @@ export default function AdminProjectsPage() {
                     type="file"
                     accept="image/*"
                     onChange={(e) => {
-                      const file = e.target.files?.[0] || null;
-                      if (!file) {
+                      const files = Array.from(e.target.files || []);
+                      if (!files.length) {
                         setImageFile(null);
+                        setImageFiles([]);
                         return;
                       }
-                      const fileError = validateImageFile(file);
-                      if (fileError) {
-                        setUploadStatus({ type: 'error', msg: fileError });
+                      const invalid = files.find((file) => validateImageFile(file));
+                      if (invalid) {
+                        setUploadStatus({ type: 'error', msg: validateImageFile(invalid) });
                         e.currentTarget.value = "";
                         setImageFile(null);
+                        setImageFiles([]);
                         return;
                       }
-                      setImageFile(file);
+                      setImageFiles(files);
+                      setImageFile(null);
                       setImageUrl("");
                     }}
+                    multiple
                     disabled={loading}
                     className={inputClass}
                   />
-                  <p className="text-[10px] text-white/20">Max image size: 1 MB.</p>
+                  <p className="text-[10px] text-white/20">Select one or more images. Each file must be 1 MB or smaller.</p>
                 </div>
                 <div className="space-y-1.5">
                   <label className={labelClass}>Image Link URL</label>
-                  <Input placeholder="https://example.com/project-image.png" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} disabled={loading || !!imageFile} className={inputClass} />
+                  <Input placeholder="https://example.com/project-image.png" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} disabled={loading || !!imageFile || imageFiles.length > 0} className={inputClass} />
                   <p className="text-[10px] text-white/20">Link is optional if you upload a file.</p>
                 </div>
                 <div className="space-y-1.5">
@@ -349,29 +360,33 @@ export default function AdminProjectsPage() {
                     type="file"
                     accept="image/*"
                     onChange={(e) => {
-                      const file = e.target.files?.[0] || null;
-                      if (!file) {
+                      const files = Array.from(e.target.files || []);
+                      if (!files.length) {
                         setEditImageFile(null);
+                        setEditImageFiles([]);
                         return;
                       }
-                      const fileError = validateImageFile(file);
-                      if (fileError) {
-                        alert(fileError);
+                      const invalid = files.find((file) => validateImageFile(file));
+                      if (invalid) {
+                        alert(validateImageFile(invalid));
                         e.currentTarget.value = "";
                         setEditImageFile(null);
+                        setEditImageFiles([]);
                         return;
                       }
-                      setEditImageFile(file);
+                      setEditImageFiles(files);
+                      setEditImageFile(null);
                       setEditImageUrl("");
                     }}
+                    multiple
                     disabled={editLoading}
                     className={inputClass}
                   />
-                  <p className="text-[10px] text-white/20">Max image size: 1 MB.</p>
+                  <p className="text-[10px] text-white/20">Select one or more images. Each file must be 1 MB or smaller.</p>
                 </div>
                 <div className="space-y-1.5">
                   <label className={labelClass}>Image Link URL</label>
-                  <Input value={editImageUrl} onChange={(e) => setEditImageUrl(e.target.value)} disabled={editLoading || !!editImageFile} className={inputClass} />
+                  <Input value={editImageUrl} onChange={(e) => setEditImageUrl(e.target.value)} disabled={editLoading || !!editImageFile || editImageFiles.length > 0} className={inputClass} />
                 </div>
                 <div className="space-y-1.5">
                   <label className={labelClass}>Description</label>

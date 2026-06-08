@@ -24,3 +24,15 @@ export async function uploadImageToStorage(file: File, folder: string) {
   await uploadBytes(fileRef, file);
   return getDownloadURL(fileRef);
 }
+
+export async function uploadImagesToStorage(files: File[], folder: string) {
+  const urls: string[] = [];
+  for (const file of files) {
+    const error = validateImageFile(file);
+    if (error) {
+      throw new Error(error);
+    }
+    urls.push(await uploadImageToStorage(file, folder));
+  }
+  return urls;
+}
