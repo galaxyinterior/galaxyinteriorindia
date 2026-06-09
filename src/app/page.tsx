@@ -123,6 +123,7 @@ export default function HomePage() {
   const [activeIndex, setActiveIndex] = React.useState(0);
   const [furnitureFilter, setFurnitureFilter] = React.useState('All');
   const [heroSlides, setHeroSlides] = React.useState<any[]>([]);
+  const [dynamicServices, setDynamicServices] = React.useState<any[]>([]);
 
   // Expertise & Furniture slide indices for mobile carousels
   const [activeServiceIndex, setActiveServiceIndex] = React.useState(0);
@@ -242,6 +243,18 @@ export default function HomePage() {
     return () => unsubscribe();
   }, []);
 
+  React.useEffect(() => {
+    const q = query(collection(db, "services"), orderBy("createdAt", "desc"));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const fetched = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setDynamicServices(fetched);
+    });
+    return () => unsubscribe();
+  }, []);
+
   const handleReviewSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!reviewName.trim() || !reviewComment.trim()) {
@@ -289,7 +302,11 @@ export default function HomePage() {
 
   // Dynamically swap datasets based on switch notch mode
   const activeHeroSlides = heroSlides;
-  const activeServices = mode === "residential" ? residentialServices : commercialServices;
+  
+  const combinedResidentialServices = [...residentialServices, ...dynamicServices.filter(s => s.mode === 'residential' || s.mode === 'both')];
+  const combinedCommercialServices = [...commercialServices, ...dynamicServices.filter(s => s.mode === 'commercial' || s.mode === 'both')];
+  const activeServices = mode === "residential" ? combinedResidentialServices : combinedCommercialServices;
+  
   const activeFurnitureItems = mode === "residential" ? residentialFurniture : commercialFurniture;
 
   const filteredFurniture = activeFurnitureItems.filter(item =>
@@ -423,11 +440,8 @@ export default function HomePage() {
               <div className="max-w-2xl">
                 <p className="text-accent font-black uppercase tracking-[0.25em] text-[10px] mb-4">Slideshow Empty</p>
                 <h1 className="font-display text-3xl md:text-6xl font-black text-white uppercase tracking-tight">
-                  Upload a hero slide from admin
+                  Welcome
                 </h1>
-                <p className="mt-4 text-white/70 text-sm md:text-lg">
-                  The homepage now uses only Firebase uploads from the slideshow panel.
-                </p>
               </div>
             </div>
           )}
@@ -575,6 +589,7 @@ export default function HomePage() {
                             className="object-cover"
                           />
                           <div className="absolute inset-0 bg-primary/20" />
+                          {service.price && <Badge className="absolute top-2 left-2 bg-[#051124]/90 backdrop-blur-md text-accent font-black border border-accent/20 px-2 py-0.5 rounded-full text-[7px] shadow-sm uppercase tracking-wider">₹{Number(service.price).toLocaleString("en-IN")}</Badge>}
                         </div>
                         <div className="p-3.5">
                           <h3 className="text-sm font-bold mb-1 uppercase tracking-tight text-gold">{service.name}</h3>
@@ -606,6 +621,7 @@ export default function HomePage() {
                       className="object-cover group-hover:scale-110 group-hover:opacity-90 transition-all duration-700"
                     />
                     <div className="absolute inset-0 bg-primary/20 group-hover:bg-transparent transition-colors duration-500" />
+                    {service.price && <Badge className="absolute top-4 left-4 bg-[#051124]/90 backdrop-blur-md text-accent font-black border border-accent/20 px-3.5 py-1 rounded-full text-[9px] shadow-sm uppercase tracking-wider">₹{Number(service.price).toLocaleString("en-IN")}</Badge>}
                   </div>
                   <CardContent className="p-6 md:p-8 flex-1 flex flex-col justify-between">
                     <div>

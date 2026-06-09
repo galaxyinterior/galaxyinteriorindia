@@ -87,9 +87,9 @@ export default function AdminWrapper({ children }: { children: React.ReactNode }
   }
 
   return (
-    <div className="flex flex-col md:flex-row h-screen bg-[#051124] text-white font-sans overflow-hidden">
+    <div className="flex flex-col md:flex-row min-h-[100dvh] bg-[#051124] text-white font-sans">
       {/* Sidebar Navigation (Desktop) */}
-      <aside className="hidden md:flex w-64 bg-[#051124] border-r border-white/5 flex-col items-start p-6 space-y-8 h-full sticky top-0 shadow-lg shrink-0 z-40">
+      <aside className="hidden md:flex w-64 bg-[#051124] border-r border-white/5 flex-col items-start p-6 space-y-8 h-[100dvh] sticky top-0 shadow-lg shrink-0 z-40">
         <div className="flex items-center gap-3 w-full border-b border-white/10 pb-4">
           <div className="h-9 w-9 rounded-full overflow-hidden border border-accent/30 bg-[#08162d] flex items-center justify-center shrink-0">
             <img src="/logo.png" alt="Logo" width={28} height={28} className="object-contain" />
@@ -110,11 +110,17 @@ export default function AdminWrapper({ children }: { children: React.ReactNode }
           <Link href="/admin-galaxy/slideshow" className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-wider ${pathname?.includes('/slideshow') ? 'bg-accent/15 text-accent border-l-2 border-accent' : 'text-white/60'}`}>
             <Layers className="w-4 h-4 shrink-0 text-accent"/> Slideshow Manage
           </Link>
+          <Link href="/admin-galaxy/categories" className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-wider ${pathname?.includes('/categories') ? 'bg-accent/15 text-accent border-l-2 border-accent' : 'text-white/60'}`}>
+            <LayoutDashboard className="w-4 h-4 shrink-0 text-accent"/> Categories
+          </Link>
           <Link href="/admin-galaxy/projects" className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-wider ${pathname?.includes('/projects') ? 'bg-accent/15 text-accent border-l-2 border-accent' : 'text-white/60'}`}>
             <FolderGit2 className="w-4 h-4 shrink-0 text-accent"/> Manage Projects
           </Link>
           <Link href="/admin-galaxy/products" className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-wider ${pathname?.includes('/products') ? 'bg-accent/15 text-accent border-l-2 border-accent' : 'text-white/60'}`}>
             <ShoppingBag className="w-4 h-4 shrink-0 text-accent"/> Manage Products
+          </Link>
+          <Link href="/admin-galaxy/services" className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-wider ${pathname?.includes('/services') ? 'bg-accent/15 text-accent border-l-2 border-accent' : 'text-white/60'}`}>
+            <Layers className="w-4 h-4 shrink-0 text-accent"/> Manage Services
           </Link>
           <Link href="/admin-galaxy/submissions" className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-wider ${pathname?.includes('/submissions') ? 'bg-accent/15 text-accent border-l-2 border-accent' : 'text-white/60'}`}>
             <MessageSquare className="w-4 h-4 shrink-0 text-accent"/> Leads & Portal
@@ -144,7 +150,7 @@ export default function AdminWrapper({ children }: { children: React.ReactNode }
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 overflow-y-auto p-5 md:p-10 pb-24 md:pb-10 bg-[#051124] relative h-full safe-area-bottom text-white">
+      <main className="flex-1 p-5 md:p-10 pb-24 md:pb-10 bg-[#051124] relative min-h-[100dvh] text-white">
         {children}
       </main>
 

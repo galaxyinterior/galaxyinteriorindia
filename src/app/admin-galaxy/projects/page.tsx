@@ -15,6 +15,7 @@ export default function AdminProjectsPage() {
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("interior");
   const [status, setStatus] = useState("completed");
+  const [price, setPrice] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
@@ -25,6 +26,7 @@ export default function AdminProjectsPage() {
   const [editTitle, setEditTitle] = useState("");
   const [editCategory, setEditCategory] = useState("interior");
   const [editStatus, setEditStatus] = useState("completed");
+  const [editPrice, setEditPrice] = useState("");
   const [editImageUrl, setEditImageUrl] = useState("");
   const [editImageFile, setEditImageFile] = useState<File | null>(null);
   const [editImageFiles, setEditImageFiles] = useState<File[]>([]);
@@ -32,6 +34,7 @@ export default function AdminProjectsPage() {
   const [editDescription, setEditDescription] = useState("");
 
   const [projects, setProjects] = useState<any[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
   const [uploadStatus, setUploadStatus] = useState<{ type: 'idle'|'success'|'error', msg: string }>({ type: 'idle', msg: '' });
   const [loading, setLoading] = useState(false);
   const [editLoading, setEditLoading] = useState(false);
@@ -44,6 +47,15 @@ export default function AdminProjectsPage() {
         ...doc.data()
       }));
       setProjects(fetched);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    const q = query(collection(db, "categories"), orderBy("createdAt", "desc"));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const fetched = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setCategories(fetched.filter((c: any) => c.type === 'project'));
     });
     return () => unsubscribe();
   }, []);
@@ -81,12 +93,12 @@ export default function AdminProjectsPage() {
         finalImageUrls = [await uploadImageToStorage(imageFile, "projects")];
       }
       await addDoc(collection(db, "projects"), {
-        title, category, status, image: finalImageUrls[0], images: finalImageUrls, location, description,
+        title, category, status, price: price ? Number(price) : null, image: finalImageUrls[0], images: finalImageUrls, location, description,
         storageType: imageFiles.length > 0 || imageFile ? "firebase-storage" : "external-link",
         createdAt: serverTimestamp()
       });
       setUploadStatus({ type: 'success', msg: "Project added successfully!" });
-      setTitle(""); setCategory("interior"); setStatus("completed");
+      setTitle(""); setCategory("interior"); setStatus("completed"); setPrice("");
       setImageUrl(""); setImageFile(null); setImageFiles([]); setLocation(""); setDescription("");
     } catch (err: any) {
       console.error("Failed to add project:", err);
@@ -100,6 +112,7 @@ export default function AdminProjectsPage() {
     setEditTitle(project.title);
     setEditCategory(project.category || "interior");
     setEditStatus(project.status || "completed");
+    setEditPrice(project.price ? String(project.price) : "");
     setEditImageUrl(Array.isArray(project.images) ? project.images[0] : project.image);
     setEditImageFile(null);
     setEditImageFiles([]);
@@ -132,7 +145,7 @@ export default function AdminProjectsPage() {
       }
       const projectRef = doc(db, "projects", editingProject.id);
       await updateDoc(projectRef, {
-        title: editTitle, category: editCategory, status: editStatus,
+        title: editTitle, category: editCategory, status: editStatus, price: editPrice ? Number(editPrice) : null,
         image: finalImageUrls[0], images: finalImageUrls, location: editLocation, description: editDescription,
         storageType: editImageFiles.length > 0 || editImageFile ? "firebase-storage" : "external-link",
         updatedAt: serverTimestamp()
@@ -194,10 +207,13 @@ export default function AdminProjectsPage() {
                   <div className="space-y-1.5">
                     <label className={labelClass}>Category</label>
                     <select value={category} onChange={(e) => setCategory(e.target.value)} disabled={loading} className={selectClass}>
-                      <option value="interior">Interior Design</option>
-                      <option value="construction">Construction</option>
-                      <option value="3d-design">3D Design</option>
-                      <option value="other">Other Services</option>
+                      <option value="interior">Interior Design (Default)</option>
+                      <option value="construction">Construction (Default)</option>
+                      <option value="3d-design">3D Design (Default)</option>
+                      <option value="other">Other Services (Default)</option>
+                      {categories.map(c => (
+                        <option key={c.id} value={c.slug}>{c.name}</option>
+                      ))}
                     </select>
                   </div>
                   <div className="space-y-1.5">
@@ -210,9 +226,15 @@ export default function AdminProjectsPage() {
                   </div>
                 </div>
 
-                <div className="space-y-1.5">
-                  <label className={labelClass}>Location</label>
-                  <Input placeholder="e.g. Ranchi, Jharkhand" value={location} onChange={(e) => setLocation(e.target.value)} disabled={loading} required className={inputClass} />
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className={labelClass}>Location</label>
+                    <Input placeholder="e.g. Ranchi, Jharkhand" value={location} onChange={(e) => setLocation(e.target.value)} disabled={loading} required className={inputClass} />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className={labelClass}>Price (Optional)</label>
+                    <Input type="number" placeholder="e.g. 500000" value={price} onChange={(e) => setPrice(e.target.value)} disabled={loading} className={inputClass} />
+                  </div>
                 </div>
                 <div className="space-y-1.5">
                   <label className={labelClass}>Upload Project Image</label>
@@ -287,6 +309,7 @@ export default function AdminProjectsPage() {
                           <h4 className="font-bold text-white text-sm truncate uppercase">{proj.title}</h4>
                           <Badge variant="outline" className="text-[9px] uppercase font-black bg-transparent border-white/10 text-white/40">{proj.status}</Badge>
                           <Badge className="text-[9px] uppercase font-bold bg-accent/20 text-accent border-none">{proj.category}</Badge>
+                          {proj.price && <Badge variant="outline" className="text-[9px] uppercase font-black text-green-400 border-green-400/20">₹{Number(proj.price).toLocaleString("en-IN")}</Badge>}
                         </div>
                         <p className="flex items-center gap-1 text-[10px] text-white/30 font-bold uppercase">
                           <MapPin className="w-3 h-3 text-accent" />
@@ -335,10 +358,13 @@ export default function AdminProjectsPage() {
                   <div className="space-y-1.5">
                     <label className={labelClass}>Category</label>
                     <select value={editCategory} onChange={(e) => setEditCategory(e.target.value)} disabled={editLoading} className={selectClass}>
-                      <option value="interior">Interior Design</option>
-                      <option value="construction">Construction</option>
-                      <option value="3d-design">3D Design</option>
-                      <option value="other">Other Services</option>
+                      <option value="interior">Interior Design (Default)</option>
+                      <option value="construction">Construction (Default)</option>
+                      <option value="3d-design">3D Design (Default)</option>
+                      <option value="other">Other Services (Default)</option>
+                      {categories.map(c => (
+                        <option key={c.id} value={c.slug}>{c.name}</option>
+                      ))}
                     </select>
                   </div>
                   <div className="space-y-1.5">
@@ -350,9 +376,15 @@ export default function AdminProjectsPage() {
                     </select>
                   </div>
                 </div>
-                <div className="space-y-1.5">
-                  <label className={labelClass}>Location</label>
-                  <Input value={editLocation} onChange={(e) => setEditLocation(e.target.value)} disabled={editLoading} required className={inputClass} />
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className={labelClass}>Location</label>
+                    <Input value={editLocation} onChange={(e) => setEditLocation(e.target.value)} disabled={editLoading} required className={inputClass} />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className={labelClass}>Price (Optional)</label>
+                    <Input type="number" value={editPrice} onChange={(e) => setEditPrice(e.target.value)} disabled={editLoading} className={inputClass} />
+                  </div>
                 </div>
                 <div className="space-y-1.5">
                   <label className={labelClass}>Upload New Image</label>

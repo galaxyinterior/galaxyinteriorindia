@@ -32,6 +32,7 @@ export default function AdminProductsPage() {
   const [editDescription, setEditDescription] = useState("");
 
   const [products, setProducts] = useState<any[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
   const [uploadStatus, setUploadStatus] = useState<{ type: 'idle'|'success'|'error', msg: string }>({ type: 'idle', msg: '' });
   const [loading, setLoading] = useState(false);
   const [editLoading, setEditLoading] = useState(false);
@@ -41,6 +42,15 @@ export default function AdminProductsPage() {
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const fetched = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setProducts(fetched);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    const q = query(collection(db, "categories"), orderBy("createdAt", "desc"));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const fetched = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setCategories(fetched.filter((c: any) => c.type === 'product'));
     });
     return () => unsubscribe();
   }, []);
@@ -179,11 +189,14 @@ export default function AdminProductsPage() {
                   <div className="space-y-1.5">
                     <label className={labelClass}>Category</label>
                     <select value={category} onChange={(e) => setCategory(e.target.value)} disabled={loading} className={selectClass}>
-                      <option value="kitchen">Modular Kitchen</option>
-                      <option value="furniture">Furniture Sets</option>
-                      <option value="wardrobe">Wardrobes</option>
-                      <option value="lighting">Smart Lighting</option>
-                      <option value="other">Other Fittings</option>
+                      <option value="kitchen">Modular Kitchen (Default)</option>
+                      <option value="furniture">Furniture Sets (Default)</option>
+                      <option value="wardrobe">Wardrobes (Default)</option>
+                      <option value="lighting">Smart Lighting (Default)</option>
+                      <option value="other">Other Fittings (Default)</option>
+                      {categories.map(c => (
+                        <option key={c.id} value={c.slug}>{c.name}</option>
+                      ))}
                     </select>
                   </div>
                   <div className="space-y-1.5">
@@ -318,11 +331,14 @@ export default function AdminProductsPage() {
                   <div className="space-y-1.5">
                     <label className={labelClass}>Category</label>
                     <select value={editCategory} onChange={(e) => setEditCategory(e.target.value)} disabled={editLoading} className={selectClass}>
-                      <option value="kitchen">Modular Kitchen</option>
-                      <option value="furniture">Furniture Sets</option>
-                      <option value="wardrobe">Wardrobes</option>
-                      <option value="lighting">Smart Lighting</option>
-                      <option value="other">Other Fittings</option>
+                      <option value="kitchen">Modular Kitchen (Default)</option>
+                      <option value="furniture">Furniture Sets (Default)</option>
+                      <option value="wardrobe">Wardrobes (Default)</option>
+                      <option value="lighting">Smart Lighting (Default)</option>
+                      <option value="other">Other Fittings (Default)</option>
+                      {categories.map(c => (
+                        <option key={c.id} value={c.slug}>{c.name}</option>
+                      ))}
                     </select>
                   </div>
                   <div className="space-y-1.5">
