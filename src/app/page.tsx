@@ -378,38 +378,22 @@ export default function HomePage() {
                 {activeHeroSlides.map((slide, index) => (
                   <CarouselItem key={index} className="relative w-full h-screen pl-0 overflow-hidden">
                     <div className="absolute inset-0 z-0">
-                      {slide.type === 'video' ? (
-                        <>
-                          {/* Video shown only on desktop */}
-                          <video
-                            autoPlay
-                            muted={isMuted}
-                            loop
-                            playsInline
-                            className="hidden md:block w-full h-full object-cover scale-105 lg:animate-slow-zoom"
-                          >
-                            <source src={slide.url} type="video/mp4" />
-                          </video>
-                          {/* Lightweight fallback shown on mobile only when a slide is a video */}
-                          <div className="block md:hidden absolute inset-0">
-                            <Image
-                              src={slide.mobileFallbackUrl || "/generated/hero_interior_1.png"}
-                              alt={slide.heading || "Hero slide"}
-                              fill
-                              className="object-cover scale-105"
-                              priority={index === 0}
-                            />
-                          </div>
-                        </>
-                      ) : (
-                          <Image
-                            src={slide.url}
-                            alt={slide.heading || "Hero slide"}
-                            fill
-                            className="object-cover scale-105 lg:animate-slow-zoom"
-                            priority={index === 0}
-                          />
-                      )}
+                      {/* Desktop Image (16:9) */}
+                      <Image
+                        src={slide.url || "/generated/hero_interior_1.png"}
+                        alt={slide.heading || "Hero slide"}
+                        fill
+                        className="object-cover scale-105 lg:animate-slow-zoom hidden md:block"
+                        priority={index === 0}
+                      />
+                      {/* Mobile Image (9:16) */}
+                      <Image
+                        src={slide.mobileUrl || slide.url || "/generated/hero_interior_1.png"}
+                        alt={slide.heading || "Hero slide"}
+                        fill
+                        className="object-cover scale-105 md:hidden block"
+                        priority={index === 0}
+                      />
                       <div className="absolute inset-0 bg-black/40" />
                     </div>
 

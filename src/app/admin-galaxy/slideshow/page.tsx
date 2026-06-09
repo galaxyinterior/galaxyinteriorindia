@@ -1,26 +1,53 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { collection, addDoc, serverTimestamp, onSnapshot, query, orderBy, deleteDoc, doc } from "firebase/firestore";
+import { useState, useEffect, useRef } from "react";
+import { collection, addDoc, serverTimestamp, onSnapshot, query, orderBy, deleteDoc, doc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MonitorPlay, CheckCircle2, Loader2, AlertCircle } from "lucide-react";
+import { MonitorPlay, CheckCircle2, Loader2, AlertCircle, Edit3, X, Image as ImageIcon } from "lucide-react";
 import { validateImageFile, uploadImageToStorage } from "@/lib/media-upload";
+import ImageCropperModal from "@/components/admin/ImageCropperModal";
 
 export default function SlideshowAdminPage() {
-  const [file, setFile] = useState<File | null>(null);
-  const [mediaUrlLink, setMediaUrlLink] = useState("");
   const [heading, setHeading] = useState("");
   const [subheading, setSubheading] = useState("");
   const [priceTag, setPriceTag] = useState("");
-  const [mediaType, setMediaType] = useState<"image" | "video">("image");
+
+  const [desktopFile, setDesktopFile] = useState<File | null>(null);
+  const [desktopPreview, setDesktopPreview] = useState("");
+  
+  const [mobileFile, setMobileFile] = useState<File | null>(null);
+  const [mobilePreview, setMobilePreview] = useState("");
+
+  const [cropperConfig, setCropperConfig] = useState<{
+    isOpen: boolean;
+    imageSrc: string;
+    aspectRatio: number;
+    target: 'desktop' | 'mobile' | 'edit-desktop' | 'edit-mobile';
+  }>({ isOpen: false, imageSrc: "", aspectRatio: 16/9, target: 'desktop' });
   
   const [slides, setSlides] = useState<any[]>([]);
   const [status, setStatus] = useState<{ type: 'idle'|'success'|'error', msg: string }>({ type: 'idle', msg: '' });
   const [loading, setLoading] = useState(false);
+
+  // Edit State
+  const [editingSlide, setEditingSlide] = useState<any | null>(null);
+  const [editHeading, setEditHeading] = useState("");
+  const [editSubheading, setEditSubheading] = useState("");
+  const [editPriceTag, setEditPriceTag] = useState("");
+  const [editDesktopFile, setEditDesktopFile] = useState<File | null>(null);
+  const [editDesktopPreview, setEditDesktopPreview] = useState("");
+  const [editMobileFile, setEditMobileFile] = useState<File | null>(null);
+  const [editMobilePreview, setEditMobilePreview] = useState("");
+  const [editLoading, setEditLoading] = useState(false);
+
+  const hiddenDesktopInput = useRef<HTMLInputElement>(null);
+  const hiddenMobileInput = useRef<HTMLInputElement>(null);
+  const hiddenEditDesktopInput = useRef<HTMLInputElement>(null);
+  const hiddenEditMobileInput = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const q = query(collection(db, "slideshow"), orderBy("createdAt", "desc"));
@@ -45,34 +72,69 @@ export default function SlideshowAdminPage() {
     }
   };
 
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>, target: 'desktop' | 'mobile' | 'edit-desktop' | 'edit-mobile') => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    const error = validateImageFile(file);
+    if (error) {
+      alert(error);
+      e.target.value = '';
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setCropperConfig({
+        isOpen: true,
+        imageSrc: reader.result as string,
+        aspectRatio: (target === 'desktop' || target === 'edit-desktop') ? 16/9 : 9/16,
+        target
+      });
+    };
+    reader.readAsDataURL(file);
+    e.target.value = ''; // Reset input so same file can be selected again
+  };
+
+  const onCropComplete = (croppedFile: File) => {
+    const previewUrl = URL.createObjectURL(croppedFile);
+    if (cropperConfig.target === 'desktop') {
+      setDesktopFile(croppedFile);
+      setDesktopPreview(previewUrl);
+    } else if (cropperConfig.target === 'mobile') {
+      setMobileFile(croppedFile);
+      setMobilePreview(previewUrl);
+    } else if (cropperConfig.target === 'edit-desktop') {
+      setEditDesktopFile(croppedFile);
+      setEditDesktopPreview(previewUrl);
+    } else if (cropperConfig.target === 'edit-mobile') {
+      setEditMobileFile(croppedFile);
+      setEditMobilePreview(previewUrl);
+    }
+    setCropperConfig({ ...cropperConfig, isOpen: false });
+  };
+
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!file && !mediaUrlLink) {
-      setStatus({ type: 'error', msg: "Please provide either a media file or a media URL." });
+    if (!desktopFile || !mobileFile) {
+      setStatus({ type: 'error', msg: "Please provide both Desktop (16:9) and Mobile (9:16) cropped images." });
       return;
     }
     setLoading(true);
     setStatus({ type: 'idle', msg: "Publishing slide media..." });
     try {
-      let finalUrl = mediaUrlLink;
-      if (file) {
-        const fileError = validateImageFile(file);
-        if (fileError) {
-          setStatus({ type: 'error', msg: fileError });
-          setLoading(false);
-          return;
-        }
-        finalUrl = await uploadImageToStorage(file, "slideshow");
-      }
+      const desktopUrl = await uploadImageToStorage(desktopFile, "slideshow");
+      const mobileUrl = await uploadImageToStorage(mobileFile, "slideshow");
+      
       await addDoc(collection(db, "slideshow"), {
-        type: mediaType, url: finalUrl, heading, subheading, price: priceTag,
-        storageType: file ? "firebase-storage" : "external-link",
+        type: 'image', url: desktopUrl, mobileUrl: mobileUrl, heading, subheading, price: priceTag,
+        storageType: "firebase-storage",
         createdAt: serverTimestamp()
       });
       setStatus({ type: 'success', msg: "New slide successfully added to homepage!" });
-      setFile(null); setMediaUrlLink(""); setHeading(""); setSubheading(""); setPriceTag("");
-      const fileInput = document.getElementById("slideMedia") as HTMLInputElement;
-      if (fileInput) fileInput.value = "";
+      setDesktopFile(null); setDesktopPreview("");
+      setMobileFile(null); setMobilePreview("");
+      setHeading(""); setSubheading(""); setPriceTag("");
     } catch (err: any) {
       console.error(err);
       setStatus({ type: 'error', msg: `Publish failed: ${err.message}` });
@@ -80,17 +142,74 @@ export default function SlideshowAdminPage() {
     setLoading(false);
   };
 
+  const openEditModal = (slide: any) => {
+    setEditingSlide(slide);
+    setEditHeading(slide.heading || "");
+    setEditSubheading(slide.subheading || "");
+    setEditPriceTag(slide.price || "");
+    setEditDesktopFile(null);
+    setEditDesktopPreview(slide.url || "");
+    setEditMobileFile(null);
+    setEditMobilePreview(slide.mobileUrl || slide.url || "");
+  };
+
+  const closeEditModal = () => {
+    setEditingSlide(null);
+  };
+
+  const handleUpdateSlide = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingSlide) return;
+    setEditLoading(true);
+    try {
+      let finalDesktopUrl = editingSlide.url;
+      let finalMobileUrl = editingSlide.mobileUrl || editingSlide.url;
+
+      if (editDesktopFile) {
+        finalDesktopUrl = await uploadImageToStorage(editDesktopFile, "slideshow");
+      }
+      if (editMobileFile) {
+        finalMobileUrl = await uploadImageToStorage(editMobileFile, "slideshow");
+      }
+
+      const slideRef = doc(db, "slideshow", editingSlide.id);
+      await updateDoc(slideRef, {
+        heading: editHeading,
+        subheading: editSubheading,
+        price: editPriceTag,
+        url: finalDesktopUrl,
+        mobileUrl: finalMobileUrl,
+      });
+
+      alert("Slide updated successfully!");
+      closeEditModal();
+    } catch (err: any) {
+      console.error("Update failed", err);
+      alert(`Update failed: ${err.message}`);
+    } finally {
+      setEditLoading(false);
+    }
+  };
+
   const inputClass = "bg-[#051124] border-white/10 text-white placeholder:text-white/20 focus:ring-accent";
-  const selectClass = "w-full h-11 px-4 rounded-lg border border-white/10 bg-[#051124] text-white text-sm focus:outline-none focus:ring-1 focus:ring-accent";
   const labelClass = "text-xs font-bold text-white/40 uppercase tracking-widest";
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-4xl mx-auto">
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-5xl mx-auto pb-20">
+      {cropperConfig.isOpen && (
+        <ImageCropperModal
+          imageSrc={cropperConfig.imageSrc}
+          aspectRatio={cropperConfig.aspectRatio}
+          onCropComplete={onCropComplete}
+          onCancel={() => setCropperConfig({ ...cropperConfig, isOpen: false })}
+        />
+      )}
+
       <div>
         <h1 className="text-4xl font-display font-bold text-white tracking-tight flex items-center gap-3">
           <MonitorPlay className="w-10 h-10 text-accent" /> Hero Slideshow
         </h1>
-        <p className="text-white/40 mt-2 text-lg">Add new sliding banners to the homepage hero section.</p>
+        <p className="text-white/40 mt-2 text-lg">Add or edit sliding banners. Ensure to upload both Mobile (9:16) and Desktop (16:9) crops.</p>
       </div>
 
       {status.msg && (
@@ -110,88 +229,70 @@ export default function SlideshowAdminPage() {
         </CardHeader>
         <CardContent className="pt-6">
           <form onSubmit={handleUpload} className="space-y-6">
+            
+            {/* Image Selection row */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label className={labelClass}>Media Type</label>
-                  <select value={mediaType} onChange={(e) => setMediaType(e.target.value as any)} className={selectClass}>
-                    <option value="image">Image</option>
-                    <option value="video">Video</option>
-                  </select>
-                </div>
-                
-                <div className="space-y-4 border border-white/5 p-4 rounded-xl bg-white/5">
-                  <div className="space-y-2">
-                    <label className={`${labelClass} block`}>Option 1: Upload File</label>
-                    <Input
-                      id="slideMedia"
-                      type="file"
-                      accept={mediaType === 'image' ? "image/*" : "video/*"}
-                      onChange={(e) => {
-                        const selected = e.target.files?.[0] || null;
-                        if (!selected) {
-                          setFile(null);
-                          return;
-                        }
-                        if (mediaType === "image") {
-                          const fileError = validateImageFile(selected);
-                          if (fileError) {
-                            setStatus({ type: 'error', msg: fileError });
-                            e.currentTarget.value = "";
-                            setFile(null);
-                            return;
-                          }
-                        }
-                        setFile(selected);
-                        setMediaUrlLink("");
-                      }}
-                      disabled={loading}
-                      className={inputClass}
-                    />
-                    <p className="text-[10px] text-white/30">
-                      {mediaType === "image" ? "Image limit: 1 MB." : "Video uploads do not have the 1 MB image limit."}
-                    </p>
+               {/* Desktop Image */}
+               <div className="space-y-2 border border-white/5 p-4 rounded-xl bg-white/5 text-center">
+                  <label className={`${labelClass} block mb-4 text-left`}>Desktop Background (16:9)</label>
+                  <input type="file" accept="image/*" ref={hiddenDesktopInput} className="hidden" onChange={(e) => handleFileSelect(e, 'desktop')} disabled={loading} />
+                  
+                  {desktopPreview ? (
+                    <div className="relative aspect-video bg-black rounded-lg overflow-hidden border border-white/10 mb-4">
+                      <img src={desktopPreview} alt="Desktop Preview" className="w-full h-full object-cover" />
+                    </div>
+                  ) : (
+                    <div className="aspect-video bg-[#051124] rounded-lg border border-dashed border-white/20 flex flex-col items-center justify-center mb-4 text-white/30">
+                       <ImageIcon className="w-8 h-8 mb-2" />
+                       <span className="text-xs">No Image Selected</span>
+                    </div>
+                  )}
+
+                  <Button type="button" variant="outline" onClick={() => hiddenDesktopInput.current?.click()} className="border-white/10 bg-[#051124] text-white w-full" disabled={loading}>
+                    {desktopPreview ? "Replace Desktop Image" : "Select & Crop Desktop Image"}
+                  </Button>
+               </div>
+
+               {/* Mobile Image */}
+               <div className="space-y-2 border border-white/5 p-4 rounded-xl bg-white/5 text-center flex flex-col">
+                  <label className={`${labelClass} block mb-4 text-left`}>Mobile Background (9:16)</label>
+                  <input type="file" accept="image/*" ref={hiddenMobileInput} className="hidden" onChange={(e) => handleFileSelect(e, 'mobile')} disabled={loading} />
+                  
+                  <div className="flex-1 flex flex-col items-center justify-center">
+                    {mobilePreview ? (
+                      <div className="relative w-32 aspect-[9/16] bg-black rounded-lg overflow-hidden border border-white/10 mb-4 shrink-0">
+                        <img src={mobilePreview} alt="Mobile Preview" className="w-full h-full object-cover" />
+                      </div>
+                    ) : (
+                      <div className="w-32 aspect-[9/16] bg-[#051124] rounded-lg border border-dashed border-white/20 flex flex-col items-center justify-center mb-4 text-white/30 shrink-0">
+                        <ImageIcon className="w-6 h-6 mb-2" />
+                        <span className="text-[10px]">No Image</span>
+                      </div>
+                    )}
                   </div>
-                  <div className="relative flex items-center py-1">
-                      <div className="flex-grow border-t border-white/10"></div>
-                    <span className="flex-shrink-0 mx-4 text-white/20 text-xs font-bold uppercase">OR PASTE LINK</span>
-                      <div className="flex-grow border-t border-white/10"></div>
-                  </div>
-                  <div className="space-y-2">
-                    <label className={labelClass}>Option 2: Paste Media URL</label>
-                    <Input 
-                      placeholder="https://example.com/media.mp4" 
-                      value={mediaUrlLink}
-                      onChange={(e) => {
-                          setMediaUrlLink(e.target.value);
-                          if (e.target.value) {
-                             setFile(null);
-                             const el = document.getElementById("slideMedia") as HTMLInputElement;
-                             if (el) el.value = "";
-                          }
-                      }}
-                      disabled={loading || !!file}
-                      className={inputClass}
-                    />
-                  </div>
-                </div>
+
+                  <Button type="button" variant="outline" onClick={() => hiddenMobileInput.current?.click()} className="border-white/10 bg-[#051124] text-white w-full" disabled={loading}>
+                    {mobilePreview ? "Replace Mobile Image" : "Select & Crop Mobile Image"}
+                  </Button>
+               </div>
             </div>
 
             <div className="space-y-2">
               <label className={labelClass}>Heading (Large Text)</label>
-              <Input placeholder="e.g. Designing Dreams, Delivering Peace" value={heading} onChange={(e) => setHeading(e.target.value)} required className={inputClass} />
+              <Input placeholder="e.g. Designing Dreams, Delivering Peace" value={heading} onChange={(e) => setHeading(e.target.value)} required className={inputClass} disabled={loading}/>
             </div>
 
             <div className="space-y-2">
               <label className={labelClass}>Subheading (Description Text)</label>
-              <Textarea placeholder="Enter a brief paragraph describing the slide..." value={subheading} onChange={(e) => setSubheading(e.target.value)} rows={3} required className={inputClass} />
+              <Textarea placeholder="Enter a brief paragraph describing the slide..." value={subheading} onChange={(e) => setSubheading(e.target.value)} rows={3} required className={inputClass} disabled={loading}/>
             </div>
             
             <div className="space-y-2">
               <label className={labelClass}>Price/Highlight Tag</label>
-              <Input placeholder="e.g. Bespoke Plans Available" value={priceTag} onChange={(e) => setPriceTag(e.target.value)} required className={inputClass} />
+              <Input placeholder="e.g. Bespoke Plans Available" value={priceTag} onChange={(e) => setPriceTag(e.target.value)} required className={inputClass} disabled={loading}/>
             </div>
 
-            <Button type="submit" disabled={loading || (!file && !mediaUrlLink)} className="w-full bg-accent text-primary font-bold h-12 mt-4 text-sm">
+            <Button type="submit" disabled={loading || !desktopFile || !mobileFile} className="w-full bg-accent text-primary font-bold h-12 mt-4 text-sm">
               {loading ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : null}
               {loading ? "Publishing Slide..." : "Publish Slide to Homepage"}
             </Button>
@@ -205,18 +306,29 @@ export default function SlideshowAdminPage() {
           {slides.length === 0 && <p className="text-white/30 italic col-span-full">No active slides found. Add one above.</p>}
           {slides.map(slide => (
              <div key={slide.id} className="border border-white/10 rounded-2xl overflow-hidden bg-[#08162d] shadow-none flex flex-col relative group">
-                <button 
-                  onClick={() => handleDelete(slide.id)} 
-                  className="absolute top-3 right-3 bg-red-600 text-white text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity font-bold shadow-lg"
-                >
-                  DELETE
-                </button>
+                <div className="absolute top-3 right-3 flex gap-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button 
+                    onClick={() => openEditModal(slide)} 
+                    className="bg-accent text-primary p-2 rounded-lg font-bold shadow-lg hover:scale-105 transition-transform"
+                    title="Edit Slide"
+                  >
+                    <Edit3 className="w-4 h-4" />
+                  </button>
+                  <button 
+                    onClick={() => handleDelete(slide.id)} 
+                    className="bg-red-600 text-white p-2 rounded-lg font-bold shadow-lg hover:scale-105 transition-transform"
+                    title="Delete Slide"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
                 <div className="relative w-full aspect-video bg-white/5">
-                   {slide.type === 'video' ? (
-                     <video src={slide.url} className="w-full h-full object-cover" muted loop autoPlay playsInline />
-                   ) : (
-                     <img src={slide.url} alt={slide.heading} className="w-full h-full object-cover" />
-                   )}
+                    <img src={slide.url} alt={slide.heading} className="w-full h-full object-cover" />
+                    {slide.mobileUrl && (
+                      <div className="absolute bottom-2 right-2 bg-black/60 backdrop-blur text-white text-[8px] px-2 py-1 rounded font-bold uppercase tracking-widest border border-white/10">
+                        Has Mobile Crop
+                      </div>
+                    )}
                 </div>
                 <div className="p-4 flex-1 flex flex-col">
                    <h3 className="font-bold text-white line-clamp-1 text-lg mb-1">{slide.heading || "Untitled"}</h3>
@@ -227,6 +339,82 @@ export default function SlideshowAdminPage() {
           ))}
         </div>
       </div>
+
+      {/* Edit Modal */}
+      {editingSlide && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <Card className="bg-[#08162d] rounded-2xl border border-white/10 w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl relative animate-in zoom-in-95 duration-200">
+            <button onClick={closeEditModal} className="absolute top-4 right-4 text-white/30 hover:text-white p-1.5 rounded-lg bg-white/5">
+              <X className="w-5 h-5" />
+            </button>
+            <CardHeader className="border-b border-white/5 pb-5">
+              <CardTitle className="flex items-center gap-2 font-bold text-xl uppercase text-white">
+                <Edit3 className="w-5 h-5 text-accent" /> Edit Slide Details
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <form onSubmit={handleUpdateSlide} className="space-y-4">
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Edit Desktop Image */}
+                  <div className="space-y-2 border border-white/5 p-4 rounded-xl bg-white/5 text-center">
+                      <label className={`${labelClass} block mb-2 text-left`}>Update Desktop Background</label>
+                      <input type="file" accept="image/*" ref={hiddenEditDesktopInput} className="hidden" onChange={(e) => handleFileSelect(e, 'edit-desktop')} disabled={editLoading} />
+                      
+                      <div className="relative aspect-video bg-black rounded-lg overflow-hidden border border-white/10 mb-4">
+                        <img src={editDesktopPreview} alt="Desktop Preview" className="w-full h-full object-cover" />
+                      </div>
+
+                      <Button type="button" variant="outline" onClick={() => hiddenEditDesktopInput.current?.click()} className="border-white/10 bg-[#051124] text-white w-full text-xs" disabled={editLoading}>
+                        Replace & Crop
+                      </Button>
+                  </div>
+
+                  {/* Edit Mobile Image */}
+                  <div className="space-y-2 border border-white/5 p-4 rounded-xl bg-white/5 text-center flex flex-col">
+                      <label className={`${labelClass} block mb-2 text-left`}>Update Mobile Background</label>
+                      <input type="file" accept="image/*" ref={hiddenEditMobileInput} className="hidden" onChange={(e) => handleFileSelect(e, 'edit-mobile')} disabled={editLoading} />
+                      
+                      <div className="flex-1 flex flex-col items-center justify-center">
+                        <div className="relative w-32 aspect-[9/16] bg-black rounded-lg overflow-hidden border border-white/10 mb-4 shrink-0">
+                          <img src={editMobilePreview} alt="Mobile Preview" className="w-full h-full object-cover" />
+                        </div>
+                      </div>
+
+                      <Button type="button" variant="outline" onClick={() => hiddenEditMobileInput.current?.click()} className="border-white/10 bg-[#051124] text-white w-full text-xs" disabled={editLoading}>
+                        Replace & Crop
+                      </Button>
+                  </div>
+                </div>
+
+                <div className="space-y-1.5 mt-4">
+                  <label className={labelClass}>Heading</label>
+                  <Input value={editHeading} onChange={(e) => setEditHeading(e.target.value)} disabled={editLoading} required className={inputClass} />
+                </div>
+                <div className="space-y-1.5">
+                  <label className={labelClass}>Subheading</label>
+                  <Textarea value={editSubheading} onChange={(e) => setEditSubheading(e.target.value)} disabled={editLoading} rows={3} required className={inputClass} />
+                </div>
+                <div className="space-y-1.5">
+                  <label className={labelClass}>Price Tag</label>
+                  <Input value={editPriceTag} onChange={(e) => setEditPriceTag(e.target.value)} disabled={editLoading} required className={inputClass} />
+                </div>
+
+                <div className="flex gap-3 pt-3">
+                  <Button type="button" variant="outline" onClick={closeEditModal} disabled={editLoading} className="flex-1 rounded-lg border-white/10 bg-transparent text-white">
+                    Cancel
+                  </Button>
+                  <Button type="submit" disabled={editLoading} className="flex-1 bg-accent text-primary font-bold rounded-lg">
+                    {editLoading ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : <CheckCircle2 className="w-4 h-4 mr-2" />}
+                    Save Changes
+                  </Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
     </div>
   );
 }
