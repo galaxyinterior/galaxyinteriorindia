@@ -60,19 +60,26 @@ const journeyData: JourneyItem[] = [
 
 function AboutHero() {
   return (
-    <section className="relative pt-36 pb-20 bg-logo-radial bg-logo-mandala border-b border-accent/10 text-white overflow-hidden">
-      {/* Glow highlight */}
-      <div className="absolute -top-24 -right-24 w-96 h-96 bg-accent/10 rounded-full blur-3xl opacity-30"></div>
-      <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-primary/20 rounded-full blur-3xl opacity-30"></div>
+    <section className="relative pt-40 pb-32 bg-black text-white overflow-hidden flex items-center min-h-[60vh]">
+      <div className="absolute inset-0 z-0">
+        <Image
+          src="/generated/srv_construction.png"
+          alt="Galaxy Interior Team"
+          fill
+          className="object-cover opacity-60"
+          priority
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-black/30" />
+      </div>
 
-      <div className="relative z-10 container mx-auto px-4 text-center max-w-5xl animate-fade-up">
-        <Badge className="mb-6 rounded-full bg-accent text-primary font-black tracking-[0.20em] px-6 py-2 border-none shadow-lg text-[10px] uppercase">
-          LUXURY INTERIOR SPECIALIST
+      <div className="relative z-10 container mx-auto px-6 text-center max-w-4xl animate-fade-up">
+        <Badge className="mb-6 rounded-full bg-accent/20 text-accent font-black tracking-widest px-6 py-2 border border-accent/30 uppercase text-xs">
+          About Galaxy Interior
         </Badge>
-        <h1 className="font-display text-4xl md:text-7xl font-black tracking-tight mb-6 uppercase text-shadow-lg leading-tight">
-          Shaping Dreams, <span className="text-gold italic block md:inline mt-1 md:mt-0">Crafting Spaces</span>
+        <h1 className="font-display text-4xl md:text-6xl lg:text-7xl font-black tracking-tighter mb-6 uppercase leading-tight drop-shadow-2xl">
+          Shaping Dreams, <br/><span className="text-accent">Crafting Spaces</span>
         </h1>
-        <p className="text-white/85 text-base md:text-xl font-semibold max-w-2xl mx-auto leading-relaxed">
+        <p className="text-white/80 text-lg md:text-xl font-medium max-w-2xl mx-auto leading-relaxed">
           Smart & AI-Based Design Solutions for Modern Living. Complete Interior & Construction Solutions – From Planning to Execution.
         </p>
       </div>

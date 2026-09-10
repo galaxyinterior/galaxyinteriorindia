@@ -26,7 +26,7 @@ export default function LoadingScreen() {
   if (!loading) return null;
 
   return (
-    <div className={`fixed inset-0 z-[99999] bg-galaxy-dark flex flex-col items-center justify-center transition-opacity duration-500 ease-in-out ${fadeOut ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+    <div className={`fixed inset-0 z-[99999] bg-[#051124] flex flex-col items-center justify-center transition-opacity duration-500 ease-in-out ${fadeOut ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
       
       {/* Furniture Sketch Animation */}
       <div className="relative w-48 h-48 flex items-center justify-center mb-4">

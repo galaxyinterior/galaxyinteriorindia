@@ -13,7 +13,7 @@ import { Badge } from "@/components/ui/badge";
 
 export default function AdminProductsPage() {
   const [name, setName] = useState("");
-  const [category, setCategory] = useState("kitchen");
+  const [category, setCategory] = useState("");
   const [price, setPrice] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -23,7 +23,7 @@ export default function AdminProductsPage() {
 
   const [editingProduct, setEditingProduct] = useState<any | null>(null);
   const [editName, setEditName] = useState("");
-  const [editCategory, setEditCategory] = useState("kitchen");
+  const [editCategory, setEditCategory] = useState("");
   const [editPrice, setEditPrice] = useState("");
   const [editImageUrl, setEditImageUrl] = useState("");
   const [editImageFile, setEditImageFile] = useState<File | null>(null);
@@ -89,7 +89,7 @@ export default function AdminProductsPage() {
         createdAt: serverTimestamp()
       });
       setUploadStatus({ type: 'success', msg: "Product added successfully!" });
-      setName(""); setCategory("kitchen"); setPrice(""); setImageUrl(""); setImageFile(null); setImageFiles([]); setSpecifications(""); setDescription("");
+      setName(""); setCategory(""); setPrice(""); setImageUrl(""); setImageFile(null); setImageFiles([]); setSpecifications(""); setDescription("");
     } catch (err: any) {
       console.error("Failed to add product:", err);
       setUploadStatus({ type: 'error', msg: `Saving failed: ${err.message}` });
@@ -99,7 +99,7 @@ export default function AdminProductsPage() {
 
   const openEditModal = (product: any) => {
     setEditingProduct(product);
-    setEditName(product.name); setEditCategory(product.category || "kitchen"); setEditPrice(String(product.price));
+    setEditName(product.name); setEditCategory(product.category || ""); setEditPrice(String(product.price));
     setEditImageUrl(Array.isArray(product.images) ? product.images[0] : product.image); setEditImageFile(null); setEditImageFiles([]); setEditSpecifications(product.specifications); setEditDescription(product.description);
   };
   const closeEditModal = () => setEditingProduct(null);
@@ -189,11 +189,7 @@ export default function AdminProductsPage() {
                   <div className="space-y-1.5">
                     <label className={labelClass}>Category</label>
                     <select value={category} onChange={(e) => setCategory(e.target.value)} disabled={loading} className={selectClass}>
-                      <option value="kitchen">Modular Kitchen (Default)</option>
-                      <option value="furniture">Furniture Sets (Default)</option>
-                      <option value="wardrobe">Wardrobes (Default)</option>
-                      <option value="lighting">Smart Lighting (Default)</option>
-                      <option value="other">Other Fittings (Default)</option>
+                      <option value="" disabled>Select a category</option>
                       {categories.map(c => (
                         <option key={c.id} value={c.slug}>{c.name}</option>
                       ))}
@@ -331,11 +327,7 @@ export default function AdminProductsPage() {
                   <div className="space-y-1.5">
                     <label className={labelClass}>Category</label>
                     <select value={editCategory} onChange={(e) => setEditCategory(e.target.value)} disabled={editLoading} className={selectClass}>
-                      <option value="kitchen">Modular Kitchen (Default)</option>
-                      <option value="furniture">Furniture Sets (Default)</option>
-                      <option value="wardrobe">Wardrobes (Default)</option>
-                      <option value="lighting">Smart Lighting (Default)</option>
-                      <option value="other">Other Fittings (Default)</option>
+                      <option value="" disabled>Select a category</option>
                       {categories.map(c => (
                         <option key={c.id} value={c.slug}>{c.name}</option>
                       ))}

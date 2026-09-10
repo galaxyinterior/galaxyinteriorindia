@@ -4,7 +4,8 @@ import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Menu, Phone, Home, Info, Paintbrush, LayoutGrid, Hammer, Tag, Zap, User } from "lucide-react";
+import { Menu, Phone, Home, Info, Paintbrush, LayoutGrid, Hammer, Tag, Zap, User, MapPin } from "lucide-react";
+import { useLocation } from "@/context/LocationContext";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
@@ -12,7 +13,16 @@ import { cn } from "@/lib/utils";
 const navLinks = [
   { href: "/", label: "HOME" },
   { href: "/about", label: "COMPANY" },
-  { href: "/services", label: "SERVICES" },
+  { 
+    label: "OUR SERVICES",
+    nested: [
+      { href: "/services/design-facilities", label: "Design Facilities" },
+      { href: "/services/interior-project", label: "Interior Project" },
+      { href: "/services/construction-project", label: "Construction Project" },
+      { href: "/services/turnkey-project", label: "Turnkey Project" },
+      { href: "/services/renovation", label: "Renovation" }
+    ]
+  },
   { href: "/portfolio", label: "GALLERY" },
   { href: "/projects", label: "PROJECTS" },
   { href: "/products", label: "PRODUCTS" },
@@ -33,7 +43,9 @@ const linkIcons: Record<string, React.ComponentType<{ className?: string }>> = {
 
 export default function MobileHeader() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);
   const pathname = usePathname();
+  const { location, setIsModalOpen } = useLocation();
 
   const [user, setUser] = useState<any>(null);
   const [authLoading, setAuthLoading] = useState(true);
@@ -69,8 +81,17 @@ export default function MobileHeader() {
 
       {/* Tighter Call & Menu Controls */}
       <div className="flex items-center gap-1.5">
+        {location && (
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="flex items-center gap-1 h-9 px-2 rounded-xl bg-white/5 border border-white/10 text-white hover:text-accent transition-colors active:scale-95 font-bold text-[9px] uppercase tracking-widest"
+          >
+            <MapPin className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">{location}</span>
+          </button>
+        )}
         <a
-          href="tel:+919122795726"
+          href="tel:+919631980881"
           className="h-9 w-9 flex items-center justify-center rounded-xl bg-accent/10 border border-accent/20 text-accent transition-colors"
         >
           <Phone className="h-4.5 w-4.5" />
@@ -145,12 +166,54 @@ export default function MobileHeader() {
             {/* Mobile Drawer Menu Links */}
             <nav className="flex-1 flex flex-col gap-1 px-2.5 py-4 overflow-y-auto">
               {navLinks.map((link) => {
-                const Icon = linkIcons[link.href] || Info;
-                const isActive = pathname === link.href;
+                const isActive = link.href ? pathname === link.href : pathname.startsWith("/services");
+                
+                if (link.nested) {
+                  const isSubmenuOpen = openSubmenu === link.label;
+                  return (
+                    <div key={link.label} className="flex flex-col">
+                      <button
+                        onClick={() => setOpenSubmenu(isSubmenuOpen ? null : link.label)}
+                        className={cn(
+                          "flex items-center justify-between px-5 py-3 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all",
+                          isActive
+                            ? "bg-accent/10 text-accent font-black"
+                            : "text-white/70 hover:text-white hover:bg-white/5"
+                        )}
+                      >
+                        <div className="flex items-center gap-3.5">
+                          <Paintbrush className={cn("h-4 w-4 shrink-0", isActive ? "text-accent" : "text-white/70")} />
+                          <span>{link.label}</span>
+                        </div>
+                        <Zap className={cn("h-3 w-3 transition-transform", isSubmenuOpen ? "rotate-90 text-accent" : "text-white/50")} />
+                      </button>
+                      
+                      {isSubmenuOpen && (
+                        <div className="flex flex-col gap-1 mt-1 pl-12 pr-4 border-l-2 border-accent/20 ml-6 py-2">
+                          {link.nested.map((subItem) => (
+                            <Link
+                              key={subItem.href}
+                              href={subItem.href}
+                              className={cn(
+                                "py-2 text-[9px] font-bold uppercase tracking-wider transition-colors",
+                                pathname === subItem.href ? "text-accent" : "text-white/60 hover:text-white"
+                              )}
+                              onClick={() => setIsMenuOpen(false)}
+                            >
+                              {subItem.label}
+                            </Link>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                }
+
+                const Icon = linkIcons[link.href!] || Info;
                 return (
                   <Link
                     key={link.href}
-                    href={link.href}
+                    href={link.href!}
                     className={cn(
                       "flex items-center gap-3.5 px-5 py-3 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all",
                       isActive
@@ -174,14 +237,14 @@ export default function MobileHeader() {
             {/* Bottom Call Card */}
             <div className="mt-auto p-4 border-t border-accent/10 bg-white/[0.02]">
               <a
-                href="tel:+919122795726"
+                href="tel:+919631980881"
                 className="flex items-center justify-center gap-2 w-full p-3 rounded-xl bg-gradient-to-r from-accent/5 to-accent/10 border border-accent/20 text-[10px] font-black text-white hover:bg-accent hover:text-primary transition-all duration-300"
               >
                 <Phone className="h-3.5 w-3.5 text-accent" />
-                <span className="tracking-wider">+91 91227 95726</span>
+                <span className="tracking-wider">+91 96319 80881</span>
               </a>
               <p className="text-center text-[7.5px] text-white/40 mt-3 uppercase tracking-widest font-bold">
-                General Manager &amp; Owner
+                Owner
               </p>
             </div>
           </SheetContent>

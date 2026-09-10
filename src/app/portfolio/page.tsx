@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
+import CircularGallery from '@/components/ui/CircularGallery';
 
 const residentialCategories = ["All", "Living Room", "Bedroom", "Kitchen", "Exterior", "3D Renders"];
 
@@ -49,19 +50,24 @@ export default function PortfolioPage() {
     setActiveCategory("All");
   };
 
+  const topGalleryItems = filteredProjects.slice(0, 10);
+  const middleGalleryItems = filteredProjects.slice(10, Math.max(10, filteredProjects.length - 10));
+  const bottomGalleryItems = filteredProjects.length > 10 ? filteredProjects.slice(Math.max(10, filteredProjects.length - 10)) : [];
+
   return (
-    <div className="bg-[#051124] text-white min-h-screen">
+    <div className="bg-white min-h-screen">
       
       {/* Gallery Header */}
-      <section className="py-24 bg-galaxy-dark text-white border-b border-white/5 relative overflow-hidden bg-logo-radial">
-        <div className="container mx-auto px-4 text-center space-y-4">
-          <Badge className="rounded-full bg-accent/15 text-accent border border-accent/20 font-black tracking-[0.25em] px-5 py-1.5 uppercase text-[9px]">
+      <section className="py-24 bg-[#f8fafc] border-b border-gray-100 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-1/2 h-full bg-accent/5 -skew-x-12 translate-x-1/4 pointer-events-none" />
+        <div className="container mx-auto px-4 text-center space-y-4 relative z-10">
+          <Badge className="rounded-full bg-accent/15 text-accent border border-accent/20 font-black tracking-widest px-5 py-1.5 uppercase text-[9px]">
             Portfolio Display
           </Badge>
-          <h1 className="text-5xl md:text-7xl font-black uppercase tracking-tighter font-display text-white">
-            Our <span className="text-gold">Designs Gallery</span>
+          <h1 className="text-5xl md:text-7xl font-black uppercase tracking-tighter text-primary">
+            Our <span className="text-accent">Designs</span>
           </h1>
-          <p className="max-w-2xl mx-auto text-white/50 text-sm font-medium">
+          <p className="max-w-2xl mx-auto text-gray-500 text-sm font-medium">
             Explore our state-of-the-art designs created for both luxury residential architectures and premium enterprise commercial spaces.
           </p>
 
@@ -98,7 +104,7 @@ export default function PortfolioPage() {
       </section>
 
       {/* Category Tab Switcher Row */}
-      <section className="py-8 bg-[#051124] border-b border-white/5 sticky top-16 z-40 backdrop-blur-md bg-opacity-95">
+      <section className="py-8 bg-white border-b border-gray-100 sticky top-16 z-40">
         <div className="container mx-auto px-4 overflow-x-auto scrollbar-none">
           <div className="flex justify-center gap-3 min-w-max pb-2">
             {categories.map(cat => (
@@ -107,12 +113,10 @@ export default function PortfolioPage() {
                 variant={activeCategory === cat ? "default" : "outline"}
                 onClick={() => setActiveCategory(cat)}
                 className={cn(
-                  "rounded-full px-6 text-[10px] font-black uppercase tracking-widest transition-all border-white/10 h-10",
+                  "rounded-full px-6 text-[10px] font-black uppercase tracking-widest transition-all h-10",
                   activeCategory === cat 
-                    ? gallerySegment === "commercial"
-                      ? "bg-accent text-primary hover:bg-accent/90"
-                      : "bg-gold-gradient text-primary border-none"
-                    : "bg-[#08162d]/50 text-white/70 hover:bg-white/5 hover:text-white"
+                    ? "bg-primary text-white hover:bg-primary/90 border-transparent"
+                    : "bg-gray-50 text-gray-600 hover:bg-gray-100 hover:text-primary border-gray-200"
                 )}
               >
                 {cat}
@@ -122,46 +126,67 @@ export default function PortfolioPage() {
         </div>
       </section>
 
-      {/* Gallery Photo Grid */}
-      <section className="py-20 bg-[#051124]">
-        <div className="container mx-auto px-4">
-          {filteredProjects.length === 0 ? (
-            <div className="py-20 text-center text-white/40 uppercase tracking-widest font-black text-sm">
-              No designs matching this category yet
-            </div>
-          ) : (
+      {/* Gallery Photo Grid & Circular Galleries */}
+      <section className="py-20 bg-[#f8fafc]">
+        {topGalleryItems.length > 0 && (
+          <div className="w-full h-[600px] relative mb-12">
+            <CircularGallery
+              items={topGalleryItems.map((p) => ({ image: p.img, text: p.title }))}
+              bend={3}
+              textColor="#0f172a"
+              borderRadius={0.05}
+              font="bold 30px Figtree"
+            />
+          </div>
+        )}
+
+        {middleGalleryItems.length > 0 && (
+          <div className="container mx-auto px-4 max-w-7xl">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-              {filteredProjects.map((project, idx) => (
-                <div key={idx} className="group animate-fade-up space-y-4">
-                  <Card className="rounded-[24px] border-none overflow-hidden bg-[#08162d] shadow-xl relative aspect-[4/3]">
+              {middleGalleryItems.map((project, idx) => (
+                <div key={`middle-${idx}`} className="group animate-fade-up bg-white p-4 rounded-[32px] border border-gray-100 m3-elevation-1 hover:m3-elevation-3 transition-all duration-300">
+                  <Card className="rounded-[24px] border-none overflow-hidden bg-gray-100 relative aspect-[4/3] mb-4">
                     <Image 
                       src={project.img} 
                       alt={project.title} 
                       fill 
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                      className="object-cover transition-transform duration-700 group-hover:scale-110" 
+                      className="object-cover transition-transform duration-700 group-hover:scale-105" 
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#051124] via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity duration-300"></div>
+                    <div className="absolute inset-0 bg-black/5 group-hover:bg-transparent transition-colors duration-300"></div>
                   </Card>
                   
-                  <div className="space-y-1.5 pl-2 text-left">
-                    <span className={cn(
-                      "text-[9px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-full border bg-opacity-10",
-                      gallerySegment === "commercial" 
-                        ? "text-accent border-accent/25 bg-accent" 
-                        : "text-gold border-gold/25 bg-gold"
-                    )}>
+                  <div className="space-y-1.5 px-2 pb-2">
+                    <span className="text-[9px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-full border border-gray-200 text-gray-500 bg-gray-50">
                       {project.category}
                     </span>
-                    <h3 className="text-lg font-bold text-white group-hover:text-accent transition-colors pt-1 capitalize font-sans leading-tight">
+                    <h3 className="text-lg font-bold text-primary group-hover:text-accent transition-colors pt-1 capitalize leading-tight">
                       {project.title}
                     </h3>
                   </div>
                 </div>
               ))}
             </div>
-          )}
-        </div>
+          </div>
+        )}
+
+        {bottomGalleryItems.length > 0 && (
+          <div className="w-full h-[600px] relative mt-12">
+            <CircularGallery
+              items={bottomGalleryItems.map((p) => ({ image: p.img, text: p.title }))}
+              bend={-3}
+              textColor="#0f172a"
+              borderRadius={0.05}
+              font="bold 30px Figtree"
+            />
+          </div>
+        )}
+
+        {filteredProjects.length === 0 && (
+          <div className="py-20 text-center text-gray-400 uppercase tracking-widest font-black text-sm">
+            No designs matching this category yet
+          </div>
+        )}
       </section>
 
     </div>

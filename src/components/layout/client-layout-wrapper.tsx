@@ -8,8 +8,9 @@ import WhatsAppButton from '@/components/layout/whatsapp-button';
 import MobileWhatsAppButton from '@/components/layout/mobile-whatsapp-button';
 import CtaSection from '@/components/layout/cta-section';
 import ThreeBackground from '@/components/layout/three-background';
-import ModeNotchSwitch from '@/components/layout/mode-notch-switch';
-import MobileModeNotchSwitch from '@/components/layout/mobile-mode-notch-switch';
+import LocationModal from '@/components/layout/location-modal';
+import DesigningFacilities from '@/components/layout/designing-facilities';
+import SiteSwitcher from '@/components/layout/site-switcher';
 import { useMode } from '@/context/ModeContext';
 
 export default function ClientLayoutWrapper({ children }: { children: React.ReactNode }) {
@@ -36,15 +37,8 @@ export default function ClientLayoutWrapper({ children }: { children: React.Reac
       </div>
 
       <main className="flex-1">{children}</main>
-      
-      {/* Responsive Notch Switches */}
-      <div className="hidden lg:block">
-        <ModeNotchSwitch mode={mode} onChange={setMode} />
-      </div>
-      <div className="block lg:hidden">
-        <MobileModeNotchSwitch mode={mode} onChange={setMode} />
-      </div>
 
+      <DesigningFacilities />
       <CtaSection />
       <Footer />
       
@@ -55,6 +49,9 @@ export default function ClientLayoutWrapper({ children }: { children: React.Reac
       <div className="block lg:hidden">
         <MobileWhatsAppButton />
       </div>
+
+      <LocationModal />
+      <SiteSwitcher isCommercial={false} />
     </>
   );
 }

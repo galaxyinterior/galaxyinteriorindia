@@ -7,6 +7,7 @@ import ClientLayoutWrapper from '@/components/layout/client-layout-wrapper';
 import LoadingScreen from '@/components/layout/loading-screen';
 import { Suspense } from 'react';
 import { ModeProvider } from '@/context/ModeContext';
+import { LocationProvider } from '@/context/LocationContext';
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -79,9 +80,11 @@ export default function RootLayout({
           <LoadingScreen />
         </Suspense>
         <div className="relative flex min-h-screen flex-col">
-          <ModeProvider>
-            <ClientLayoutWrapper>{children}</ClientLayoutWrapper>
-          </ModeProvider>
+          <LocationProvider>
+            <ModeProvider>
+              <ClientLayoutWrapper>{children}</ClientLayoutWrapper>
+            </ModeProvider>
+          </LocationProvider>
         </div>
         <Toaster />
       </body>

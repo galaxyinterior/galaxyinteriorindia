@@ -157,26 +157,26 @@ function ContactForm() {
   };
 
   return (
-    <div className="bg-[#051124] text-white min-h-screen pt-28">
+    <div className="bg-white min-h-screen pt-28">
       {/* Material 3 Premium Hero Section */}
-      <section className="relative py-16 md:py-24 bg-logo-radial bg-logo-mandala overflow-hidden border-b border-accent/15">
-        <div className="absolute inset-0 bg-gradient-to-b from-[#051124]/40 to-[#051124] z-0" />
+      <section className="relative py-16 md:py-24 bg-[#f8fafc] overflow-hidden border-b border-gray-100">
+        <div className="absolute top-0 right-0 w-1/2 h-full bg-accent/5 -skew-x-12 translate-x-1/4 pointer-events-none" />
         
         <div className="relative z-10 container mx-auto px-4 text-center max-w-4xl animate-fade-up">
-          <Badge className="mb-6 rounded-full bg-accent text-primary font-black tracking-[0.20em] px-6 py-2 border-none shadow-md text-[10px] uppercase">
+          <Badge className="mb-6 rounded-full bg-accent/20 text-accent font-black tracking-widest px-6 py-2 border-none shadow-md text-[10px] uppercase">
             REACH OUT TO US
           </Badge>
-          <h1 className="font-display text-4xl md:text-7xl font-black tracking-tight mb-4 uppercase text-shadow-lg leading-tight text-white font-sans">
-            Get in <span className="text-gold italic">Touch</span>
+          <h1 className="font-display text-4xl md:text-7xl font-black tracking-tight mb-4 uppercase leading-tight text-primary font-sans">
+            Get in <span className="text-accent italic">Touch</span>
           </h1>
-          <p className="max-w-2xl mx-auto text-base md:text-lg text-white/70 font-semibold leading-relaxed font-sans">
+          <p className="max-w-2xl mx-auto text-base md:text-lg text-gray-500 font-semibold leading-relaxed font-sans">
             Let's design and construct your dream space together. We proudly serve residential and commercial properties.
           </p>
         </div>
       </section>
 
       {/* Main Grid Content */}
-      <section className="py-20 bg-[#051124]">
+      <section className="py-20 bg-white">
         <div className="container mx-auto px-4">
           <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-start">
             
@@ -184,15 +184,15 @@ function ContactForm() {
             <div className="lg:col-span-5 space-y-8 animate-fade-up">
               
               {/* Serviceable Locations Card */}
-              <div className="bg-[#08162d] border border-white/10 rounded-[28px] p-8 shadow-2xl hover:border-accent/20 transition-all duration-300">
+              <div className="bg-white border border-gray-100 rounded-[28px] p-8 shadow-2xl hover:shadow-xl hover:border-accent/20 transition-all duration-300">
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="bg-accent/15 text-accent w-10 h-10 rounded-2xl flex items-center justify-center shadow-sm">
-                    <MapPin className="w-5 h-5 text-accent" />
+                  <div className="bg-primary/5 text-primary w-10 h-10 rounded-2xl flex items-center justify-center shadow-sm">
+                    <MapPin className="w-5 h-5 text-primary" />
                   </div>
-                  <h2 className="text-2xl font-display font-bold text-white uppercase tracking-tight">Serviceable Areas</h2>
+                  <h2 className="text-2xl font-display font-bold text-primary uppercase tracking-tight">Serviceable Areas</h2>
                 </div>
                 
-                <p className="text-sm text-white/60 mb-6 leading-relaxed">
+                <p className="text-sm text-gray-500 mb-6 leading-relaxed">
                   We proudly serve and execute premium architecture, construction, and luxury interior design projects in the following regions:
                 </p>
                 
@@ -200,7 +200,7 @@ function ContactForm() {
                   {["GODDA", "RANCHI", "BHAGALPUR", "BANKA", "DEOGHAR", "HAZARIBAGH", "DUMKA", "PURNEA", "KISHANGANJ"].map((loc) => (
                     <span 
                       key={loc} 
-                      className="bg-white/5 hover:bg-accent hover:text-primary border border-white/10 text-white text-xs font-black uppercase tracking-wider rounded-full px-4 py-2.5 shadow-sm transition-all duration-300 hover:scale-[1.05] cursor-default flex items-center gap-1.5"
+                      className="bg-gray-50 hover:bg-accent hover:text-white border border-gray-100 text-gray-700 text-xs font-black uppercase tracking-wider rounded-full px-4 py-2.5 shadow-sm transition-all duration-300 hover:scale-[1.05] cursor-default flex items-center gap-1.5"
                     >
                       <span className="w-1.5 h-1.5 rounded-full bg-accent shrink-0"></span>
                       {loc}
@@ -208,56 +208,56 @@ function ContactForm() {
                   ))}
                 </div>
 
-                <div className="mt-8 p-5 bg-accent/5 rounded-[20px] border border-accent/10 flex gap-4 items-start">
-                  <div className="bg-accent text-primary p-2.5 rounded-xl mt-0.5 shadow-sm">
+                <div className="mt-8 p-5 bg-gray-50 rounded-[20px] border border-gray-100 flex gap-4 items-start">
+                  <div className="bg-primary text-white p-2.5 rounded-xl mt-0.5 shadow-sm">
                     <MapPin className="w-4 h-4" />
                   </div>
                   <div className="text-sm">
-                    <p className="font-bold text-accent mb-1 uppercase tracking-wider text-xs">Statewide Operations</p>
-                    <p className="text-white/80 leading-relaxed font-semibold">
-                      We work across <span className="text-accent font-bold">Jharkhand, Bihar, and West Bengal</span>.
+                    <p className="font-bold text-primary mb-1 uppercase tracking-wider text-xs">Statewide Operations</p>
+                    <p className="text-gray-600 leading-relaxed font-semibold">
+                      We work across <span className="text-primary font-bold">Jharkhand, Bihar, and West Bengal</span>.
                     </p>
                   </div>
                 </div>
               </div>
 
               {/* Contact Info List Card */}
-              <div className="bg-[#08162d] border border-white/10 rounded-[28px] p-8 shadow-2xl hover:border-accent/20 transition-all duration-300 space-y-6">
-                <h3 className="text-2xl font-display font-bold text-white mb-6 border-b border-white/10 pb-4 uppercase tracking-tight">Contact Info</h3>
+              <div className="bg-white border border-gray-100 rounded-[28px] p-8 shadow-2xl hover:shadow-xl hover:border-accent/20 transition-all duration-300 space-y-6">
+                <h3 className="text-2xl font-display font-bold text-primary mb-6 border-b border-gray-100 pb-4 uppercase tracking-tight">Contact Info</h3>
                 
                 {/* Phone Item */}
-                <div className="flex gap-4 items-center p-3 rounded-2xl hover:bg-white/5 transition-all duration-200">
-                  <div className="bg-accent/15 text-accent w-12 h-12 rounded-full flex items-center justify-center shrink-0 shadow-sm">
+                <div className="flex gap-4 items-center p-3 rounded-2xl hover:bg-gray-50 transition-all duration-200">
+                  <div className="bg-primary/5 text-primary w-12 h-12 rounded-full flex items-center justify-center shrink-0 shadow-sm">
                     <Phone className="w-5 h-5" />
                   </div>
                   <div>
-                    <p className="text-xs text-white/50 font-bold uppercase tracking-wider mb-0.5">Call / WhatsApp</p>
+                    <p className="text-xs text-gray-400 font-bold uppercase tracking-wider mb-0.5">Call / WhatsApp</p>
                     <div className="flex flex-col text-sm">
-                      <a href="tel:+919631980881" className="hover:text-accent transition-colors font-bold text-white text-base">+91 96319 80881</a>
-                      <a href="tel:+919122795726" className="hover:text-accent/70 transition-colors font-medium text-white/40 text-xs mt-0.5">+91 91227 95726</a>
+                      <a href="tel:+919631980881" className="hover:text-accent transition-colors font-bold text-primary text-base">+91 96319 80881</a>
+                      <a href="tel:+919122795726" className="hover:text-accent/70 transition-colors font-medium text-gray-500 text-xs mt-0.5">+91 91227 95726</a>
                     </div>
                   </div>
                 </div>
 
                 {/* Email Item */}
-                <div className="flex gap-4 items-center p-3 rounded-2xl hover:bg-white/5 transition-all duration-200">
-                  <div className="bg-accent/15 text-accent w-12 h-12 rounded-full flex items-center justify-center shrink-0 shadow-sm">
+                <div className="flex gap-4 items-center p-3 rounded-2xl hover:bg-gray-50 transition-all duration-200">
+                  <div className="bg-primary/5 text-primary w-12 h-12 rounded-full flex items-center justify-center shrink-0 shadow-sm">
                     <Mail className="w-5 h-5" />
                   </div>
                   <div>
-                    <p className="text-xs text-white/50 font-bold uppercase tracking-wider mb-0.5">Email Address</p>
-                    <a href="mailto:info@galaxyinteriorindia.com" className="hover:text-accent transition-colors font-bold text-white text-base">info@galaxyinteriorindia.com</a>
+                    <p className="text-xs text-gray-400 font-bold uppercase tracking-wider mb-0.5">Email Address</p>
+                    <a href="mailto:info@galaxyinteriorindia.com" className="hover:text-accent transition-colors font-bold text-primary text-base">info@galaxyinteriorindia.com</a>
                   </div>
                 </div>
 
                 {/* Hours Item */}
-                <div className="flex gap-4 items-center p-3 rounded-2xl hover:bg-white/5 transition-all duration-200">
-                  <div className="bg-accent/15 text-accent w-12 h-12 rounded-full flex items-center justify-center shrink-0 shadow-sm">
+                <div className="flex gap-4 items-center p-3 rounded-2xl hover:bg-gray-50 transition-all duration-200">
+                  <div className="bg-primary/5 text-primary w-12 h-12 rounded-full flex items-center justify-center shrink-0 shadow-sm">
                     <Clock className="w-5 h-5" />
                   </div>
                   <div>
-                    <p className="text-xs text-white/50 font-bold uppercase tracking-wider mb-0.5">Working Hours</p>
-                    <p className="font-bold text-white text-base">Mon - Sun: 9:00 AM - 8:00 PM</p>
+                    <p className="text-xs text-gray-400 font-bold uppercase tracking-wider mb-0.5">Working Hours</p>
+                    <p className="font-bold text-primary text-base">Mon - Sun: 9:00 AM - 8:00 PM</p>
                   </div>
                 </div>
               </div>
@@ -265,41 +265,41 @@ function ContactForm() {
 
             {/* Right Column: M3 Form Card */}
             <div className="lg:col-span-7 animate-fade-up" style={{ animationDelay: "150ms" }}>
-              <div className="bg-[#08162d] border border-white/10 rounded-[32px] p-8 md:p-12 shadow-2xl hover:border-accent/20 transition-all duration-500">
+              <div className="bg-white border border-gray-100 rounded-[32px] p-8 md:p-12 shadow-2xl hover:shadow-xl hover:border-accent/20 transition-all duration-500">
                 <div className="mb-8">
-                  <h2 className="text-3xl md:text-4xl font-display font-black text-white mb-2 uppercase tracking-tight">Send Us a Message</h2>
-                  <p className="text-white/60 font-semibold">Have a project in mind? Drop us a line and let's bring it to life.</p>
+                  <h2 className="text-3xl md:text-4xl font-display font-black text-primary mb-2 uppercase tracking-tight">Send Us a Message</h2>
+                  <p className="text-gray-500 font-semibold">Have a project in mind? Drop us a line and let's bring it to life.</p>
                 </div>
                 
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="grid md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <Label htmlFor="name" className="text-xs font-bold text-white/50 uppercase tracking-widest ml-1">Full Name</Label>
-                      <Input id="name" name="name" placeholder="John Doe" required className="h-12 rounded-2xl border-white/10 focus:border-accent focus:ring-accent/20 bg-[#051124] text-white placeholder:text-white/30" />
+                      <Label htmlFor="name" className="text-xs font-bold text-gray-500 uppercase tracking-widest ml-1">Full Name</Label>
+                      <Input id="name" name="name" placeholder="John Doe" required className="h-12 rounded-2xl border-gray-200 focus:border-accent focus:ring-accent/20 bg-white text-gray-900 placeholder:text-gray-400" />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="email" className="text-xs font-bold text-white/50 uppercase tracking-widest ml-1">Email Address</Label>
-                      <Input id="email" name="email" type="email" placeholder="john@example.com" required className="h-12 rounded-2xl border-white/10 focus:border-accent focus:ring-accent/20 bg-[#051124] text-white placeholder:text-white/30" />
+                      <Label htmlFor="email" className="text-xs font-bold text-gray-500 uppercase tracking-widest ml-1">Email Address</Label>
+                      <Input id="email" name="email" type="email" placeholder="john@example.com" required className="h-12 rounded-2xl border-gray-200 focus:border-accent focus:ring-accent/20 bg-white text-gray-900 placeholder:text-gray-400" />
                     </div>
                   </div>
                   
                   <div className="grid md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <Label htmlFor="phone" className="text-xs font-bold text-white/50 uppercase tracking-widest ml-1">Phone Number</Label>
-                      <Input id="phone" name="phone" type="tel" placeholder="+91 00000 00000" required className="h-12 rounded-2xl border-white/10 focus:border-accent focus:ring-accent/20 bg-[#051124] text-white placeholder:text-white/30" />
+                      <Label htmlFor="phone" className="text-xs font-bold text-gray-500 uppercase tracking-widest ml-1">Phone Number</Label>
+                      <Input id="phone" name="phone" type="tel" placeholder="+91 00000 00000" required className="h-12 rounded-2xl border-gray-200 focus:border-accent focus:ring-accent/20 bg-white text-gray-900 placeholder:text-gray-400" />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="location" className="text-xs font-bold text-white/50 uppercase tracking-widest ml-1">Your Location</Label>
-                      <Input id="location" name="location" placeholder="City, State" required className="h-12 rounded-2xl border-white/10 focus:border-accent focus:ring-accent/20 bg-[#051124] text-white placeholder:text-white/30" />
+                      <Label htmlFor="location" className="text-xs font-bold text-gray-500 uppercase tracking-widest ml-1">Your Location</Label>
+                      <Input id="location" name="location" placeholder="City, State" required className="h-12 rounded-2xl border-gray-200 focus:border-accent focus:ring-accent/20 bg-white text-gray-900 placeholder:text-gray-400" />
                     </div>
                   </div>
                   
                   {/* Multi-Select Services */}
                   <div className="space-y-3">
                     <div className="flex items-center justify-between ml-1">
-                      <Label className="text-xs font-bold text-white/50 uppercase tracking-widest">Select Services</Label>
+                      <Label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Select Services</Label>
                       {selectedServices.length > 0 && (
-                        <span className="text-[10px] font-black text-accent uppercase tracking-wider bg-accent/10 rounded-full px-2.5 py-1">
+                        <span className="text-[10px] font-black text-white uppercase tracking-wider bg-primary rounded-full px-2.5 py-1">
                           {selectedServices.length} selected
                         </span>
                       )}
@@ -314,8 +314,8 @@ function ContactForm() {
                             onClick={() => toggleService(service)}
                             className={`flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold uppercase tracking-wide transition-all duration-200 border ${
                               isSelected
-                                ? 'bg-accent text-primary border-accent shadow-md shadow-accent/20 scale-[1.04]'
-                                : 'bg-white/5 text-white/70 border-white/10 hover:border-accent/50 hover:text-white hover:bg-white/10'
+                                ? 'bg-primary text-white border-primary shadow-md shadow-primary/20 scale-[1.04]'
+                                : 'bg-gray-50 text-gray-600 border-gray-200 hover:border-primary/50 hover:text-primary hover:bg-gray-100'
                             }`}
                           >
                             {isSelected && <Check className="w-3 h-3 shrink-0" />}
@@ -325,13 +325,13 @@ function ContactForm() {
                       })}
                     </div>
                     {selectedServices.length === 0 && (
-                      <p className="text-[11px] text-white/30 ml-1 font-medium">Tap to select one or more services you're interested in</p>
+                      <p className="text-[11px] text-gray-400 ml-1 font-medium">Tap to select one or more services you're interested in</p>
                     )}
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="message" className="text-xs font-bold text-white/50 uppercase tracking-widest ml-1">Your Message</Label>
-                    <Textarea id="message" name="message" placeholder="Tell us about your project, ideas, plot metrics..." rows={5} className="rounded-2xl border-white/10 focus:border-accent focus:ring-accent/20 bg-[#051124] text-white placeholder:text-white/30 p-4 animate-fade-in" />
+                    <Label htmlFor="message" className="text-xs font-bold text-gray-500 uppercase tracking-widest ml-1">Your Message</Label>
+                    <Textarea id="message" name="message" placeholder="Tell us about your project, ideas, plot metrics..." rows={5} className="rounded-2xl border-gray-200 focus:border-accent focus:ring-accent/20 bg-white text-gray-900 placeholder:text-gray-400 p-4 animate-fade-in" />
                   </div>
                   
                   <Button 
@@ -350,16 +350,16 @@ function ContactForm() {
       </section>
 
       {/* FAQ Section */}
-      <section className="py-20 bg-[#051124] border-t border-white/10">
+      <section className="py-20 bg-gray-50 border-t border-gray-100">
         <div className="container mx-auto px-4 max-w-4xl">
           <div className="text-center mb-14">
-            <Badge className="mb-4 rounded-full bg-accent text-primary font-black tracking-[0.20em] px-6 py-2 border-none shadow-md text-[10px] uppercase">
+            <Badge className="mb-4 rounded-full bg-accent/10 text-accent font-black tracking-widest px-6 py-2 border border-accent/20 shadow-md text-[10px] uppercase">
               FAQ
             </Badge>
-            <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tight text-white">
-              Frequently Asked <span className="text-gold italic">Questions</span>
+            <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tight text-primary">
+              Frequently Asked <span className="text-accent italic">Questions</span>
             </h2>
-            <p className="text-white/50 mt-4 text-sm font-semibold max-w-xl mx-auto">
+            <p className="text-gray-500 mt-4 text-sm font-semibold max-w-xl mx-auto">
               Everything you need to know about Galaxy Interior — our services, process, pricing, and more.
             </p>
           </div>
@@ -381,8 +381,8 @@ function FaqAccordion() {
             key={i}
             className={`rounded-[20px] border transition-all duration-300 overflow-hidden ${
               isOpen
-                ? 'border-accent/40 bg-[#08162d] shadow-lg shadow-accent/5'
-                : 'border-white/10 bg-[#08162d]/60 hover:border-white/20'
+                ? 'border-accent/40 bg-white shadow-lg shadow-accent/5'
+                : 'border-gray-200 bg-white hover:border-gray-300'
             }`}
           >
             <button
@@ -390,15 +390,15 @@ function FaqAccordion() {
               onClick={() => setOpenIndex(isOpen ? null : i)}
               className="w-full flex items-center justify-between gap-4 px-6 py-5 text-left group"
             >
-              <span className="font-bold text-sm md:text-base text-white group-hover:text-accent transition-colors leading-snug">
+              <span className="font-bold text-sm md:text-base text-primary group-hover:text-accent transition-colors leading-snug">
                 <span className="text-accent font-black mr-2 text-xs">Q{String(i + 1).padStart(2, '0')}.</span>
                 {faq.q}
               </span>
               <span
                 className={`shrink-0 w-7 h-7 rounded-full flex items-center justify-center border transition-all duration-300 ${
                   isOpen
-                    ? 'bg-accent border-accent text-primary rotate-45'
-                    : 'border-white/20 text-white/50 group-hover:border-accent/50 group-hover:text-accent'
+                    ? 'bg-accent border-accent text-white rotate-45'
+                    : 'border-gray-200 text-gray-400 group-hover:border-accent/50 group-hover:text-accent'
                 }`}
               >
                 <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
@@ -411,8 +411,8 @@ function FaqAccordion() {
                 isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
               } overflow-hidden`}
             >
-              <div className="px-6 pb-5 border-t border-white/10 pt-4">
-                <p className="text-white/65 text-sm leading-relaxed">{faq.a}</p>
+              <div className="px-6 pb-5 border-t border-gray-100 pt-4">
+                <p className="text-gray-600 text-sm leading-relaxed">{faq.a}</p>
               </div>
             </div>
           </div>
